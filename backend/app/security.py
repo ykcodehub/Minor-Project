@@ -14,6 +14,7 @@ from app.db import session
 from app.models import RateBucket, Session, User, now
 
 hasher = PasswordHasher()
+DUMMY_PASSWORD_HASH = hasher.hash(secrets.token_urlsafe(32))
 Db = Annotated[DB, Depends(session)]
 
 

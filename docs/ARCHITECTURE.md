@@ -17,3 +17,8 @@ Dependencies: authentication/ownership → source storage/extraction → mapped 
 Maintainer ownership: UI (frontend/), Backend/Security (auth, API, persistence, worker, storage), AI/Evidence (providers and analysis/verification), Discovery/Provenance (ingest/chunking/discovery), QA (tests and verification). Named owners and independent release reviewers remain to be assigned.
 
 Retention is measured from capture, rather than extended silently on each read. This is stricter and predictable; the UI and metadata expose expiry. Relational evidence_spans keep foreign-key links to finding/source/section for valid evidence; rejected model references remain inspectable in immutable candidate payloads. New model calls have UTC timestamps; unrecorded legacy call times remain null.
+
+
+## Production storage amendment (10 November 2026)
+
+The filesystem-only limitation above is superseded by the private encrypted S3 adapter. Development filesystem data is preserved; production requires S3 and a stable shared key. API and worker run separately from the Vercel static frontend. Remote storage/container/hosting qualification remains open. See DEPLOYMENT.md and the latest VERIFICATION.md.

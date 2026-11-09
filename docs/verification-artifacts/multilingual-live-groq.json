@@ -1,0 +1,23 @@
+{
+  "provider": "groq",
+  "supported_findings": 1,
+  "translation_hi": {
+    "verified": true,
+    "calls": 2
+  },
+  "translation_hinglish": {
+    "verified": true,
+    "calls": 2
+  },
+  "answer_en": {
+    "cited": true,
+    "quotes_preserved": true,
+    "calls": 2
+  },
+  "answer_hi": {
+    "error": "PROVIDER_RATE_LIMITED"
+  },
+  "answer_hinglish": {
+    "error": "PROVIDER_RATE_LIMITED"
+  }
+}

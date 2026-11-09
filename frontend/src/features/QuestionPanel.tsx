@@ -1,8 +1,9 @@
+import { useLanguage } from "../app/language";
 import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, MessageSquare, Send } from "lucide-react";
+import { ArrowRight, Send } from "lucide-react";
 import { api, post } from "../lib/api";
-import type { Citation } from "../lib/types";
+import type { Citation, Language } from "../lib/types";
 import { useSession } from "../app/session";
 import { ErrorNotice, Loading } from "../components/ui";
 
@@ -19,15 +20,21 @@ interface Exchange {
 }
 export default function QuestionPanel({
   analysisId,
+  language = "en",
   sourceCount,
+  suggestions = [],
   disabled,
   onCitation,
 }: {
   analysisId: string;
+  language?: Language;
   sourceCount: number;
+  suggestions?: string[];
   disabled: boolean;
   onCitation: (c: Citation & { finding_id?: string }) => void;
 }) {
+  const { t } = useLanguage();
+
   const { user } = useSession();
   const qc = useQueryClient();
   const [question, setQuestion] = useState("");
@@ -67,6 +74,7 @@ export default function QuestionPanel({
     try {
       const result = await post<Answer>(`/analyses/${analysisId}/questions`, {
         question,
+        language,
       });
       setLatest({ question, result });
       if (user?.guest)
@@ -84,15 +92,14 @@ export default function QuestionPanel({
   }
   return (
     <section className="panel ask-panel">
-      <p className="eyebrow">ANSWERS STAY WITHIN YOUR SOURCE SET</p>
-      <h2>Ask your documents.</h2>
-      <p className="muted">
-        Answering from {sourceCount} selected document(s). External legal
-        research is not enabled.
+      <h2>{t("Ask Veriora")}</h2>
+      <p className="muted small-copy">
+        {sourceCount}{" "}
+        {t("selected document(s). External legal research is not enabled.")}
       </p>
       <ErrorNotice error={error || history.error} />
       {history.isFetching && !user?.guest && (
-        <Loading label="Loading conversation…" />
+        <Loading label={t("Loading conversation…")} />
       )}
       {exchanges.map((a, i) => (
         <article className="answer" key={a.result.question_id || i}>
@@ -104,7 +111,7 @@ export default function QuestionPanel({
               key={`${c.section_id}-${j}`}
               onClick={() => onCitation(c)}
             >
-              {c.page ? `Page ${c.page}` : "Source passage"}
+              {c.page ? `${t("Page")} ${c.page}` : t("Source passage")}
               <ArrowRight size={15} />
             </button>
           ))}
@@ -115,17 +122,22 @@ export default function QuestionPanel({
           ))}
         </article>
       ))}
-      {!exchanges.length && !history.isFetching && (
-        <div className="ask-empty">
-          <MessageSquare size={28} />
-          <p>Ask about a right, obligation, exception or a specific clause.</p>
-          <span className="muted">
-            When the document cannot establish an answer, Veriora should say so.
-          </span>
+      {!exchanges.length && !history.isFetching && suggestions.length > 0 && (
+        <div className="suggested-questions">
+          {suggestions.map((s) => (
+            <button
+              className="button secondary small"
+              key={s}
+              onClick={() => setQuestion(s)}
+              disabled={disabled}
+            >
+              {s}
+            </button>
+          ))}
         </div>
       )}
       <form onSubmit={ask}>
-        <label htmlFor="question">Your document question</label>
+        <label htmlFor="question">{t("Your document question")}</label>
         <div className="question-input">
           <textarea
             id="question"
@@ -134,10 +146,10 @@ export default function QuestionPanel({
             maxLength={4000}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="What does this agreement say about cancellation?"
+            placeholder={t("Ask about this document")}
           />
           <button className="button" disabled={busy || disabled}>
-            {busy ? "Checking…" : "Ask"}
+            {busy ? t("Checking…") : t("Ask")}
             <Send size={16} />
           </button>
         </div>

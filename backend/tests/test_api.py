@@ -20,11 +20,22 @@ def upload_text(client, text="The user must pay invoices within thirty days."):
     return response.json()
 
 
-def register(client):
-    response = client.post(
-        "/api/v1/auth/register", json={"email": "reviewer@example.com", "password": "safe-test-password-2026"}
-    )
-    assert response.status_code == 201, response.text
+def register(client, email="reviewer@example.com"):
+    from unittest.mock import patch
+
+    data = {"email": email, "password": "safe-test-password-2026"}
+    cfg = settings()
+    with (
+        patch.object(cfg, "smtp_host", "synthetic.invalid"),
+        patch.object(cfg, "mail_from", "noreply@example.com"),
+    ):
+        response = client.post("/api/v1/auth/register", json=data)
+        assert response.status_code == 202, response.text
+        token = client.veriora_mail[-1]["token"]
+        verified = client.post("/api/v1/auth/verify", json={"token": token, "password": data["password"]})
+        assert verified.status_code == 200, verified.text
+    response = client.post("/api/v1/auth/login", json=data)
+    assert response.status_code == 200, response.text
     client.headers["X-CSRF-Token"] = response.json()["csrf_token"]
     return response.json()
 

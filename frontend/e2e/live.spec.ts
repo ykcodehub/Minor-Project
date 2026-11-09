@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 test("live PostgreSQL and configured AI: PDF → evidence → question → reports → history", async ({
@@ -13,22 +12,17 @@ test("live PostgreSQL and configured AI: PDF → evidence → question → repor
   page.on("pageerror", (error) =>
     console.log("UI runtime error:", error.name, error.message),
   );
+  test.skip(
+    !process.env.VERIORA_LIVE_EMAIL || !process.env.VERIORA_LIVE_PASSWORD,
+    "Requires an already email-verified synthetic account; no verification bypass.",
+  );
   await page.goto("/sign-in");
-  console.log("Live step: registration form opened");
-  await page
-    .getByRole("button", { name: "Create an account", exact: true })
-    .click();
-  await page
-    .getByLabel("Email address")
-    .fill(`live-qa-${randomUUID()}@example.com`);
+  await page.getByLabel("Email address").fill(process.env.VERIORA_LIVE_EMAIL!);
   await page
     .getByLabel("Password", { exact: true })
-    .fill(randomUUID() + "-Synthetic!");
-  await page
-    .getByRole("button", { name: "Create account", exact: true })
-    .click();
+    .fill(process.env.VERIORA_LIVE_PASSWORD!);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL("/library");
-  console.log("Live step: registered account in PostgreSQL");
   await page.goto("/analyze");
   await page
     .getByLabel("Choose document file")
@@ -48,6 +42,9 @@ test("live PostgreSQL and configured AI: PDF → evidence → question → repor
     .click();
   await expect(page).toHaveURL(/\/analysis\//, { timeout: 60000 });
   console.log("Live step: source uploaded and analysis queued");
+  await page
+    .getByRole("tab", { name: "Detailed Analysis", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "View evidence" }).first(),
   ).toBeVisible({ timeout: 180000 });

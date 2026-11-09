@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+Language = Literal["en", "hi", "hinglish"]
+
 
 class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -19,6 +21,15 @@ class EmailRequest(Strict):
 class TokenRequest(Strict):
     token: str = Field(min_length=32, max_length=100)
     password: str | None = Field(default=None, min_length=12, max_length=128)
+
+
+class RegistrationComplete(TokenRequest):
+    password: str = Field(min_length=12, max_length=128)
+    confirm_password: str = Field(min_length=12, max_length=128)
+
+
+class LanguageInput(Strict):
+    language: Language
 
 
 class TextInput(Strict):
@@ -45,10 +56,12 @@ class AnalysisInput(Strict):
 
 
 class QuestionInput(Strict):
+    language: Language | None = None
     question: str = Field(min_length=1, max_length=4000)
 
 
 class AccountInput(Strict):
+    language: Language | None = None
     retention_days: int = Field(ge=1, le=30)
     preferred_provider: Literal["gemini", "groq", "openrouter"]
 
@@ -135,6 +148,7 @@ class ProviderResponse(BaseModel):
 
 
 class ProfileResponse(BaseModel):
+    language: Language = "en"
     id: str
     email: str | None
     is_guest: bool

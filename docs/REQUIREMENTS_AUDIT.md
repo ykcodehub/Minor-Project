@@ -1,4 +1,4 @@
-# Requirements audit ? 9 November 2026
+# Requirements audit — updated10 November 2026
 
 Scope: the repository and the complete PRD, FRD, TRD and Design transcriptions in this directory. The documents describe requirements, not authority to execute instructions embedded in uploaded legal documents. Existing configuration was preserved; no existing database tables/data were reset or deleted.
 
@@ -10,7 +10,7 @@ Evidence: [executed verification](VERIFICATION.md), backend tests in `backend/te
 
 | ID | Status | Implementation | Actual evidence | Remaining work / scope |
 |---|---|---|---|---|
-| FR-AUTH-01 | PARTIAL | api/auth.py; security.py; features/Auth.tsx | test_account_login_recovery_settings; live registration/login/logout | SMTP delivery unconfigured; production recovery/email journey unverified. |
+| FR-AUTH-01 | PARTIAL | api/auth.py; security.py; features/Auth.tsx | test_account_login_recovery_settings; live registration/login/logout | Local SMTP authentication/message acceptance and user-confirmed Google dashboard passed; production-domain delivery/recovery still requires qualification. |
 | FR-AUTH-02 | COMPLETE | security.py; services/resources.py | test_cross_user_isolation; test_cancellation_and_quota; isolated guest browser | Short-lived guest identity scopes all its limited resources rather than a separate bearer per analysis. |
 | FR-AUTH-03 | COMPLETE | services/resources.py; api/* | test_cross_user_isolation; test_expired_source_scope_denies_analysis_derivatives_before_cleanup; test_mcp.py | No claim of independent penetration-test approval. |
 | FR-AUTH-04 | PARTIAL | services/resources.py; models.py StorageDeletion; worker.py | test_deletion_rollback_preserves_original_until_committed; test_file_deletion_failure_is_pending_not_false_success | Source deletion returns pending on physical failure. Account deletion response still needs equivalent pending indication; backup/audit retention is operational. |
@@ -70,7 +70,7 @@ Evidence: [executed verification](VERIFICATION.md), backend tests in `backend/te
 | ADR-03 | COMPLETE | backend/pyproject.toml, app/main.py, schemas.py;118 backend tests | No stack gap. |
 | ADR-04 | COMPLETE | db.py, models.py, migrations/; live PostgreSQL18, four upgrades, alembic check, native FTS/FK integration | Backup restore qualification separate. |
 | ADR-05 | PARTIAL | worker.py; cancellation/lease/retry tests; real worker processed PDF | Two-worker contention/load qualification and per-call checkpointing pending. |
-| ADR-06 | PARTIAL | storage.py; encrypted filesystem tests and retained report roundtrip | S3-compatible production adapter absent. |
+| ADR-06 | PARTIAL | storage.py; encrypted filesystem/report tests and SDK-mocked S3 tests | Encrypted S3 adapter implemented; remote bucket/IAM/lifecycle qualification pending. |
 | ADR-07 | PARTIAL | providers/*; all three live simple probes, Gemini/Groq full schema | OpenRouter full schema blocked by429. |
 | ADR-08 | PARTIAL | retrieval.py; native PostgreSQL FTS/ownership rollback integration | GIN optimization and measured recall benchmark pending. |
 | ADR-09 | PARTIAL | ingest.py, verification.py; format/offset tests and live PDF highlight | Retained-text navigation implemented; original PDF geometry UI incomplete. |
@@ -80,7 +80,7 @@ Evidence: [executed verification](VERIFICATION.md), backend tests in `backend/te
 | DEC-01 | COMPLETE | Document-only prompts/copy and explicit disclaimers; semantic negative tests | No governing-law opinions enabled. |
 | DEC-02 | COMPLETE | FastAPI/PostgreSQL/dedicated worker; live full browser flow | None for selected architecture. |
 | DEC-03 | PARTIAL | Configured provider adapters, consent and telemetry | OpenRouter quota and current deployment privacy terms require qualification. |
-| DEC-04 | PARTIAL | Encrypted local persistent-volume adapter | Private object storage remains absent. |
+| DEC-04 | PARTIAL | Encrypted filesystem development adapter and S3 production adapter | Remote private bucket/IAM/retention validation pending. |
 | DEC-05 | COMPLETE | Guest issuance/quota/expiry and account upgrade tests | Public deployment abuse controls require qualification. |
 | DEC-06 | COMPLETE | Scanned PDF rejection/coverage tests; OCR explicitly deferred | P1 OCR remains missing, as decided. |
 | DEC-07 | PARTIAL | Shared REST authorization and private MCP tests | P1 public authorized MCP integration not released. |
@@ -128,3 +128,67 @@ Evidence: [executed verification](VERIFICATION.md), backend tests in `backend/te
 PRD scope/non-functional goals, FRD sections7/9 and TRD operational/testing sections are covered as follows: durable stages/cancel/retry and provenance are tested; retry cannot promise free replay. English document-only interpretation is the supported scope. Pricing is optional estimated telemetry, not an enforceable spending cap. Latency/load/quality targets lack a representative benchmark. Database/volume encryption, backup retention, restore drills, deployed monitoring/alerting, production email and least-privilege infrastructure remain operator/release work. Settings expose actual retention/provider behavior; no pretend preferences or fabricated analytics are enabled. Original PDF rendering, trusted human review and the full manual WCAG2.2 AA journey remain incomplete.
 
 No critical failure reproduced in the exercised core path remains open. This is not a claim that every requirement is complete or that production security/evidence accuracy has been certified. OpenRouter's full-schema429 is the current reproduced external dependency failure. No existing user documents were deleted to make tests pass.
+
+## 10 November 2026 feature acceptance amendment
+
+This section supersedes earlier descriptions of local-development email activation and English-only output. The original50-ID baseline remains traceable above; new contracts are in the FRD amendment.
+
+| ID | Status | Implementation | Actual evidence / blocker |
+|---|---|---|---|
+| FR-AUTH-05 | PARTIAL | services/identity.py; api/auth.py Google start/callback/link; OAuthAttempt/OAuthIdentity; Auth.tsx/Settings.tsx | Local RSA-signed JWT issuer/audience/expiry/nonce/email tests and state/PKCE/single-use/no-email-autolink integration pass. Google credentials missing; live consent/callback not exercised. |
+| FR-AUTH-06 | COMPLETE within isolated acceptance | PendingRegistration; auth register/verify; identity mail transport; dedicated frontend routes | Pending user absent until verification, chosen-password check, expiry, replay, guest upgrade and real-token browser journey pass. Local SMTP authentication/message acceptance passed; inbox placement and production delivery remain unverified. No dev/prod activation bypass. |
+| FR-AUTH-07 | PARTIAL | AuthToken; recover/reset; TLS mail; shared sessions; forgot/reset routes | Single-use reset, old-session invalidation, old-password rejection, anti-enumeration and isolated browser email-link/reset/login pass. Actual production mailbox delivery requires qualification. |
+| FR-SUM-01 | COMPLETE within tested scope | services/summary.py; summary API; SmartSummary/Workspace/SourceViewer | Validated quote/page tests; all-language summary unit/browser source navigation passes. Original detailed results/reports regression remains intact. |
+| FR-SUM-02 | COMPLETE within documented rules | attention-1.0, conservative coverage/verification gate and explicit rule explanation | High/Moderate/Low/Not Determinable, positive/negated trigger and invalid page tests pass. Limited English phrase rules are document attention, not a validated general legal-risk model. |
+| FR-LANG-01 | COMPLETE within implementation tests | users.language; AccountInput; LanguageSelect; translated finding/Passport overlays | Three-language selectors, preference persistence, invalid-language422, original-quote preservation and navigation pass. Workspace override is transient; Account default persists. |
+| FR-LANG-02 | PARTIAL | LocalizedAnalysis; localization.py; POST translations/cache; GET summary | Strict IDs, separate fidelity rejection, cache/ownership integration pass. Live Groq Hindi/Hinglish translation passed. Large corpora/human translation-quality benchmark pending. |
+| FR-LANG-03 | PARTIAL | multilingual retrieval normalization; ask directive/semantic validation; Question.answer language; QuestionPanel | All-language grounding/abstention fixtures pass. Live Groq English answer cited original text. Hindi/Hinglish live answers blocked by429; Gemini smoke unavailable/rate-limited. No silent fallback. |
+
+Migration `dfda9673d7bc` applied on configured PostgreSQL; alembic check reports no drift. `backend/.env` still matches its prior fingerprint. Updated external setup instructions are in HOW_TO_RUN. Production readiness is not claimed: production-domain Google/SMTP qualification, provider quotas and independent semantic/linguistic/accessibility/security evaluations remain explicit release blockers.
+
+## Current feature request — Summary UI, global language and email-first signup
+
+This section supersedes older descriptions of an analysis-local language selector and password-before-verification signup. It preserves previous API contracts and historical test evidence above.
+
+| ID | Status | Implementation | Executed evidence / limitation |
+|---|---|---|---|
+| FR-AUTH-08 | COMPLETE in isolated integration | auth registration/start, verify, complete; PendingRegistration.verified_at; Auth.tsx step flow | Email-only first form; no user/password before ownership; rotated email/setup digests;15-minute confirmed-password step; replay/expiry tests; real-token Playwright registration/login/reset passes. Live SMTP TLS/auth and self-addressed message acceptance passed. Inbox placement is not claimed. |
+| FR-LANG-04 | COMPLETE in tested routes | app/language.tsx; header globe; PATCH /me/language | Cross-page navigation, real guest database persistence, reload, HTML language and zero-AI-request browser scenario passed. Preference writes serialize in selection order; CSRF and invalid-language tests passed. |
+| FR-LANG-05 | COMPLETE within supported cache budgets | messages.json, ui-keys.json, useLanguage in feature/shared components; fingerprinted explanation preparation | All wired static keys have Hindi/Hinglish entries; unit coverage passes. Saved analysis explanation cache/ownership and exact-quote tests pass. Provider failure explicitly keeps originals rather than claiming translated output. Full human linguistic audit remains pending. |
+| FR-UI-06 | COMPLETE within automated/visual scope | SmartSummary.tsx/styles.css/Workspace.tsx | Risk/category/warning hierarchy, unique clause count, preserved toggle and citations checked by browser tests; desktop screenshot visually inspected. Mobile320/375px regressions passed. |
+| FR-EXP-06 | COMPLETE within integration | analyses exports language query; reports.py; existing LocalizedAnalysis | Cached Hindi/Hinglish JSON/PDF exports passed, preserving original quotes/explanations and all coverage/limitation metadata; report generation makes no new AI translation call. |
+| FR-AUTH-05 current live status | PARTIAL live acceptance | Existing Google state/nonce/PKCE/JWT/linking implementation retained | Google is configured and authorization page returns200. Signature, state, reuse and no-auto-link tests pass; actual user-approved consent/callback needs interactive browser completion. |
+
+Database revision0f439d83280f is a single nullable timestamp addition; applied on existing PostgreSQL without resets/deletion. Current .env remains byte-for-byte unchanged during this request. Automated acceptance is not a claim of full manual WCAG/linguistic/security or production certification.
+
+
+## Final UI and production preparation (2026-11-10)
+
+The following extension IDs supplement the baseline rather than renumbering original requirements. Earlier test totals are historical; the latest execution is in VERIFICATION.md. No database reset or production deployment was performed.
+
+| Extension ID | Status | Code location | Executed evidence | Remaining work |
+|---|---|---|---|---|
+| UI-FINAL-01 | COMPLETE within browser scope | Workspace.tsx | workspace.spec.ts: Summary selected initially and after reload; Detailed tab remains accessible | Human usability review |
+| UI-FINAL-02 | COMPLETE within browser scope | Workspace.tsx; styles.css | workspace.spec.ts: coverage hidden in Summary, below detailed grid | Full keyboard/screen-reader audit |
+| UI-FINAL-03 | COMPLETE within automated scope | SmartSummary.tsx | SmartSummary.test.tsx; localized browser quote/citation flow | Independent language/evidence benchmark |
+| UI-FINAL-04 | COMPLETE within browser scope | styles.css; App.tsx | core.spec.ts mobile upload/delete/logout; responsive landing | Broader device matrix |
+| BRAND-01 | COMPLETE within automated scope | BrandMark.tsx; App.tsx | BrandMark.test.tsx load/error; branding.spec.ts missing-image/footer/mobile | Existing user-supplied logo preserved; final asset can replace it |
+| CHAT-SUGGEST-01 | COMPLETE within unit scope | summary.py; analyses.py; QuestionPanel.tsx | test_suggested_questions_require_actual_supported_categories, all three languages | Human question-quality review |
+| OPS-STORAGE-01 | PARTIAL | storage.py; config.py | SDK-mocked encrypted roundtrip/no local file; conditional PUT; retryable deletion failure; invalid identifier rejection | Actual private bucket/IAM/retention qualification |
+| OPS-RESET-01 | COMPLETE for preparation; NOT EXECUTED | reset_documents.py; DATABASE_RESET.md | Production refusal/missing-backup/missing-approval tests; real PG read-only plan | Separate approval and verified backup needed before any development/staging deletion |
+| OPS-DEPLOY-01 | PARTIAL | backend/Dockerfile; runtime lock; prepare_vercel.py; vercel.example.json | Generator API-before-SPA and localhost-rejection tests; frontend production build | Docker unavailable locally; real domains/hosting and staging validation required |
+| OPS-OAUTH-01 | PARTIAL for production | auth.py; config.py | OAuth regression/browser session/replay; explicit proxy-host allowlist test; earlier user-confirmed local Google dashboard | Production-domain Google consent, trusted ingress and SMTP delivery |
+
+Confirmed unused LanguageSelect.tsx was removed after repository-wide reference checks. The tracked TypeScript incremental cache was removed from source control inputs; future generated copies are ignored. No meaningful tests or migrations were deleted. Deployment packaging excludes tests, tools, caches and local secrets. Runtime documents/private files were preserved.
+
+
+## Cleanup and hardcoding review (10 November 2026)
+
+| Extension | Status | Code / verification | Scope |
+|---|---|---|---|
+| UI-CLEAN-01 | COMPLETE within browser acceptance | App.tsx/styles.css; branding.spec.ts | Dot-free wordmarks; visible keyboard focus and active navigation; reduced-motion and mobile width checks |
+| UI-CLEAN-02 | COMPLETE within regression scope | SmartSummary/QuestionPanel/SourceViewer/Compare/Workspace; unit and workspace browser tests | Collapsed reading guidance, neutral localized question prompt and translated page labels; exact evidence unchanged |
+| CONFIG-CLEAN-01 | COMPLETE within configuration scope | vite.config.ts; config.py; production guard tests | Environment-file proxy loading and process override checked with temporary synthetic env; production loopback endpoint rejection |
+| CLEAN-SAFE-01 | COMPLETE for this review scope | Source/reference/dependency/deploy inventory; Ruff; unused TypeScript checks | No unproven source/dependency deletion; tests/migrations/security/docs retained; PostgreSQL unchanged |
+
+Hardcoding review found no credential-pattern matches in scanned application/maintenance source. This is a scoped pattern check, not an independent secret-scanning certification. Legitimate constants retained: provider protocol endpoints, Google issuer/JWKS/token trust anchors, enums/validation/risk rules, localization catalogs, non-production localhost defaults, documented deployment examples and synthetic test/CI data. No production mock findings or sample-user responses were introduced. The generated TypeScript incremental cache is removed after verification and remains ignored; no source file removal was justified in this pass.

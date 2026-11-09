@@ -1,4 +1,4 @@
-# Executed verification ? 9 November 2026
+# Executed verification (latest: 10 November 2026)
 
 This report separates live external checks from isolated fixtures. Tests used authored synthetic documents. Existing configured PostgreSQL records were not deleted/reset. `backend/.env` SHA-256 comparison against the initial fingerprint confirms it remained unchanged; no configured values are reproduced here.
 
@@ -50,3 +50,196 @@ PostgreSQL URL normalization/required runtime database; redacted config/SQL fail
 - Source display uses retained extracted text and real page/section metadata, not exact original PDF glyph overlay. No deployment or production-readiness claim.
 
 See [REQUIREMENTS_AUDIT.md](REQUIREMENTS_AUDIT.md) for all50 functional IDs,12 ADRs,9 decisions,15 acceptance scenarios,5 design packages and6 milestones; [HOW_TO_RUN.md](../HOW_TO_RUN.md) for exact commands.
+
+## 10 November 2026 — identity, summary and multilingual verification
+
+Current checkout: C:/Users/Test/Desktop/projects/Veriora (selected explicitly after the old workspace path was moved).
+
+- Final backend regression: **144 passed,1 skipped**,58.44s. Includes pending registration, chosen-password ownership proof, expiry/replay, reset/session invalidation, locally signed Google JWT claim validation, state/nonce/PKCE and explicit linking, attention rules, source integrity, language preference/cache ownership and translation fidelity rejection.
+- Frontend: **18 passed**,6 test files. ESLint and TypeScript/Vite production build passed. Python compileall and Alembic schema comparison passed. Ruff passed with cache disabled after the stale sandbox path prevented a cache write; that filesystem issue did not affect test results.
+- Isolated Playwright: **5 passed,1 skipped**,29.5s. Existing guest upload/delete, responsive/axe/workspace regressions plus actual captured-email verification, forgot/reset/login, persisted settings, summary language switching and original-quote citation navigation passed. Live provider/account scenario intentionally skipped; now requires a genuinely verified dedicated account, never a signup bypass.
+- Browser testing caught a StrictMode initializer side effect that cleared token fragments. Fixed by clearing the address only after state initialization; rerun passed.
+- PostgreSQL migration `dfda9673d7bc` applied additively; no drift/missing application tables. `.env` matches the prior fingerprint. No existing database/source data reset/deletion was used.
+- **Google configured:false; SMTP configured:false.** No real Google login/consent callback or actual SMTP mailbox delivery was claimed. SMTP STARTTLS/certificate context and message fragment links are tested with a captured transport. Google's JWT cryptography is exercised locally with synthetic keys/claims.
+- Live Groq on authored privacy text:1 supported finding; Hindi translation verified in2 calls; Hinglish translation verified in2 calls; English cited answer in2 calls preserved original quotes. **Hindi/Hinglish live answers returned PROVIDER_RATE_LIMITED.** Artifact: [Groq multilingual status](verification-artifacts/multilingual-live-groq.json).
+- Live Gemini rerun produced no supported finding, translation unavailable and subsequent answer429 failures. It is not accepted as a passing multilingual path. Artifact: [Gemini multilingual status](verification-artifacts/multilingual-live-gemini.json). Earlier9 November successes remain historical checks, not evidence of current quota.
+- API/frontend restarted to load the new routes. Local frontend200, auth options correctly false/false and database readiness succeed at localhost:5173 and127.0.0.1:8000. No cloud deployment performed.
+
+Actual language/citation control flow works under isolated integration tests. Provider language accuracy and quota-restored Hindi/Hinglish live answering remain only partially verified. All prior P1/operational limitations still apply.
+
+### Changed and created files for this feature request
+
+- `HOW_TO_RUN.md`
+- `README.md`
+- `backend/.env.example`
+- `backend/app/api/analyses.py`
+- `backend/app/api/auth.py`
+- `backend/app/config.py`
+- `backend/app/main.py`
+- `backend/app/models.py`
+- `backend/app/schemas.py`
+- `backend/app/security.py`
+- `backend/app/services/analysis.py`
+- `backend/app/services/retrieval.py`
+- `backend/app/worker.py`
+- `backend/pyproject.toml`
+- `backend/tests/conftest.py`
+- `backend/tests/test_api.py`
+- `backend/tests/test_mcp.py`
+- `docs/DESIGN.md`
+- `docs/FRD.md`
+- `docs/PRD.md`
+- `docs/REQUIREMENTS_AUDIT.md`
+- `docs/TRD.md`
+- `docs/VERIFICATION.md`
+- `docs/openapi.json`
+- `frontend/e2e/core.spec.ts`
+- `frontend/e2e/live.spec.ts`
+- `frontend/e2e/workspace.spec.ts`
+- `frontend/src/app/App.tsx`
+- `frontend/src/features/Auth.tsx`
+- `frontend/src/features/QuestionPanel.tsx`
+- `frontend/src/features/Settings.tsx`
+- `frontend/src/features/Workspace.tsx`
+- `frontend/src/lib/types.ts`
+- `frontend/src/styles.css`
+- `scripts/test_e2e.py`
+- `backend/app/services/identity.py`
+- `backend/app/services/language.py`
+- `backend/app/services/localization.py`
+- `backend/app/services/summary.py`
+- `backend/migrations/versions/dfda9673d7bc_pending_identity_oauth_and_language_.py`
+- `backend/tests/test_identity_summary_language.py`
+- `docs/verification-artifacts/multilingual-live-gemini.json`
+- `docs/verification-artifacts/multilingual-live-groq.json`
+- `docs/verification-artifacts/multilingual-live.json`
+- `frontend/src/components/LanguageSelect.tsx`
+- `frontend/src/features/SmartSummary.test.tsx`
+- `frontend/src/features/SmartSummary.tsx`
+- `scripts/verify_multilingual.py`
+
+## Latest request — global language, refined Summary and email-first registration
+
+- Backend: **147 passed,1 skipped** in68.86s. Includes backward-compatible older auth contracts, new email-only/verified/setup-confirmation lifecycle, expired/replayed capabilities, global preference CSRF/validation, existing ingestion/evidence/chat/history/report regressions and cached Hindi/Hinglish JSON/PDF report export.
+- Frontend: **21 passed**,7 files. Catalog coverage verifies both language entries for every wired static UI key. Ordered preference persistence and original-source preservation tests pass. ESLint, TypeScript and Vite production build passed; the final Ruff import fix was rechecked separately.
+- Playwright: **6 passed,1 skipped** in39.7s. Public axe, upload/delete/logout, email-first signup with real captured link and confirmed password, forgot/reset/login, settings/comparison, mobile, global language across navigation/reload and summary/citation/chat/export fixture paths pass. The dedicated header-language test observed **zero AI requests**. Live-account/provider scenario is opt-in and skipped here.
+- Static UI catalog completed with reviewed navigation/authentication/evidence/risk terminology. UI translation is checked in; no runtime UI-translation service is introduced. Full independent linguistic review is not claimed.
+- SMTP: configured; STARTTLS certificate context and login succeeded. A non-sensitive diagnostic sent only to the configured sender mailbox was accepted by the mail server. No keys, addresses or tokens are recorded in this report. A display-name-only MAIL_FROM is safely formatted with a validated SMTP_USER mailbox; .env was not rewritten. Accepted delivery does not prove inbox placement.
+- Google: configured; authorization entry returned200 and login/consent page was reachable. Full user-approved consent and callback remain unverified. Existing synthetic cryptographic/state/linking regressions pass. [Safe integration result](verification-artifacts/identity-integrations.json).
+- Migration **0f439d83280f** applied; only nullable pending_registrations.verified_at added. No missing tables or Alembic model drift. Existing user/document/analysis data and credentials were preserved.
+- Summary desktop screenshot: [refined summary](verification-artifacts/summary-desktop.png), a clearly synthetic fixture. Existing exact source highlighting/citations remain functional. Mobile and keyboard-tab regressions passed.
+
+Current core changes: shared LanguageProvider/messages catalog/header menu; reactive UI copy in app/features/shared components; premium Summary/risk/category/method layout; three-step Auth; language-only preference endpoint; additive signup stage; cached-language report exports; sender formatting; updated security/unit/browser tests and all specifications/run docs. External consent/inbox receipt, provider quota/translation quality, human semantic evaluation and full manual accessibility/security review remain practical limits.
+
+Final running-service check: backend restarted to load the new endpoints; OpenAPI contains email-first registration and global language routes. `/auth/options` reports Google/email configured, `/ready` reports PostgreSQL connected, and frontend returns200. The final catalog has425 wired keys and454 entries, with no missing wired Hindi/Hinglish translations. Latest frontend lint/unit/build passed after punctuation/spacing cleanup. Current .env fingerprint remained unchanged throughout this request.
+
+Changed files for this request include `backend/app/api/auth.py`, `api/analyses.py`, `models.py`, `schemas.py`, `services/identity.py`, `services/reports.py`, additive revision0f439d83280f, `frontend/src/app/{App,language}.tsx`, `main.tsx`, shared UI/source/pagination/coverage components, all feature-page UI subscriptions, `SmartSummary.tsx`, `styles.css`, `messages.json`, `ui-keys.json`, new language/signup security tests, `frontend/e2e/language.spec.ts`, updated core/workspace scenarios, diagnostic/catalog scripts, OpenAPI, README/HOW_TO_RUN and the four specifications/audit. Earlier uncommitted work remains preserved.
+
+## Google OAuth failure investigation — 10 November 2026
+
+**Reproduced original cause:** the app was opened on `http://127.0.0.1:5173`, while configured Google redirect/public origin used `http://localhost:5173`. The original POST start executed and generated state/nonce/PKCE, but its host-only OAuth cookie belonged to127.0.0.1. Chromium did not send that cookie to localhost. Navigating the matching callback with code/state reproduced the exact HTTP400 browser-initiation error. The localhost-only control sent its cookie correctly. Vite changeOrigin:false preserved the original Host header; this was not a lost state row or a missing POST.
+
+**Fix:** the frontend now performs top-level navigation to the configured canonical `/auth/google/login` URL. The server canonicalizes scheme/hostname before creating durable state or setting the browser cookie, then sends303 to Google. The older POST API remains compatible and directs mismatched aliases to this navigation route without creating a wrong-host cookie. Callback/session then use the same cookie host, and successful sign-in opens `/dashboard`. No cookie Domain broadening, SameSite relaxation, validation bypass or .env change was used.
+
+**Security:** HttpOnly, host-only Path=/api/v1/auth/google, SameSite=Lax, Max-Age600; Secure retains existing production policy. Database state is committed and single-use across API clients/restarts. PKCE, nonce, audience, signature, expiry and explicit linking protections remain. Malformed cookie types are rejected cleanly. Cancellation consumes valid state. Google issuer validation accepts only the two documented Google spellings. Reference: [Google OIDC validation](https://developers.google.com/identity/openid-connect/openid-connect).
+
+**Second reported failure:** after the origin fix, the user reported the generic identity-verification400 for request046fb5d6-1c6e-4609-aea8-5123d4831397. The old handler did not retain its underlying reason; no claim is made that this specific second failure's cause is known. Independent checks found Google signing keys reachable, clock offset0 seconds, configured values without outer whitespace, and a deliberately invalid code classified as invalid_grant. These are diagnostics, not proof that a real user token passes.
+
+The verifier now reports safe GOOGLE_* reason codes for exchange/client rejection, key lookup, issuer/audience/signature/expiry/nonce and email-ownership checks. Only reason and request ID are audited; raw token/code/provider body/user claims are not recorded. A fresh live Google sign-in was requested because consumed code/state cannot be replayed. Live user consent/callback acceptance remains pending until observed.
+
+Automated browser acceptance uses a strict isolated test database/storage and synthetic Google remote token/JWKS boundary. Chromium actually navigates from127.0.0.1 to canonical localhost, receives the real HttpOnly cookie, submits code/state cross-site, executes the real RSA signature and claim verifier, receives a real application session, opens the authenticated dashboard and rejects replay even with the original cookie restored. This is not mislabeled as real Google account consent. The fixture refuses non-isolated runtime configuration.
+
+Files for this fix: backend/app/api/auth.py, services/identity.py, main.py, backend/tests/conftest.py, new test_oauth_flow.py/test_google_diagnostics.py, frontend/src/features/Auth.tsx, frontend/e2e/oauth.spec.ts, scripts/oauth_browser_fixture.py/test_e2e.py, OpenAPI, README and this verification report. No database migration was needed.
+
+### Follow-up cause confirmed: token not yet valid
+
+The user's subsequent requesteb221163-adc2-484e-a814-92984a900513 returned GOOGLE_TOKEN_NOT_YET_VALID. Content-free audit metadata confirmed this temporal-validation stage for two live attempts. The old verifier used PyJWT's default zero clock tolerance, so a token with issued-at/not-before ahead of the verifier was rejected. This is separate from the earlier missing-cookie/hostname failure.
+
+The deployed verifier now uses a fixed30-second maximum clock allowance while retaining required temporal checks, all cryptographic/identity checks and a strict additional exp check that does not extend token expiration. Tests accept a token issued15 seconds ahead, reject one45 seconds ahead, and reject expired tokens even one second past exp. Focused suite:47 passed. Both documented Google issuer spellings are tested; all other issuers remain rejected. References: [PyJWT validation](https://github.com/jpadilla/pyjwt/blob/master/docs/usage.rst), [JWT clock-skew allowance](https://datatracker.ietf.org/doc/rfc7519/).
+
+The API was restarted with this fix. A fresh real Google sign-in was requested; until the user confirms or a successful live audit is observed, the real consent/callback outcome remains pending. Neither failed callbacks nor synthetic browser fixture results are claimed as successful real-account authentication.
+
+Final regression after the timing fix: **168 backend tests passed,1 skipped** (62.62s); Ruff passed; no Alembic schema drift. **21 frontend tests**, ESLint and TypeScript/Vite build passed after the full-navigation change. Final isolated Playwright: **8 passed,1 skipped** (40.2s), including real-browser canonical navigation, signed callback validation, authenticated dashboard and restored-cookie replay rejection with a synthetic remote Google boundary. No migration was needed for these OAuth fixes. Current credentials/storage configuration remained untouched.
+
+### Live Google acceptance confirmed
+
+After the bounded clock-skew fix was deployed, the user performed a fresh Google sign-in from127.0.0.1 and explicitly confirmed: **Reached the dashboard**. This establishes the real Google consent -> canonical callback -> authenticated dashboard outcome in addition to the isolated signed-token browser tests. No credentials or callback tokens were requested/shared. The two confirmed causes were the cookie-host mismatch and zero-tolerance temporal validation; both corrections retain signature, issuer, audience, nonce, PKCE, strict expiration and one-use state protections.
+
+
+## Final UI and production preparation: 10 November 2026
+
+This section is the latest execution record. Earlier entries describe prior runs. No production deployment or destructive database reset was performed. Existing .env matches the preserved SHA-256 baseline; values were neither displayed nor changed. No migrations were added or altered for this preparation.
+
+### Executed checks
+
+| Check | Actual result |
+|---|---|
+| Backend: `cd backend; python -m pytest tests -q` | **175 passed, 1 skipped**, 80.10s. Default suite skips the explicit live-PostgreSQL test; it was run separately as described below. |
+| Backend lint: `python -m ruff check app tests` | Passed. |
+| PostgreSQL: `python -m app.manage check` | Connected using psycopg; no missing application tables; revision **0f439d83280f**. |
+| Migration drift: `python -m alembic check` | No new upgrade operations detected. |
+| Schema inspection | 21 application tables, 22 foreign keys, 31 indexes and 8 unique constraints, inspected read-only. |
+| Native PostgreSQL integration | Invoked tests/test_postgres.py test directly with explicit opt-in, avoiding the isolated-suite SQLite fixture. Foreign keys, native FTS and owner isolation passed; all synthetic rows were rolled back. |
+| Frontend: `npm run lint` | Passed, including rerun after the mobile layout fix. |
+| Frontend: `npm test` | **22 passed**, 8 files. |
+| Frontend: `npm run build` | TypeScript and Vite production build passed; rerun after mobile fix. |
+| Browser: `npm run test:e2e` | **9 passed, 1 skipped**, 38.6s. Isolated browser test database/storage; external Google boundary synthetic. |
+| Configured HTTP services | GET /api/v1/health and /api/v1/ready on 127.0.0.1:8000 returned200; frontend at127.0.0.1:5173 returned200. The verified local API was restarted with current code. |
+| Cleanup command | `python -m app.reset_documents` executed **plan-only**. No --execute, DELETE, TRUNCATE, DROP or reset ran against the configured database. |
+| Docker / remote deployment | Docker executable unavailable; image build/runtime and remote Vercel/API/worker/S3 hosting **not verified**. No deployment performed. |
+
+The first browser run reproduced a mobile header wrap that made Sign out overlap the main content. Header layout was corrected to use normal-flow rows on mobile; the full rerun passed, including guest upload/source/delete/logout. No test was weakened with forced clicks.
+
+### Coverage and limits
+
+Browser acceptance checks Summary selected on first load and after reload; Detailed Analysis remains accessible; Processing Coverage is hidden from Summary and follows the detailed workspace; Hindi/Hinglish keep original evidence quotes and exact source highlights; invalid citations are not highlighted; grounded chat abstains on unsupported questions; manifest download, history/settings, email-link registration/reset, global language persistence, footer and missing-logo fallback work within isolated fixtures. Desktop Summary and mobile workspace screenshots were visually reviewed. A user-provided logo.png was detected and preserved; the missing-image case is explicitly routed to404 in its browser test.
+
+OAuth browser acceptance covers canonical host navigation, signed callback, authenticated dashboard and replay/cookie rejection using a synthetic Google boundary. Backend tests cover state expiry, nonce, signature/audience, clock allowance and strict expiry. Earlier real Google login was explicitly confirmed by the user reaching the dashboard. Production-domain Google and real production SMTP delivery were not revalidated in this run.
+
+The live-AI browser scenario remains skipped: it requires an already email-verified synthetic account supplied privately through VERIORA_LIVE_EMAIL/PASSWORD and explicit VERIORA_LIVE_E2E=1. Existing provider/live multilingual artifacts remain historical evidence; no new live model calls or real-account consent are claimed. API/worker analysis, report, auth and security regressions use synthetic fixtures. A live retention-cleanup worker was deliberately not started against valuable existing data; its startup/processing behavior is exercised by isolated tests.
+
+S3 tests exercise encrypted write/read/delete, conditional PUT, server-side encryption request, no local-file write, key validation and safe retryable deletion errors through a mocked SDK. They do **not** establish remote credentials, IAM, bucket privacy, conditional-write support, retention/version erasure or restore correctness. Production settings reject filesystem storage, test email capture and non-HTTPS/loopback public origins. Explicit HTTPS OAuth proxy hosts are tested without trusting arbitrary forwarded hosts.
+
+### Files and cleanup
+
+UI: Workspace.tsx, SmartSummary.tsx, QuestionPanel.tsx, App.tsx, BrandMark.tsx, styles.css and language catalogs. Backend: summary.py, analyses.py, storage.py, config.py and the explicit OAuth proxy-host handling in auth.py. Operations: reset_documents.py, Dockerfile/.dockerignore, requirements.runtime.lock, prepare_vercel.py, vercel.example.json, .vercelignore, .env.example and .gitignore. Dedicated backend/brand/browser tests were added or extended. README, HOW_TO_RUN, all four specification transcriptions, deployment/reset guides and requirements audit were updated.
+
+Removed only the unreferenced LanguageSelect.tsx, generated tsconfig.tsbuildinfo, and empty public/.gitkeep after the user's actual logo appeared. Meaningful tests, source documents, private runtime objects, schema and migrations were preserved. Generated caches/dependencies remain ignored and excluded from deploy packaging; no indiscriminate cleanup ran.
+
+### Remaining release gates
+
+Provide actual app/backend domains and hosting; qualify the container and private S3 service/IAM/retention; configure production OAuth/SMTP and trusted proxy behavior; test Vercel upload/time limits against the intended plan; supervise API/worker and monitor queues/deletion; execute backup/restore and load/cancellation drills; complete independent security/accessibility and human evidence/language review. See DEPLOYMENT.md. This preparation does not certify production readiness.
+
+
+## Cleanup, hardcoding and UI polish: latest execution (10 November 2026)
+
+**Safety:** no PostgreSQL data-writing test, reset procedure, migration execution or live cleanup worker was run during this request. Existing records/tables/schema/migrations were not modified. Unit/API tests and browser services used isolated synthetic SQLite databases only. The configured .env fingerprint still matches the preserved baseline; no credential values were printed or changed.
+
+### Actual changes and audit decisions
+
+- Removed decorative brand-dot elements and their unused CSS; ordinary punctuation/domains/filenames remain intact. Footer uses a separator after the wordmark. Added quiet navigation hover/active/underline transitions and explicit keyboard focus, with a reduced-motion override.
+- Collapsed Summary reading guidance; preserved expandable source quotations, rationale, all findings and detailed evidence navigation. Replaced cancellation/data-sharing-specific chat placeholder examples with a neutral English/Hindi/Hinglish catalog prompt. Page locators in source viewer, comparison, finding cards, Passport and chat citations now use the shared translated Page label.
+- Fixed Vite configuration to actually read VITE_API_TARGET from mode environment files; explicit process values take precedence. Verified by loading the actual Vite configuration against a temporary synthetic .env.development file and then a process override. No real .env was modified.
+- Strengthened production public/CORS origin checks and loopback-host rejection for database, object storage and configured Google callbacks. Vercel configuration generation likewise rejects loopback address variants and .localhost names. Local development defaults remain supported.
+- Inventoried application modules, shared UI, scripts, dependencies, specifications, tests and deployment files. Parsed/scanned83 maintained application/maintenance/document text files (16,750 pre-change lines) without outputting source secrets; no credential-pattern matches in the scanned application/maintenance code. This is a scoped pattern check, not a security certification. No fabricated production user/finding/risk/confidence responses were found in that review.
+- Kept official provider endpoints, Google trust anchors, validation/enums/risk rules, translation catalogs, documented defaults and isolated synthetic test/CI constants. Runtime models and credentials remain configured privately. All declared dependencies have runtime/build/test/optional-tool uses; none was proven safe to remove.
+
+**Exact file removal this pass:** frontend/tsconfig.tsbuildinfo only, after the production build recreated its generated incremental metadata. No source/component/script/dependency/test/migration/documentation file was removed. Removed the obsolete brand-dot rule plus six confirmed unused summary-heading/analysis-overview CSS rules after checking component references. Existing .gitignore and deployment exclusions preserve private data and keep generated caches/tests out of runtime artifacts as appropriate. Meaningful test fixtures remain versionable.
+
+### Executed results
+
+| Command/check | Result |
+|---|---|
+| backend: python -m pytest tests -q | **180 passed, 1 skipped**, 83.45s. PostgreSQL write opt-in deliberately left disabled. |
+| backend: python -m ruff check app tests | Passed. |
+| Targeted production/deployment regression after generator update | **11 passed**, 1.59s. Targeted generator/config/test lint passed. |
+| frontend: npm run lint | Passed. |
+| frontend: npm test | **22 passed**, 8 test files. |
+| frontend: npx tsc --noEmit --noUnusedLocals --noUnusedParameters | Passed. |
+| frontend: npm run build | TypeScript and Vite production build passed; final build rerun after unused CSS removal. |
+| frontend: npm run test:e2e | **10 passed, 1 skipped**, 44.2s on final full browser run. |
+| Actual Vite config with temporary env file and process override | Both precedence checks passed. |
+
+The first browser run failed the new branding assertion because DOM textContent includes the decorative V fallback even when hidden. The assertion was corrected to accept the intended fallback while still rejecting a trailing dot; no application behavior or security assertion was relaxed. Full browser rerun passed. It covers keyboard tab/focus, reduced motion, dot-free branding, missing-logo fallback, mobile width, upload/source/delete/logout, verified registration/reset, language persistence, canonical OAuth/dashboard/replay with synthetic Google boundary, Summary default/re-entry, original quotations/citations, unsupported-chat abstention and exports. Desktop Summary screenshot was visually reviewed. The final unused CSS removal affects no rendered selector.
+
+The browser live-AI/PostgreSQL test remains skipped because it requires an explicitly supplied verified synthetic account and opt-in. No fresh live model/Google/SMTP claims are made by this run. Existing production hosting/S3/OAuth/SMTP/restore/load/security review gates remain open, as documented in DEPLOYMENT.md. README, four specifications and requirements audit reflect this cleanup.

@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 export function Pagination({
   offset,
@@ -12,8 +13,10 @@ export function Pagination({
   count: number;
   onChange: (offset: number) => void;
 }) {
+  const { t } = useLanguage();
+
   return (
-    <nav className="pagination" aria-label="Results pagination">
+    <nav className="pagination" aria-label={t("Results pagination")}>
       <span className="muted small-copy">
         {count ? offset + 1 : 0}–{offset + count}
         {total !== null ? ` of ${total}` : ""}
@@ -25,14 +28,14 @@ export function Pagination({
           onClick={() => onChange(Math.max(0, offset - pageSize))}
         >
           <ChevronLeft size={16} />
-          Previous
+          {t("Previous")}
         </button>
         <button
           className="button secondary small"
           disabled={total !== null ? offset + count >= total : count < pageSize}
           onClick={() => onChange(offset + pageSize)}
         >
-          Next
+          {t("Next")}
           <ChevronRight size={16} />
         </button>
       </div>

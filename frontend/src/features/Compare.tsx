@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +20,8 @@ interface Comparison {
   limitations: string[];
 }
 export default function Compare() {
+  const { t } = useLanguage();
+
   const { user } = useSession();
   const sources = useQuery({
     queryKey: ["sources"],
@@ -51,24 +54,26 @@ export default function Compare() {
     <section className="page">
       <Link className="back-link" to="/library">
         <ArrowLeft size={15} />
-        Document library
+        {t("Document library")}
       </Link>
       <PageHeading
-        eyebrow="SOURCE SNAPSHOT COMPARISON"
-        title="See what the wording changed."
+        eyebrow={t("SOURCE SNAPSHOT COMPARISON")}
+        title={t("See what the wording changed.")}
       >
-        Compare two captured sources side by side. Changes reflect text
-        differences, without a legal conclusion.
+        {t(
+          "Compare two captured sources side by side. Changes reflect text differences, without a legal conclusion.",
+        )}
       </PageHeading>
       <Notice>
-        Capture dates record when sources were acquired. They do not establish a
-        policy’s effective date or a complete history.
+        {t(
+          "Capture dates record when sources were acquired. They do not establish a policy’s effective date or a complete history.",
+        )}
       </Notice>
       <ErrorNotice error={error || sources.error} />
       {!user ? (
-        <Empty title="Your sources are private">
+        <Empty title={t("Your sources are private")}>
           <Link className="text-link" to="/sign-in">
-            Sign in to compare your documents.
+            {t("Sign in to compare your documents.")}
           </Link>
         </Empty>
       ) : sources.isPending ? (
@@ -77,13 +82,13 @@ export default function Compare() {
         <>
           <form className="panel comparison-form" onSubmit={compare}>
             <label>
-              Earlier / first source
+              {t("Earlier / first source")}
               <select
                 value={before}
                 onChange={(e) => setBefore(e.target.value)}
                 required
               >
-                <option value="">Choose a source</option>
+                <option value="">{t("Choose a source")}</option>
                 {available.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.original_name} ·{" "}
@@ -94,13 +99,13 @@ export default function Compare() {
             </label>
             <ArrowLeftRight size={20} />
             <label>
-              Later / second source
+              {t("Later / second source")}
               <select
                 value={after}
                 onChange={(e) => setAfter(e.target.value)}
                 required
               >
-                <option value="">Choose a source</option>
+                <option value="">{t("Choose a source")}</option>
                 {available
                   .filter((s) => s.id !== before)
                   .map((s) => (
@@ -115,13 +120,14 @@ export default function Compare() {
               className="button"
               disabled={busy || !before || !after || before === after}
             >
-              {busy ? "Comparing…" : "Compare sources"}
+              {busy ? t("Comparing…") : t("Compare sources")}
             </button>
           </form>
           {available.length < 2 && (
             <p className="muted small-copy">
-              Upload at least two sources and wait for extraction before
-              comparing them.
+              {t(
+                "Upload at least two sources and wait for extraction before comparing them.",
+              )}
             </p>
           )}
           {result && (
@@ -131,9 +137,13 @@ export default function Compare() {
                   <div key={s.id}>
                     <strong>{s.original_name}</strong>
                     <p className="muted small-copy">
-                      Captured {new Date(s.captured_at).toLocaleString()}
+                      {t("Captured")}
+                      {new Date(s.captured_at).toLocaleString()}
                     </p>
-                    <p className="mono">SHA-256 {s.sha256}</p>
+                    <p className="mono">
+                      {t("SHA-256")}
+                      {s.sha256}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -149,13 +159,13 @@ export default function Compare() {
                     checked={showSame}
                     onChange={(e) => setShowSame(e.target.checked)}
                   />
-                  Show unchanged passages
+                  {t("Show unchanged passages")}
                 </label>
               </div>
               <div className="diff-table">
                 <div className="diff-head">
-                  <strong>First captured source</strong>
-                  <strong>Second captured source</strong>
+                  <strong>{t("First captured source")}</strong>
+                  <strong>{t("Second captured source")}</strong>
                 </div>
                 {result.changes
                   .filter((c) => showSame || c.kind !== "unchanged")
@@ -171,15 +181,15 @@ export default function Compare() {
                             >
                               <span className="tiny-label">
                                 {s.page
-                                  ? `Page ${s.page}`
-                                  : s.heading || "Source section"}
+                                  ? `${t("Page")} ${s.page}`
+                                  : s.heading || t("Source section")}
                               </span>
                               <p>{s.text}</p>
                             </div>
                           ))
                         ) : (
                           <p className="muted small-copy">
-                            No corresponding passage in this source.
+                            {t("No corresponding passage in this source.")}
                           </p>
                         )}
                       </div>
@@ -192,15 +202,15 @@ export default function Compare() {
                             >
                               <span className="tiny-label">
                                 {s.page
-                                  ? `Page ${s.page}`
-                                  : s.heading || "Source section"}
+                                  ? `${t("Page")} ${s.page}`
+                                  : s.heading || t("Source section")}
                               </span>
                               <p>{s.text}</p>
                             </div>
                           ))
                         ) : (
                           <p className="muted small-copy">
-                            No corresponding passage in this source.
+                            {t("No corresponding passage in this source.")}
                           </p>
                         )}
                       </div>
@@ -208,9 +218,10 @@ export default function Compare() {
                   ))}
               </div>
               {!result.changes.some((c) => c.kind !== "unchanged") && (
-                <Empty title="No textual changes found">
-                  The compared source passages match. This does not establish
-                  identical real-world practices.
+                <Empty title={t("No textual changes found")}>
+                  {t(
+                    "The compared source passages match. This does not establish identical real-world practices.",
+                  )}
                 </Empty>
               )}
               {result.limitations.map((l) => (

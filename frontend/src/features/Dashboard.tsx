@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, FileText, Plus } from "lucide-react";
@@ -23,6 +24,8 @@ interface DashboardData {
   recent_activity: { action: string; object_id: string; created_at: string }[];
 }
 export default function Dashboard() {
+  const { t } = useLanguage();
+
   const { user, loading } = useSession();
   const query = useQuery({
     queryKey: ["dashboard"],
@@ -34,28 +37,32 @@ export default function Dashboard() {
   return (
     <section className="page">
       <PageHeading
-        eyebrow="YOUR VERIORA WORKSPACE"
-        title="Pick up your document review."
+        eyebrow={t("YOUR VERIORA WORKSPACE")}
+        title={t("Pick up your document review.")}
         actions={
           <Link className="button" to="/analyze">
             <Plus size={17} />
-            New analysis
+            {t("New analysis")}
           </Link>
         }
       >
-        A clear view of your sources, processing work and recent activity.
+        {t(
+          "A clear view of your sources, processing work and recent activity.",
+        )}
       </PageHeading>
       {!user ? (
         <div className="panel">
-          <Empty title="Start with your first document">
-            Analyze a document as a guest, or sign in to revisit saved evidence.
+          <Empty title={t("Start with your first document")}>
+            {t(
+              "Analyze a document as a guest, or sign in to revisit saved evidence.",
+            )}
           </Empty>
           <div className="actions center">
             <Link className="button" to="/analyze">
-              Analyze a document
+              {t("Analyze a document")}
             </Link>
             <Link className="button secondary" to="/sign-in">
-              Sign in
+              {t("Sign in")}
             </Link>
           </div>
         </div>
@@ -69,19 +76,20 @@ export default function Dashboard() {
               <>
                 {user.guest && (
                   <Notice warning>
-                    Your guest workspace is temporary. Create an account in this
-                    session to retain these documents.
+                    {t(
+                      "Your guest workspace is temporary. Create an account in this session to retain these documents.",
+                    )}
                   </Notice>
                 )}
                 <div className="dashboard-counts">
                   {[
-                    ["Documents", query.data.counts.documents],
+                    [t("Documents"), query.data.counts.documents],
                     [
-                      "Completed analyses",
+                      t("Completed analyses"),
                       query.data.counts.completed_analyses,
                     ],
-                    ["In progress", query.data.counts.pending_analyses],
-                    ["Need attention", query.data.counts.failed_analyses],
+                    [t("In progress"), query.data.counts.pending_analyses],
+                    [t("Need attention"), query.data.counts.failed_analyses],
                   ].map(([label, count]) => (
                     <div key={label}>
                       <span>{label}</span>
@@ -91,16 +99,17 @@ export default function Dashboard() {
                 </div>
                 {query.data.counts.failed_analyses > 0 && (
                   <Notice warning>
-                    Some analyses did not finish. Open their documents to
-                    inspect the failure and retry when appropriate.
+                    {t(
+                      "Some analyses did not finish. Open their documents to inspect the failure and retry when appropriate.",
+                    )}
                   </Notice>
                 )}
                 <div className="dashboard-columns">
                   <section className="panel dashboard-recent">
                     <div className="row between">
-                      <h2>Recent documents</h2>
+                      <h2>{t("Recent documents")}</h2>
                       <Link className="text-link" to="/library">
-                        View library
+                        {t("View library")}
                         <ArrowRight size={15} />
                       </Link>
                     </div>
@@ -119,7 +128,7 @@ export default function Dashboard() {
                           <div>
                             <strong>{source.original_name}</strong>
                             <span>
-                              Captured{" "}
+                              {t("Captured")}{" "}
                               {new Date(
                                 source.captured_at,
                               ).toLocaleDateString()}
@@ -129,13 +138,13 @@ export default function Dashboard() {
                         </Link>
                       ))
                     ) : (
-                      <Empty title="No documents yet">
-                        Upload an agreement or paste text to begin.
+                      <Empty title={t("No documents yet")}>
+                        {t("Upload an agreement or paste text to begin.")}
                       </Empty>
                     )}
                   </section>
                   <section className="panel dashboard-activity">
-                    <h2>Recent activity</h2>
+                    <h2>{t("Recent activity")}</h2>
                     {query.data.recent_activity.length ? (
                       <ol>
                         {query.data.recent_activity.map((event, index) => (
@@ -153,7 +162,7 @@ export default function Dashboard() {
                       </ol>
                     ) : (
                       <p className="muted">
-                        Document and account activity will appear here.
+                        {t("Document and account activity will appear here.")}
                       </p>
                     )}
                   </section>

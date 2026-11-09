@@ -13,3 +13,36 @@ test-results/
 playwright-report/
 .test-tmp*/
 pytest-cache-files-*/
+
+# Local configuration, credentials, package/build caches and deployment outputs
+.env.*
+!.env.example
+!**/.env.example
+.venv*/
+venv/
+.coverage*
+htmlcov/
+coverage/
+*.pyc
+*.tsbuildinfo
+.vite/
+.vercel/
+*.log
+*.pem
+*.key
+*.p12
+*.dump
+*.backup
+scripts/ui-catalog.partial.json
+
+# Private/local documents and backups; authored test fixtures remain versionable.
+uploads/
+private-documents/
+backups/
+*.sqlite
+*.sqlite3
+*.docx
+*.pdf
+!backend/tests/fixtures/*.docx
+!backend/tests/fixtures/*.pdf
+.mypy_cache/

@@ -1,0 +1,1842 @@
+{
+  " · not configured": {
+    "hi": " · कॉन्फ़िगर नहीं किया गया",
+    "hinglish": " · not configured"
+  },
+  "A CLEARER WAY TO READ THE FINE PRINT": {
+    "hi": "बारीक शर्तें पढ़ने का स्पष्ट तरीका",
+    "hinglish": "Fine print samajhne ka clear tareeka"
+  },
+  "A PRIVATE PLACE FOR YOUR DOCUMENTS": {
+    "hi": "आपके दस्तावेज़ों के लिए निजी जगह",
+    "hinglish": "Aapke documents ke liye private jagah"
+  },
+  "A clear view of your sources, processing work and recent activity.": {
+    "hi": "अपने स्रोत, जारी काम और हाल की गतिविधि स्पष्ट रूप से देखें।",
+    "hinglish": "Apne sources, processing aur recent activity ka clear overview dekhein."
+  },
+  "A hash identifies these captured bytes. It does not prove remote origin, conduct, or legal admissibility.": {
+    "hi": "हैश संग्रहित बाइट की पहचान करता है। यह स्रोत, वास्तविक व्यवहार या कानूनी स्वीकार्यता का प्रमाण नहीं है।",
+    "hinglish": "Hash captured bytes identify karta hai. Ye origin, conduct ya legal admissibility ka proof nahi."
+  },
+  "A model verifier is not independent human adjudication. Source matching and semantic interpretation are separate checks.": {
+    "hi": "मॉडल की समीक्षा स्वतंत्र मानवीय निर्णय नहीं है। स्रोत मिलान और अर्थ की व्याख्या अलग जाँच हैं।",
+    "hinglish": "Model verifier independent human review nahi hai. Source matching aur meaning ki checking alag hain."
+  },
+  "A policy is a statement.": {
+    "hi": "नीति एक कथन है।",
+    "hinglish": "A policy is a statement."
+  },
+  "A source, not a promise.": {
+    "hi": "एक स्रोत, वादा नहीं।",
+    "hinglish": "A source, not a promise."
+  },
+  "ACCOUNT & PRIVACY": {
+    "hi": "खाता & गोपनीयता",
+    "hinglish": "Account & Privacy"
+  },
+  "ACTIONS": {
+    "hi": "कार्रवाई",
+    "hinglish": "Actions"
+  },
+  "AI analysis is unavailable until an administrator configures a provider. No analysis has been generated.": {
+    "hi": "एआई विश्लेषण तब तक उपलब्ध नहीं है जब तक एक व्यवस्थापक प्रदाता को कॉन्फ़िगर नहीं करता। कोई विश्लेषण उत्पन्न नहीं किया गया है।",
+    "hinglish": "AI analysis is unavailable until an administrator configures a provider. No analysis has been generated."
+  },
+  "AI provider": {
+    "hi": "AI प्रदाता",
+    "hinglish": "AI provider"
+  },
+  "ANALYSIS WORKSPACE": {
+    "hi": "विश्लेषण कार्यक्षेत्र",
+    "hinglish": "Analysis workspace"
+  },
+  "ANSWERS STAY WITHIN YOUR SOURCE SET": {
+    "hi": "उत्तर आपके स्रोत सेट के भीतर रहते हैं",
+    "hinglish": "Answers stay within your source set"
+  },
+  "About verification": {
+    "hi": "सत्यापन के बारे में",
+    "hinglish": "Verification ke baare mein"
+  },
+  "Account": {
+    "hi": "खाता",
+    "hinglish": "Account"
+  },
+  "Account & retention": {
+    "hi": "खाता और डेटा रखने की अवधि",
+    "hinglish": "Account aur retention"
+  },
+  "Account created. Sign in to continue.": {
+    "hi": "खाता बन गया। आगे बढ़ने के लिए साइन इन करें।",
+    "hinglish": "Account ban gaya. Aage badhne ke liye sign in karein."
+  },
+  "Acquired": {
+    "hi": "प्राप्त",
+    "hinglish": "Acquired"
+  },
+  "All categories": {
+    "hi": "सभी श्रेणियाँ",
+    "hinglish": "All categories"
+  },
+  "All documents": {
+    "hi": "सभी दस्तावेज़",
+    "hinglish": "All documents"
+  },
+  "All evidence states": {
+    "hi": "सभी साक्ष्य अवस्थाएँ",
+    "hinglish": "All evidence states"
+  },
+  "Analysis could not be completed": {
+    "hi": "विश्लेषण पूरा नहीं किया जा सका",
+    "hinglish": "Analysis could not be completed"
+  },
+  "Analysis overview": {
+    "hi": "विश्लेषण अवलोकन",
+    "hinglish": "Analysis ka overview"
+  },
+  "Analysis presentation": {
+    "hi": "विश्लेषण प्रस्तुति",
+    "hinglish": "Analysis presentation"
+  },
+  "Analysis views": {
+    "hi": "विश्लेषण दृश्य",
+    "hinglish": "Analysis views"
+  },
+  "Analyze": {
+    "hi": "विश्लेषण करें",
+    "hinglish": "Analyze karein"
+  },
+  "Analyze a document": {
+    "hi": "दस्तावेज़ का विश्लेषण करें",
+    "hinglish": "Document analyze karein"
+  },
+  "Analyze a document as a guest, or sign in to revisit saved evidence.": {
+    "hi": "एक दस्तावेज़ का विश्लेषण अतिथि के रूप में करें, या सहेजे गए साक्ष्य को पुनः देखने के लिए साइन इन करें।",
+    "hinglish": "Analyze a document as a guest, or sign in to revisit saved evidence."
+  },
+  "Analyze as a guest": {
+    "hi": "अतिथि के रूप में विश्लेषण करें",
+    "hinglish": "Analyze as a guest"
+  },
+  "Analyze document": {
+    "hi": "दस्तावेज़ का विश्लेषण करें",
+    "hinglish": "Document ka vishleshan karein"
+  },
+  "Analyze this source": {
+    "hi": "इस स्रोत का विश्लेषण करें",
+    "hinglish": "Is source ka vishleshan karein"
+  },
+  "Answering from": {
+    "hi": "से उत्तर दे रहा है",
+    "hinglish": "Se answer de raha hai"
+  },
+  "Application language": {
+    "hi": "ऐप की भाषा",
+    "hinglish": "App ki bhasha"
+  },
+  "Ask": {
+    "hi": "पूछें",
+    "hinglish": "Poochhein"
+  },
+  "Ask Veriora": {
+    "hi": "Veriora से पूछें",
+    "hinglish": "Veriora se poochen"
+  },
+  "Ask about a right, obligation, exception or a specific clause.": {
+    "hi": "किसी अधिकार, दायित्व, अपवाद या विशिष्ट प्रावधान के बारे में पूछें।",
+    "hinglish": "Kisi adhikar, dayitva, apavād ya vishisht pravadhan ke baare mein poochhein."
+  },
+  "Ask your documents.": {
+    "hi": "अपने दस्तावेज़ों से पूछें।",
+    "hinglish": "Apne documents se poochhein."
+  },
+  "At least 12 characters.": {
+    "hi": "कम से कम 12 अक्षर।",
+    "hinglish": "Kam se kam 12 characters."
+  },
+  "BEFORE YOU BEGIN": {
+    "hi": "शुरू करने से पहले",
+    "hinglish": "Shuru karne se pehle."
+  },
+  "BUILT FOR THE DOCUMENTS THAT MATTER": {
+    "hi": "महत्वपूर्ण दस्तावेज़ों के लिए बनाया गया",
+    "hinglish": "Mahattvapurn dastavezon ke liye banaya gaya."
+  },
+  "Back to library": {
+    "hi": "लाइब्रेरी पर वापस",
+    "hinglish": "Library par wapas."
+  },
+  "Back to sign in": {
+    "hi": "साइन‑इन पर वापस",
+    "hinglish": "Sign in पर वापस"
+  },
+  "Benefits & rights": {
+    "hi": "लाभ और अधिकार",
+    "hinglish": "Benefits & rights"
+  },
+  "Bring a document. Keep the context. Get back to the exact words.": {
+    "hi": "एक दस्तावेज़ लाएँ। संदर्भ रखें। सटीक शब्दों पर वापस लौटें।",
+    "hinglish": "Bring a document. Keep the context. Get back to the exact words."
+  },
+  "Bring your document": {
+    "hi": "अपना दस्तावेज़ लाएँ",
+    "hinglish": "Bring your document"
+  },
+  "CAPTURED": {
+    "hi": "कैप्चर किया गया",
+    "hinglish": "CAPTURED"
+  },
+  "CAPTURED SOURCE": {
+    "hi": "कैप्चर किया गया स्रोत",
+    "hinglish": "CAPTURED SOURCE"
+  },
+  "Can I delete my data?": {
+    "hi": "क्या मैं अपना डेटा मिटा सकता हूँ?",
+    "hinglish": "Kya main apna data delete kar sakta hoon?"
+  },
+  "Can I rely on this as legal advice?": {
+    "hi": "क्या मैं इसे कानूनी सलाह के रूप में भरोसा कर सकता हूँ?",
+    "hinglish": "Kya main ise legal advice ke roop mein bharosa kar sakta hoon?"
+  },
+  "Cancel": {
+    "hi": "रद्द करें",
+    "hinglish": "Cancel"
+  },
+  "Cancel processing": {
+    "hi": "प्रसंस्करण रद्द करें",
+    "hinglish": "Cancel processing"
+  },
+  "Cancellation doesn’t mean a refund.": {
+    "hi": "रद्दीकरण का मतलब रिफंड नहीं होता।",
+    "hinglish": "Cancellation doesn't mean a refund."
+  },
+  "Capture dates record when sources were acquired. They do not establish a policy’s effective date or a complete history.": {
+    "hi": "कैप्चर तिथियाँ यह रिकॉर्ड करती हैं कि स्रोत कब प्राप्त हुए थे। वे किसी नीति की प्रभावी तिथि या पूरी इतिहास स्थापित नहीं करतीं।",
+    "hinglish": "Capture dates record when sources were acquired. They do not establish a policy’s effective date or a complete history."
+  },
+  "Captured": {
+    "hi": "कैप्चर हुआ",
+    "hinglish": "Captured"
+  },
+  "Check your inbox": {
+    "hi": "अपना इनबॉक्स चेक करें",
+    "hinglish": "Check your inbox"
+  },
+  "Checking…": {
+    "hi": "जाँच हो रही है…",
+    "hinglish": "Checking…"
+  },
+  "Choose a PDF, DOCX, TXT or HTML file.": {
+    "hi": "एक PDF, DOCX, TXT या HTML फ़ाइल चुनें।",
+    "hinglish": "Choose a PDF, DOCX, TXT or HTML file."
+  },
+  "Choose a document first.": {
+    "hi": "पहले एक दस्तावेज़ चुनें।",
+    "hinglish": "Choose a document first."
+  },
+  "Choose a source": {
+    "hi": "एक स्रोत चुनें",
+    "hinglish": "Choose a source"
+  },
+  "Choose configured provider": {
+    "hi": "Choose configured provider",
+    "hinglish": "Choose provider"
+  },
+  "Choose document file": {
+    "hi": "Choose document file",
+    "hinglish": "Choose document file"
+  },
+  "Choose file": {
+    "hi": "Choose file",
+    "hinglish": "Choose file"
+  },
+  "Citation validity": {
+    "hi": "Citation validity",
+    "hinglish": "Citation validity"
+  },
+  "Clarity includes": {
+    "hi": "Clarity includes",
+    "hinglish": "Clarity includes"
+  },
+  "Clipboard access is unavailable. Select and copy the reference text from the Evidence Passport.": {
+    "hi": "Clipboard access is unavailable. Select and copy the reference text from the Evidence Passport.",
+    "hinglish": "Clipboard access is unavailable. Select and copy the reference text from the Evidence Passport."
+  },
+  "Compare sources": {
+    "hi": "स्रोतों की तुलना करें",
+    "hinglish": "Sources compare karo"
+  },
+  "Compare two captured sources side by side. Changes reflect text differences, without a legal conclusion.": {
+    "hi": "दो कैप्चर किए गए स्रोतों की बगल में तुलना करें। बदलाव पाठ के अंतर को दर्शाते हैं, बिना किसी कानूनी निष्कर्ष के।",
+    "hinglish": "Do captured sources side by side compare karo. Changes text differences ko reflect karte hain, bina legal conclusion ke."
+  },
+  "Comparing…": {
+    "hi": "तुलना हो रही है…",
+    "hinglish": "Comparing…"
+  },
+  "Completed analyses": {
+    "hi": "विश्लेषण पूर्ण हुए",
+    "hinglish": "Completed analyses"
+  },
+  "Confidential · source inspection only": {
+    "hi": "गोपनीय · केवल स्रोत निरीक्षण",
+    "hinglish": "Confidential · source inspection only"
+  },
+  "Confirm Password": {
+    "hi": "पासवर्ड की पुष्टि करें",
+    "hinglish": "Password confirm karein"
+  },
+  "Confirm ownership using your emailed link. No password or active account has been created yet.": {
+    "hi": "ईमेल में मिले लिंक से अपना स्वामित्व सत्यापित करें। अभी कोई पासवर्ड या सक्रिय खाता नहीं बना है।",
+    "hinglish": "Email link se ownership verify karein. Abhi password ya active account nahi bana hai."
+  },
+  "Continue with Google": {
+    "hi": "Google से जारी रखें",
+    "hinglish": "Google se continue karein"
+  },
+  "Control retention and choose your preferred processing provider.": {
+    "hi": "रिटेंशन को नियंत्रित करें और अपनी पसंदीदा प्रोसेसिंग प्रोवाइडर चुनें।",
+    "hinglish": "Retention ko control karein aur apni pasandida processing provider chunen."
+  },
+  "Copied": {
+    "hi": "कॉपी किया गया",
+    "hinglish": "Copied"
+  },
+  "Copy reference": {
+    "hi": "संदर्भ कॉपी करें",
+    "hinglish": "Copy reference"
+  },
+  "Create Password": {
+    "hi": "पासवर्ड बनाएँ",
+    "hinglish": "Password banayein"
+  },
+  "Create account": {
+    "hi": "खाता बनाएँ",
+    "hinglish": "Account banayein"
+  },
+  "Create an account": {
+    "hi": "एक खाता बनाएं",
+    "hinglish": "Create an account"
+  },
+  "Create your password": {
+    "hi": "अपना पासवर्ड बनाएं",
+    "hinglish": "Create your password"
+  },
+  "Create your password to finish.": {
+    "hi": "पूरा करने के लिए अपना पासवर्ड बनाएं",
+    "hinglish": "Create your password to finish."
+  },
+  "DOCUMENT": {
+    "hi": "दस्तावेज़",
+    "hinglish": "DOCUMENT"
+  },
+  "Dashboard": {
+    "hi": "डैशबोर्ड",
+    "hinglish": "Dashboard"
+  },
+  "Decrease source font size": {
+    "hi": "स्रोत फ़ॉन्ट आकार घटाएँ",
+    "hinglish": "Source font size ghatao"
+  },
+  "Delete account and documents": {
+    "hi": "खाता और दस्तावेज़ हटाएँ",
+    "hinglish": "Account aur documents delete karo"
+  },
+  "Delete document": {
+    "hi": "दस्तावेज़ हटाएँ",
+    "hinglish": "Document delete karo"
+  },
+  "Delete my account and data": {
+    "hi": "मेरा खाता और डेटा हटाएँ",
+    "hinglish": "My account aur data delete karo"
+  },
+  "Delete this document?": {
+    "hi": "क्या इस दस्तावेज़ को हटाना है?",
+    "hinglish": "Is document ko delete karna hai?"
+  },
+  "Deleting…": {
+    "hi": "हटाया जा रहा है…",
+    "hinglish": "Deleting…"
+  },
+  "Detailed Analysis": {
+    "hi": "विस्तृत विश्लेषण",
+    "hinglish": "Detailed analysis"
+  },
+  "Discover website policies": {
+    "hi": "वेबसाइट नीतियों की खोज करें",
+    "hinglish": "Discover website policies"
+  },
+  "Discovered policy candidates": {
+    "hi": "पता चली नीति उम्मीदवार",
+    "hinglish": "Discovered policy candidates"
+  },
+  "Discovery checks accessible links. Other terms may exist, and protected pages will not be bypassed.": {
+    "hi": "खोज़ में उपलब्ध लिंक की जाँच की जाती है। अन्य शर्तें हो सकती हैं, और संरक्षित पृष्ठों को बायपास नहीं किया जाएगा।",
+    "hinglish": "Discovery checks accessible links. Other terms may exist, and protected pages will not be bypassed."
+  },
+  "Document and account activity will appear here.": {
+    "hi": "दस्तावेज़ और खाता गतिविधि यहाँ दिखाई देंगी।",
+    "hinglish": "Document and account activity will appear here."
+  },
+  "Document display name": {
+    "hi": "दस्तावेज़ प्रदर्शन नाम",
+    "hinglish": "Document display name"
+  },
+  "Document input method": {
+    "hi": "दस्तावेज़ इनपुट विधि",
+    "hinglish": "Document input method"
+  },
+  "Document intelligence. Evidence first.": {
+    "hi": "दस्तावेज़ बुद्धिमत्ता। साक्ष्य पहले।",
+    "hinglish": "Document intelligence. Evidence first."
+  },
+  "Document library": {
+    "hi": "दस्तावेज़ पुस्तकालय",
+    "hinglish": "Document library"
+  },
+  "Document name": {
+    "hi": "दस्तावेज़ का नाम",
+    "hinglish": "Document name"
+  },
+  "Document processing failed. Inspect the source and retry.": {
+    "hi": "दस्तावेज़ प्रसंस्करण विफल हुआ। स्रोत की जाँच करें और पुनः प्रयास करें।",
+    "hinglish": "Document processing failed. Inspect the source and retry."
+  },
+  "Document retention": {
+    "hi": "दस्तावेज़ प्रतिधारण",
+    "hinglish": "Document retention"
+  },
+  "Document source": {
+    "hi": "दस्तावेज़ स्रोत",
+    "hinglish": "Document source"
+  },
+  "Document summary": {
+    "hi": "दस्तावेज़ सारांश",
+    "hinglish": "Document summary"
+  },
+  "Documents": {
+    "hi": "दस्तावेज़",
+    "hinglish": "Documents"
+  },
+  "Download original source": {
+    "hi": "मूल स्रोत डाउनलोड करें",
+    "hinglish": "Download original source"
+  },
+  "Download your available account and analysis metadata in machine-readable form. Individual reports are available in each analysis.": {
+    "hi": "मशीन-पढ़ने योग्य प्रारूप में अपने उपलब्ध खाते और विश्लेषण मेटाडेटा डाउनलोड करें। प्रत्येक विश्लेषण में व्यक्तिगत रिपोर्ट उपलब्ध हैं।",
+    "hinglish": "Download your available account and analysis metadata in machine-readable form. Individual reports are available in each analysis."
+  },
+  "Drop your document here": {
+    "hi": "यहाँ अपना दस्तावेज़ ड्रॉप करें",
+    "hinglish": "Drop your document here"
+  },
+  "EVIDENCE BEFORE ASSERTION": {
+    "hi": "साक्ष्य पहले, दावा बाद में",
+    "hinglish": "Evidence pehle, assertion baad mein"
+  },
+  "Each analysis still requires consent. Provider fallback is never silently authorized by this preference.": {
+    "hi": "प्रत्येक विश्लेषण के लिए अभी भी सहमति आवश्यक है। इस प्राथमिकता के तहत प्रदाता का फॉलबैक कभी भी चुपचाप अधिकृत नहीं होता।",
+    "hinglish": "Har analysis abhi bhi consent mangta hai. Provider fallback kabhi bhi silently authorized nahi hota is preference ke through."
+  },
+  "Earlier / first source": {
+    "hi": "पहला / प्रारंभिक स्रोत",
+    "hinglish": "Earlier / first source"
+  },
+  "Email": {
+    "hi": "ईमेल",
+    "hinglish": "Email"
+  },
+  "Email address": {
+    "hi": "ईमेल पता",
+    "hinglish": "Email address"
+  },
+  "Email verified. Create your password to finish.": {
+    "hi": "ईमेल सत्यापित है। प्रक्रिया पूरी करने के लिए पासवर्ड बनाएँ।",
+    "hinglish": "Email verified hai. Complete karne ke liye password banayein."
+  },
+  "Email verified. You can now sign in.": {
+    "hi": "ईमेल सत्यापित किया गया है। आप अब साइन इन कर सकते हैं।",
+    "hinglish": "Email verified. Aap ab sign in kar sakte hain."
+  },
+  "Employment contracts": {
+    "hi": "रोज़गार अनुबंध",
+    "hinglish": "Employment contracts"
+  },
+  "Every interpretation should come with evidence.": {
+    "hi": "प्रत्येक व्याख्या के साथ साक्ष्य होना चाहिए।",
+    "hinglish": "Har interpretation ke saath evidence hona chahiye."
+  },
+  "Evidence Passport": {
+    "hi": "साक्ष्य विवरण",
+    "hinglish": "Evidence Passport"
+  },
+  "Evidence status": {
+    "hi": "साक्ष्य स्थिति",
+    "hinglish": "Evidence status"
+  },
+  "Evidence stays connected to the document version you reviewed.": {
+    "hi": "साक्ष्य उस दस्तावेज़ संस्करण से जुड़ा रहता है जिसे आपने समीक्षा किया है।",
+    "hinglish": "Evidence us document version se connected rehta hai jo aapne review kiya hai."
+  },
+  "Evidence-grounded overview": {
+    "hi": "साक्ष्य पर आधारित अवलोकन",
+    "hinglish": "Evidence par based overview"
+  },
+  "Explore rights, obligations, restrictions and exceptions. See extraction gaps and uncertainty.": {
+    "hi": "अधिकार, दायित्व, प्रतिबंध और अपवादों का पता लगाएँ। निष्कर्षण अंतराल और अनिश्चितता देखें।",
+    "hinglish": "Rights, obligations, restrictions aur exceptions ko explore karein. Extraction gaps aur uncertainty dekhein."
+  },
+  "Export account data": {
+    "hi": "खाता डेटा निर्यात करें",
+    "hinglish": "Export account data"
+  },
+  "Export your account data": {
+    "hi": "अपना खाता डेटा निर्यात करें",
+    "hinglish": "Export your account data"
+  },
+  "External AI provider": {
+    "hi": "बाहरी एआई प्रदाता",
+    "hinglish": "External AI provider"
+  },
+  "External AI transfer is blocked. You can preserve and inspect extracted text; confidential AI processing is not configured.": {
+    "hi": "बाहरी एआई ट्रांसफर अवरुद्ध है। आप निकाले गए पाठ को संरक्षित और निरीक्षण कर सकते हैं; गोपनीय एआई प्रसंस्करण कॉन्फ़िगर नहीं है।",
+    "hinglish": "External AI transfer blocked hai. Aap extracted text ko preserve aur inspect kar sakte hain; confidential AI processing configured nahi hai."
+  },
+  "External interpretation requires a configured provider and your consent.": {
+    "hi": "बाहरी व्याख्या के लिए एक कॉन्फ़िगर किया हुआ प्रदाता और आपकी सहमति आवश्यक है।",
+    "hinglish": "External interpretation ke liye ek configured provider aur aapki consent zaroori hai."
+  },
+  "Extracted source text. Original file layout may differ; locations refer to the captured extraction.": {
+    "hi": "निकाला गया स्रोत पाठ। मूल फ़ाइल लेआउट अलग हो सकता है; स्थान कैप्चर किए गए निष्कर्षण को संदर्भित करते हैं।",
+    "hinglish": "Extracted source text. Original file layout alag ho sakta hai; locations captured extraction ko refer karte hain."
+  },
+  "Extraction coverage": {
+    "hi": "निष्कर्षण कवरेज",
+    "hinglish": "Extraction coverage"
+  },
+  "Extraction did not complete. You can retry the preserved source or upload a corrected copy.": {
+    "hi": "निष्कर्षण पूरा नहीं हुआ। आप संरक्षित स्रोत को पुनः प्रयास कर सकते हैं या एक सुधारी हुई प्रति अपलोड कर सकते हैं।",
+    "hinglish": "Extraction complete nahi hua. Aap preserved source ko retry kar sakte hain ya ek corrected copy upload kar sakte hain."
+  },
+  "Extraction incomplete": {
+    "hi": "निष्कर्षण अधूरा",
+    "hinglish": "Extraction incomplete"
+  },
+  "Extraction may still be running, or this document may require OCR.": {
+    "hi": "निष्कर्षण अभी भी चल रहा हो सकता है, या इस दस्तावेज़ को OCR की आवश्यकता हो सकती है।",
+    "hinglish": "Extraction abhi bhi running ho sakta hai, ya is document ko OCR ki zaroorat ho sakti hai."
+  },
+  "FETCHING SELECTED POLICY": {
+    "hi": "चयनित नीति प्राप्त की जा रही है",
+    "hinglish": "Selected policy fetch ho rahi hai"
+  },
+  "Files must be 20 MB or smaller.": {
+    "hi": "फ़ाइलें 20 एमबी या उससे छोटी होनी चाहिए।",
+    "hinglish": "Files 20 MB ya usse chhoti honi chahiye."
+  },
+  "Find legal documents": {
+    "hi": "कानूनी दस्तावेज़ खोजें",
+    "hinglish": "Legal documents khojen"
+  },
+  "Find the policies behind a website.": {
+    "hi": "वेबसाइट के पीछे की नीतियों को खोजें।",
+    "hinglish": "Website ke peeche ki policies khojen"
+  },
+  "Finding category": {
+    "hi": "श्रेणी खोजी जा रही है",
+    "hinglish": "Category khoji ja rahi hai"
+  },
+  "Findings are being prepared": {
+    "hi": "खोजें तैयार की जा रही हैं",
+    "hinglish": "Findings taiyar ki ja rahi hain"
+  },
+  "Findings explain what a document says. They do not establish legal enforceability or what an organization does in practice.": {
+    "hi": "खोजें बताती हैं कि एक दस्तावेज़ क्या कहता है। वे कानूनी प्रवर्तनीयता या किसी संगठन के वास्तविक कार्यों को स्थापित नहीं करतीं।",
+    "hinglish": "Findings bataati hain ki ek document kya kehta hai. They do not establish legal enforceability ya kisi organization ke real practice ko."
+  },
+  "Findings unavailable": {
+    "hi": "खोजें उपलब्ध नहीं हैं",
+    "hinglish": "Findings unavailable"
+  },
+  "Findings you can inspect. Source evidence you can follow.": {
+    "hi": "जाँच योग्य निष्कर्ष और देखने योग्य मूल साक्ष्य।",
+    "hinglish": "Findings inspect karein aur original evidence tak jaayein."
+  },
+  "First captured source": {
+    "hi": "पहला कैप्चर किया गया स्रोत",
+    "hinglish": "First captured source"
+  },
+  "Follow every finding to evidence": {
+    "hi": "हर खोज को साक्ष्य तक फॉलो करें",
+    "hinglish": "Follow every finding to evidence"
+  },
+  "Forgot your password?": {
+    "hi": "पासवर्ड भूल गए?",
+    "hinglish": "Password bhool gaye?"
+  },
+  "From a long document": {
+    "hi": "एक लंबे दस्तावेज़ से",
+    "hinglish": "Ek lambe document se"
+  },
+  "Generator:": {
+    "hi": "जनरेटर:",
+    "hinglish": "Generator:"
+  },
+  "Go straight from a clause or agreement to structured analysis.": {
+    "hi": "क्लॉज़ या अनुबंध से सीधे संरचित विश्लेषण पर जाएँ।",
+    "hinglish": "Clause ya agreement se seedha structured analysis par jao."
+  },
+  "Go to sign in": {
+    "hi": "साइन इन पर जाएँ",
+    "hinglish": "Sign in par jao"
+  },
+  "Google sign-in is not configured on this deployment.": {
+    "hi": "इस डिप्लॉयमेंट पर Google साइन‑इन कॉन्फ़िगर नहीं है।",
+    "hinglish": "Google sign-in is not configured on this deployment."
+  },
+  "Guest documents are temporary.": {
+    "hi": "गेस्ट दस्तावेज़ अस्थायी हैं।",
+    "hinglish": "Guest documents are temporary."
+  },
+  "Guest session": {
+    "hi": "अतिथि सत्र",
+    "hinglish": "Guest session"
+  },
+  "High": {
+    "hi": "उच्च",
+    "hinglish": "High"
+  },
+  "How verification works": {
+    "hi": "सत्यापन कैसे काम करता है",
+    "hinglish": "How verification works"
+  },
+  "I authorize sending this document text to the selected provider. Its processing and retention terms apply.": {
+    "hi": "मैं इस दस्तावेज़ के पाठ को चयनित प्रदाता को भेजने की अनुमति देता हूँ। इसके प्रसंस्करण और प्रतिधारण शर्तें लागू होती हैं।",
+    "hinglish": "I authorize sending this document text to the selected provider. Its processing and retention terms apply."
+  },
+  "I authorize this document to be processed by the selected AI provider.": {
+    "hi": "मैं इस दस्तावेज़ को चयनित AI प्रदाता द्वारा संसाधित करने की अनुमति देता हूँ।",
+    "hinglish": "I authorize this document to be processed by the selected AI provider."
+  },
+  "If this account can be recovered, recovery instructions will be sent to its email address.": {
+    "hi": "यदि खाते की रिकवरी संभव है, तो निर्देश उसके ईमेल पर भेजे जाएँगे।",
+    "hinglish": "Agar account recover ho sakta hai, instructions uske email par bheje jayenge."
+  },
+  "If this address can be registered, check your email for a verification link. No account is activated until verification.": {
+    "hi": "यदि इस ईमेल से पंजीकरण संभव है, तो सत्यापन लिंक के लिए ईमेल देखें। सत्यापन से पहले खाता सक्रिय नहीं होगा।",
+    "hinglish": "Agar is address se signup ho sakta hai, email mein verification link check karein. Verify hone se pehle account active nahi hoga."
+  },
+  "Illustrative evidence workspace": {
+    "hi": "उदाहरणात्मक साक्ष्य कार्यक्षेत्र",
+    "hinglish": "Illustrative evidence workspace"
+  },
+  "Illustrative example": {
+    "hi": "उदाहरणात्मक उदाहरण",
+    "hinglish": "Illustrative example"
+  },
+  "Important exceptions": {
+    "hi": "महत्वपूर्ण अपवाद",
+    "hinglish": "Important exceptions"
+  },
+  "Important warnings": {
+    "hi": "महत्वपूर्ण चेतावनियाँ",
+    "hinglish": "Zaroori warnings"
+  },
+  "In progress": {
+    "hi": "प्रगति पर",
+    "hinglish": "In progress"
+  },
+  "Increase source font size": {
+    "hi": "स्रोत फ़ॉन्ट आकार बढ़ाएँ",
+    "hinglish": "Source font size badhaayein"
+  },
+  "Inspect exact passages, source locations and verification details in an Evidence Passport.": {
+    "hi": "साक्ष्य पासपोर्ट में सटीक अंश, स्रोत स्थान और सत्यापन विवरण की जाँच करें",
+    "hinglish": "Evidence Passport mein exact passages, source locations aur verification details ki jaanch karein"
+  },
+  "Inspect the example source": {
+    "hi": "उदाहरण स्रोत की जाँच करें",
+    "hinglish": "Example source ki jaanch karein"
+  },
+  "Interpretations inform your review. They are not legal advice.": {
+    "hi": "व्याख्याएँ आपकी समीक्षा को सूचित करती हैं। वे कानूनी सलाह नहीं हैं।",
+    "hinglish": "Interpretations aapki review ko inform karte hain. Yeh legal advice nahi hain."
+  },
+  "It does not establish real-world compliance, legal enforceability, or court admissibility. Missing evidence stays missing.": {
+    "hi": "यह वास्तविक दुनिया के अनुपालन, कानूनी प्रवर्तनीयता, या अदालत में स्वीकार्यता स्थापित नहीं करता। गायब साक्ष्य गायब ही रहते हैं।",
+    "hinglish": "Yeh real-world compliance, legal enforceability, ya court admissibility establish nahi karta. Missing evidence missing hi rehta hai."
+  },
+  "It isn’t proof of conduct.": {
+    "hi": "यह व्यवहार का प्रमाण नहीं है।",
+    "hinglish": "Yeh conduct ka proof nahi hai."
+  },
+  "Just exploring?": {
+    "hi": "सिर्फ़ खोज रहे हैं?",
+    "hinglish": "Just exploring?"
+  },
+  "KB": {
+    "hi": "KB",
+    "hinglish": "KB"
+  },
+  "Keep document": {
+    "hi": "दस्तावेज़ रखें",
+    "hinglish": "Keep document"
+  },
+  "Keep the context.": {
+    "hi": "संदर्भ रखें।",
+    "hinglish": "Keep the context."
+  },
+  "Keep the original file and inspect its extracted text.": {
+    "hi": "मूल फ़ाइल रखें और उसके निकाले गए पाठ की जाँच करें।",
+    "hinglish": "Keep the original file and inspect its extracted text."
+  },
+  "Keep the source.": {
+    "hi": "स्रोत रखें।",
+    "hinglish": "Keep the source."
+  },
+  "Kya ye company mera data kisi aur ko share karegi?": {
+    "hi": "क्या यह कंपनी मेरा डेटा किसी और को शेयर करेगी?",
+    "hinglish": "Kya ye company mera data kisi aur ko share karegi?"
+  },
+  "LEGAL DOCUMENT INTELLIGENCE": {
+    "hi": "कानूनी दस्तावेज़ बुद्धिमत्ता",
+    "hinglish": "Legal Document Intelligence"
+  },
+  "Language": {
+    "hi": "भाषा",
+    "hinglish": "Bhasha"
+  },
+  "Later / second source": {
+    "hi": "बाद में / दूसरा स्रोत",
+    "hinglish": "Later / second source"
+  },
+  "Legal policy": {
+    "hi": "कानूनी नीति",
+    "hinglish": "Legal policy"
+  },
+  "Library": {
+    "hi": "दस्तावेज़ संग्रह",
+    "hinglish": "Documents"
+  },
+  "Limitations": {
+    "hi": "सीमाएँ",
+    "hinglish": "Limitations"
+  },
+  "Link verified Google identity": {
+    "hi": "सत्यापित Google पहचान से लिंक करें",
+    "hinglish": "Link verified Google identity"
+  },
+  "Loading captured source…": {
+    "hi": "कैप्चर किया गया स्रोत लोड हो रहा है…",
+    "hinglish": "Loading captured source…"
+  },
+  "Loading conversation…": {
+    "hi": "वार्तालाप लोड हो रहा है…",
+    "hinglish": "Loading conversation…"
+  },
+  "Loading findings…": {
+    "hi": "खोजें लोड हो रही हैं…",
+    "hinglish": "Loading findings…"
+  },
+  "Location": {
+    "hi": "स्थान",
+    "hinglish": "Location"
+  },
+  "Low": {
+    "hi": "निम्न",
+    "hinglish": "Low"
+  },
+  "Main navigation": {
+    "hi": "मुख्य नेविगेशन",
+    "hinglish": "Main navigation"
+  },
+  "Make the fine print visible.": {
+    "hi": "सूक्ष्म प्रिंट को दृश्यमान बनाएं।",
+    "hinglish": "Fine print ko visible karo."
+  },
+  "Manifest": {
+    "hi": "मैनिफेस्ट",
+    "hinglish": "Manifest"
+  },
+  "Moderate": {
+    "hi": "मध्यम",
+    "hinglish": "Moderate"
+  },
+  "NDAs & service agreements": {
+    "hi": "एनडीए और सेवा समझौते",
+    "hinglish": "NDAs & service agreements"
+  },
+  "Need attention": {
+    "hi": "ध्यान दें",
+    "hinglish": "Attention chahiye"
+  },
+  "Needs review": {
+    "hi": "समीक्षा आवश्यक",
+    "hinglish": "Review karna hai"
+  },
+  "New analysis": {
+    "hi": "नया विश्लेषण",
+    "hinglish": "Naya analysis"
+  },
+  "New to Veriora?": {
+    "hi": "Veriora में नया?",
+    "hinglish": "Veriora new?"
+  },
+  "Newest first": {
+    "hi": "नवीनतम पहले",
+    "hinglish": "Newest first"
+  },
+  "Next": {
+    "hi": "अगला",
+    "hinglish": "Next"
+  },
+  "Next source section": {
+    "hi": "अगला स्रोत अनुभाग",
+    "hinglish": "Next source section"
+  },
+  "No accessible candidates yet": {
+    "hi": "अभी तक कोई उपलब्ध उम्मीदवार नहीं",
+    "hinglish": "No accessible candidates yet"
+  },
+  "No additional qualifications recorded; inspect surrounding source context.": {
+    "hi": "कोई अतिरिक्त योग्यताएँ दर्ज नहीं की गईं; आस-पास के स्रोत संदर्भ की जाँच करें।",
+    "hinglish": "No additional qualifications recorded; inspect surrounding source context."
+  },
+  "No captured source available": {
+    "hi": "कोई कैप्चर किया हुआ स्रोत उपलब्ध नहीं",
+    "hinglish": "No captured source available"
+  },
+  "No complete analysis is available. Preserved sources remain inspectable.": {
+    "hi": "कोई पूर्ण विश्लेषण उपलब्ध नहीं है। संरक्षित स्रोत अभी भी निरीक्षण योग्य हैं।",
+    "hinglish": "No complete analysis is available. Preserved sources remain inspectable."
+  },
+  "No corresponding passage in this source.": {
+    "hi": "इस स्रोत में कोई संबंधित अनुच्छेद नहीं है।",
+    "hinglish": "No corresponding passage in this source."
+  },
+  "No documents yet": {
+    "hi": "अभी तक कोई दस्तावेज़ नहीं",
+    "hinglish": "Abhi tak koi documents nahi"
+  },
+  "No findings in this view": {
+    "hi": "इस दृश्य में कोई खोज नहीं",
+    "hinglish": "Is view mein koi findings nahi"
+  },
+  "No matching documents": {
+    "hi": "कोई मेल खाते दस्तावेज़ नहीं",
+    "hinglish": "Koi matching documents nahi"
+  },
+  "No provider configured": {
+    "hi": "कोई प्रदाता कॉन्फ़िगर नहीं किया गया",
+    "hinglish": "Koi provider configured nahi"
+  },
+  "No source quotation was provided.": {
+    "hi": "कोई स्रोत उद्धरण प्रदान नहीं किया गया।",
+    "hinglish": "Koi source quotation provided nahi."
+  },
+  "No textual changes found": {
+    "hi": "कोई पाठ्य परिवर्तन नहीं मिला",
+    "hinglish": "Koi textual changes nahi mile"
+  },
+  "No unsupported claims are included in this summary.": {
+    "hi": "इस सारांश में कोई असमर्थित दावे शामिल नहीं हैं।",
+    "hinglish": "Is summary mein koi unsupported claims shamil nahi hain."
+  },
+  "No. Veriora helps you inspect document language and AI interpretations. Consult a qualified professional for legal advice or decisions.": {
+    "hi": "नहीं। Veriora आपको दस्तावेज़ भाषा और एआई व्याख्याओं की जाँच करने में मदद करता है। कानूनी सलाह या निर्णयों के लिए योग्य पेशेवर से परामर्श करें।",
+    "hinglish": "Nahin. Veriora aapko document language aur AI interpretations ki janch karne mein madad karta hai. Legal advice ya decisions ke liye qualified professional se consult karein."
+  },
+  "Not Determinable": {
+    "hi": "निर्धारित नहीं किया जा सकता",
+    "hinglish": "Nirdharit nahi kiya ja sakta."
+  },
+  "Not found or inaccessible:": {
+    "hi": "नहीं मिला या पहुँच योग्य नहीं:",
+    "hinglish": "Not found ya inaccessible:"
+  },
+  "ORIGINAL SOURCE": {
+    "hi": "मूल स्रोत",
+    "hinglish": "Original Source"
+  },
+  "Official website URL": {
+    "hi": "आधिकारिक वेबसाइट URL",
+    "hinglish": "Official website URL"
+  },
+  "Open detailed analysis": {
+    "hi": "विस्तृत विश्लेषण खोलें",
+    "hinglish": "Detailed analysis kholein"
+  },
+  "Open document": {
+    "hi": "दस्तावेज़ खोलें",
+    "hinglish": "Document kholo"
+  },
+  "Opening your analysis…": {
+    "hi": "आपका विश्लेषण खोल रहा है…",
+    "hinglish": "Your analysis खोल रहा है…"
+  },
+  "Original English explanations remain visible until translation is verified. Source quotes always stay unchanged. Uses your analysis provider.": {
+    "hi": "अनुवाद सत्यापित होने तक मूल अंग्रेज़ी व्याख्या दिखेगी। स्रोत उद्धरण हमेशा अपरिवर्तित रहते हैं। आपके विश्लेषण प्रदाता का उपयोग होता है।",
+    "hinglish": "Translation verify hone tak original English explanation dikhegi. Source quotes unchanged rehte hain. Aapka analysis provider use hota hai."
+  },
+  "Original document text": {
+    "hi": "मूल दस्तावेज़ पाठ",
+    "hinglish": "Original document text"
+  },
+  "Original quotation": {
+    "hi": "मूल उद्धरण",
+    "hinglish": "Original quote"
+  },
+  "Original source": {
+    "hi": "मूल स्रोत",
+    "hinglish": "Original source"
+  },
+  "Original source and acquisition metadata are preserved.": {
+    "hi": "मूल स्रोत और अधिग्रहण मेटाडेटा संरक्षित हैं।",
+    "hinglish": "Original source and acquisition metadata are preserved."
+  },
+  "Overall document risk": {
+    "hi": "दस्तावेज़ का समग्र जोखिम",
+    "hinglish": "Document ka overall risk"
+  },
+  "PDF report": {
+    "hi": "पीडीएफ रिपोर्ट",
+    "hinglish": "PDF report"
+  },
+  "PDF, DOCX, TXT, HTML & website policies": {
+    "hi": "पीडीएफ, DOCX, TXT, HTML और वेबसाइट नीतियाँ",
+    "hinglish": "PDF, DOCX, TXT, HTML & website policies"
+  },
+  "PDF, DOCX, TXT, HTML · Up to 20 MB · Up to 150 pages": {
+    "hi": "पीडीएफ, DOCX, TXT, HTML · अधिकतम 20 एमबी · अधिकतम 150 पृष्ठ",
+    "hinglish": "PDF, DOCX, TXT, HTML · Up to 20 MB · Up to 150 pages"
+  },
+  "POTENTIAL CONCERN": {
+    "hi": "संभावित चिंता",
+    "hinglish": "Potential Concern"
+  },
+  "PROCESSING & PRIVACY": {
+    "hi": "प्रसंस्करण एवं गोपनीयता",
+    "hinglish": "Processing & Privacy"
+  },
+  "Page": {
+    "hi": "पृष्ठ",
+    "hinglish": "Page"
+  },
+  "Page not found": {
+    "hi": "पृष्ठ नहीं मिला",
+    "hinglish": "Page not found"
+  },
+  "Partially completed": {
+    "hi": "आंशिक रूप से पूर्ण",
+    "hinglish": "Partially completed"
+  },
+  "Partially supported": {
+    "hi": "आंशिक रूप से समर्थित",
+    "hinglish": "Partially supported"
+  },
+  "Parties explicitly labelled in the source": {
+    "hi": "स्रोत में स्पष्ट रूप से लेबल किए गए पक्ष",
+    "hinglish": "Source mein clearly labelled parties"
+  },
+  "Password": {
+    "hi": "पासवर्ड",
+    "hinglish": "Password"
+  },
+  "Password updated. Sign in with your new password.": {
+    "hi": "पासवर्ड अपडेट किया गया। अपने नए पासवर्ड से साइन इन करें।",
+    "hinglish": "Password updated. Sign in with your new password."
+  },
+  "Passwords do not match.": {
+    "hi": "पासवर्ड मेल नहीं खाते।",
+    "hinglish": "Passwords match nahi karte."
+  },
+  "Paste document text": {
+    "hi": "डॉक्यूमेंट टेक्स्ट पेस्ट करें",
+    "hinglish": "Paste document text"
+  },
+  "Paste text": {
+    "hi": "पाठ पेस्ट करें",
+    "hinglish": "Paste text"
+  },
+  "Paste the complete agreement or the passage you want to inspect.": {
+    "hi": "पूरा अनुबंध या वह अंश पेस्ट करें जिसे आप निरीक्षण करना चाहते हैं।",
+    "hinglish": "Poora anubandh ya vah ansh paste karein jise aap nirikshan karna chahte hain."
+  },
+  "Pick up your document review.": {
+    "hi": "दस्तावेज़ की समीक्षा जारी रखें।",
+    "hinglish": "Apna document review jaari rakhein."
+  },
+  "Please authorize the selected provider before analysis.": {
+    "hi": "कृपया विश्लेषण से पहले चयनित प्रदाता को अधिकृत करें।",
+    "hinglish": "Kripya vishleshan se pehle chayanit provider ko adhikarit karein."
+  },
+  "Please wait…": {
+    "hi": "कृपया प्रतीक्षा करें…",
+    "hinglish": "Kripya pratiksha karein…"
+  },
+  "Policy discovery failed. Check the URL and try again.": {
+    "hi": "नीति खोज विफल रही। URL जाँचें और पुनः प्रयास करें।",
+    "hinglish": "Neeti khoj vefal rahi. URL janchain aur punah prayas karein."
+  },
+  "Potential risks": {
+    "hi": "संभावित जोखिम",
+    "hinglish": "Sambhavit jokhim"
+  },
+  "Preferences saved": {
+    "hi": "प्राथमिकताएँ सहेजी गईं",
+    "hinglish": "Preferences saved"
+  },
+  "Preferred AI provider": {
+    "hi": "पसंदीदा AI प्रदाता",
+    "hinglish": "Preferred AI provider"
+  },
+  "Prepare verified translation": {
+    "hi": "सत्यापित अनुवाद तैयार करें",
+    "hinglish": "Prepare verified translation"
+  },
+  "Preserved original source, separate from AI interpretation.": {
+    "hi": "मूल स्रोत संरक्षित है, AI व्याख्या से अलग।",
+    "hinglish": "Preserved original source, separate from AI interpretation."
+  },
+  "Previous": {
+    "hi": "पिछला",
+    "hinglish": "Previous"
+  },
+  "Previous source section": {
+    "hi": "पिछला स्रोत अनुभाग",
+    "hinglish": "Previous source section"
+  },
+  "Privacy policies": {
+    "hi": "गोपनीयता नीतियाँ",
+    "hinglish": "Privacy policies"
+  },
+  "Processing coverage": {
+    "hi": "प्रसंस्करण कवरेज",
+    "hinglish": "Processing coverage"
+  },
+  "Processing is still running. You can reopen the document from your library.": {
+    "hi": "प्रसंस्करण अभी भी चल रहा है। आप अपनी लाइब्रेरी से दस्तावेज़ को फिर से खोल सकते हैं।",
+    "hinglish": "Processing is still running. You can reopen the document from your library."
+  },
+  "Processing mode": {
+    "hi": "प्रसंस्करण मोड",
+    "hinglish": "Processing mode"
+  },
+  "Processing was canceled": {
+    "hi": "प्रसंस्करण रद्द कर दिया गया",
+    "hinglish": "Processing was canceled"
+  },
+  "Processing was canceled.": {
+    "hi": "प्रसंस्करण रद्द कर दिया गया।",
+    "hinglish": "Processing was canceled."
+  },
+  "Processing your source…": {
+    "hi": "आपका स्रोत प्रोसेस हो रहा है…",
+    "hinglish": "Your source ko process kiya ja raha hai…"
+  },
+  "Provider and model execution metadata": {
+    "hi": "प्रदाता और मॉडल के निष्पादन मेटाडेटा",
+    "hinglish": "Provider aur model execution metadata"
+  },
+  "QUEUING ANALYSIS": {
+    "hi": "विश्लेषण कतार में",
+    "hinglish": "Queuing analysis"
+  },
+  "Qualification:": {
+    "hi": "योग्यता:",
+    "hinglish": "Qualification:"
+  },
+  "Qualifications": {
+    "hi": "योग्यताएँ",
+    "hinglish": "Qualifications"
+  },
+  "Queued": {
+    "hi": "प्रतीक्षा में",
+    "hinglish": "Queue mein"
+  },
+  "READ WITH CONTEXT. DECIDE WITH CLARITY.": {
+    "hi": "संदर्भ के साथ पढ़ें। स्पष्टता के साथ निर्णय लें।",
+    "hinglish": "Read with context, decide with clarity."
+  },
+  "Read the interpretation. Inspect the source. Keep the context.": {
+    "hi": "व्याख्या पढ़ें। स्रोत की जाँच करें। संदर्भ बनाए रखें।",
+    "hinglish": "Read the interpretation, inspect the source, keep the context."
+  },
+  "Recent activity": {
+    "hi": "हालिया गतिविधि",
+    "hinglish": "Recent activity"
+  },
+  "Recent documents": {
+    "hi": "हालिया दस्तावेज़",
+    "hinglish": "Recent documents"
+  },
+  "Recover your account": {
+    "hi": "अपना खाता पुनः प्राप्त करें",
+    "hinglish": "Recover your account"
+  },
+  "Recovery": {
+    "hi": "पुनर्प्राप्ति",
+    "hinglish": "Recovery"
+  },
+  "Registration steps": {
+    "hi": "पंजीकरण चरण",
+    "hinglish": "Registration steps"
+  },
+  "Remove file": {
+    "hi": "फ़ाइल हटाएँ",
+    "hinglish": "Remove file"
+  },
+  "Remove your session/account, original sources and derived records. Minimal audit records may remain without source content. This action cannot be undone.": {
+    "hi": "अपना सत्र/खाता, मूल स्रोत और व्युत्पन्न रिकॉर्ड हटाएँ। न्यूनतम ऑडिट रिकॉर्ड स्रोत सामग्री के बिना रह सकते हैं। यह कार्रवाई उलट नहीं की जा सकती।",
+    "hinglish": "Remove your session/account, original sources and derived records. Minimal audit records may remain without source content. This action cannot be undone."
+  },
+  "Rename document": {
+    "hi": "दस्तावेज़ का नाम बदलें",
+    "hinglish": "Rename document"
+  },
+  "Report language": {
+    "hi": "रिपोर्ट भाषा",
+    "hinglish": "Report language"
+  },
+  "Restrictions": {
+    "hi": "प्रतिबंध",
+    "hinglish": "Restrictions"
+  },
+  "Results appear as the server completes verification.": {
+    "hi": "परिणाम सर्वर के सत्यापन पूरा होने पर दिखाई देते हैं।",
+    "hinglish": "Results server ke verification complete hone par dikhte hain."
+  },
+  "Results pagination": {
+    "hi": "परिणाम पृष्ठांकन",
+    "hinglish": "Results pagination"
+  },
+  "Retry analysis": {
+    "hi": "विश्लेषण फिर से प्रयास करें",
+    "hinglish": "Retry analysis"
+  },
+  "Retry extraction": {
+    "hi": "निकासी फिर से प्रयास करें",
+    "hinglish": "Retry extraction"
+  },
+  "Return to your analyses, inspect supporting passages and export a record of your findings.": {
+    "hi": "अपने विश्लेषण पर वापस जाएँ, सहायक अनुच्छेदों की जाँच करें और अपनी खोजों का रिकॉर्ड निर्यात करें।",
+    "hinglish": "Return to your analyses, inspect supporting passages and export a record of your findings."
+  },
+  "Review accessible official legal pages before choosing what to analyze.": {
+    "hi": "विश्लेषण करने से पहले उपलब्ध आधिकारिक कानूनी पृष्ठों की समीक्षा करें।",
+    "hinglish": "Review accessible official legal pages before choosing what to analyze."
+  },
+  "Review accessible official links and select your sources.": {
+    "hi": "उपलब्ध आधिकारिक लिंक की समीक्षा करें और अपने स्रोत चुनें।",
+    "hinglish": "Available official links ki samiksha karein aur apne sources chunen."
+  },
+  "Review priority": {
+    "hi": "प्राथमिकता की समीक्षा करें",
+    "hinglish": "Priority ki samiksha karein."
+  },
+  "Rights & duties": {
+    "hi": "अधिकार और कर्तव्य",
+    "hinglish": "Rights & duties"
+  },
+  "SECTION 7.2 · CANCELLATION": {
+    "hi": "अनुभाग 7.2 · रद्दीकरण",
+    "hinglish": "SECTION 7.2 · Cancellation"
+  },
+  "SHA-256": {
+    "hi": "SHA-256",
+    "hinglish": "SHA-256"
+  },
+  "SHA-256 of original bytes": {
+    "hi": "मूल बाइट्स का SHA-256",
+    "hinglish": "SHA-256 of original bytes"
+  },
+  "SOURCE SNAPSHOT COMPARISON": {
+    "hi": "स्रोत स्नैपशॉट तुलना",
+    "hinglish": "Source Snapshot Comparison"
+  },
+  "START WITH THE SOURCE": {
+    "hi": "स्रोत से शुरू करें",
+    "hinglish": "Start with the source"
+  },
+  "STATE": {
+    "hi": "स्थिति",
+    "hinglish": "State"
+  },
+  "Save & inspect source": {
+    "hi": "स्रोत सहेजें और निरीक्षण करें",
+    "hinglish": "Save & inspect source"
+  },
+  "Save name": {
+    "hi": "नाम सहेजें",
+    "hinglish": "Save name"
+  },
+  "Save preferences": {
+    "hi": "प्राथमिकताएँ सहेजें",
+    "hinglish": "Save preferences"
+  },
+  "Save your documents and revisit your evidence.": {
+    "hi": "अपने दस्तावेज़ सुरक्षित रखें और अपने साक्ष्य को फिर से देखें।",
+    "hinglish": "Apne documents secure rakhein aur apne evidence ko phir se dekhein."
+  },
+  "Save your work": {
+    "hi": "अपना काम सहेजें",
+    "hinglish": "Apna kaam save karein"
+  },
+  "Saving…": {
+    "hi": "सहेजा जा रहा है…",
+    "hinglish": "Saving…"
+  },
+  "Search documents": {
+    "hi": "दस्तावेज़ खोजें",
+    "hinglish": "Documents khojen."
+  },
+  "Search findings": {
+    "hi": "निष्कर्ष खोजें",
+    "hinglish": "Findings khojen."
+  },
+  "Search findings or source text": {
+    "hi": "निष्कर्ष या स्रोत पाठ खोजें",
+    "hinglish": "Findings ya source text khojen."
+  },
+  "Search your documents": {
+    "hi": "अपने दस्तावेज़ खोजें",
+    "hinglish": "Apne documents khojen"
+  },
+  "Second captured source": {
+    "hi": "दूसरा कैप्चर किया गया स्रोत",
+    "hinglish": "Dusra captured source"
+  },
+  "Section": {
+    "hi": "अनुभाग",
+    "hinglish": "Section"
+  },
+  "See what the wording changed.": {
+    "hi": "देखें कि शब्दावली कैसे बदली है।",
+    "hinglish": "Dekhein ki wording kaise badli hai."
+  },
+  "Select sources after discovery.": {
+    "hi": "खोज के बाद स्रोत चुनें।",
+    "hinglish": "Discovery ke baad sources select karein."
+  },
+  "Send recovery instructions": {
+    "hi": "रिकवरी निर्देश भेजें",
+    "hinglish": "Recovery instructions bhejein"
+  },
+  "Send verification link": {
+    "hi": "सत्यापन लिंक भेजें",
+    "hinglish": "Verification link bhejein"
+  },
+  "Service agreement": {
+    "hi": "सेवा समझौता",
+    "hinglish": "Service agreement"
+  },
+  "Set a new password": {
+    "hi": "नया पासवर्ड सेट करें",
+    "hinglish": "Naya password set karo"
+  },
+  "Show unchanged passages": {
+    "hi": "बिना बदले हुए अंश दिखाएँ",
+    "hinglish": "Unchanged passages dikhao"
+  },
+  "Sign in": {
+    "hi": "साइन इन करें",
+    "hinglish": "Sign in karein"
+  },
+  "Sign in for a saved library, or start with a limited guest session.": {
+    "hi": "सहेजी गई लाइब्रेरी के लिए साइन इन करें, या सीमित अतिथि सत्र के साथ शुरू करें.",
+    "hinglish": "Saved library ke liye sign in karo, ya limited guest session ke saath start karo"
+  },
+  "Sign in to compare your documents.": {
+    "hi": "अपने दस्तावेज़ों की तुलना करने के लिए साइन इन करें।",
+    "hinglish": "Apne documents ki tulna karne ke liye sign in karein."
+  },
+  "Sign in to manage your account": {
+    "hi": "अपने खाते का प्रबंधन करने के लिए साइन इन करें।",
+    "hinglish": "Apne account ka management karne ke liye sign in karein."
+  },
+  "Sign in with your existing email/password first, then link Google in Account settings.": {
+    "hi": "पहले अपने मौजूदा ईमेल/पासवर्ड से साइन इन करें, फिर अकाउंट सेटिंग्स में Google को लिंक करें।",
+    "hinglish": "Pehle apne existing email/password se sign in karein, phir Account settings mein Google link karein."
+  },
+  "Sign out": {
+    "hi": "साइन आउट करें",
+    "hinglish": "Sign out karein"
+  },
+  "Skip to content": {
+    "hi": "सामग्री पर जाएँ",
+    "hinglish": "Skip to content"
+  },
+  "Some analyses did not finish. Open their documents to inspect the failure and retry when appropriate.": {
+    "hi": "कुछ विश्लेषण पूर्ण नहीं हुए। विफलता की जाँच करने के लिए उनके दस्तावेज़ खोलें और उपयुक्त होने पर पुनः प्रयास करें।",
+    "hinglish": "Kuch analyses complete nahi hue. Failure ki jaanch karne ke liye unke documents kholen aur jab zaroori ho to retry karein."
+  },
+  "Sort by": {
+    "hi": "सॉर्ट करें",
+    "hinglish": "Sort by"
+  },
+  "Source & evidence": {
+    "hi": "स्रोत और साक्ष्य",
+    "hinglish": "Source & evidence"
+  },
+  "Source SHA-256": {
+    "hi": "स्रोत SHA-256",
+    "hinglish": "Source SHA-256"
+  },
+  "Source document": {
+    "hi": "स्रोत दस्तावेज़",
+    "hinglish": "Source document"
+  },
+  "Source identifier / version": {
+    "hi": "स्रोत पहचानकर्ता / संस्करण",
+    "hinglish": "Source identifier / version"
+  },
+  "Source inspection works without AI credentials. An administrator must configure a provider to enable analysis.": {
+    "hi": "स्रोत निरीक्षण बिना AI क्रेडेंशियल्स के काम करता है। एक व्यवस्थापक को विश्लेषण सक्षम करने के लिए एक प्रदाता कॉन्फ़िगर करना चाहिए।",
+    "hinglish": "Source inspection bina AI credentials ke kaam karta hai. Ek administrator ko provider configure karna hoga analysis enable karne ke liye."
+  },
+  "Source passage": {
+    "hi": "स्रोत अनुच्छेद",
+    "hinglish": "Source passage"
+  },
+  "Source passage highlighted": {
+    "hi": "स्रोत अनुच्छेद हाइलाइट किया गया",
+    "hinglish": "Source passage highlighted"
+  },
+  "Source provenance": {
+    "hi": "स्रोत की उत्पत्ति",
+    "hinglish": "Source provenance"
+  },
+  "Source ready": {
+    "hi": "स्रोत तैयार",
+    "hinglish": "Source ready"
+  },
+  "Source reference invalid": {
+    "hi": "स्रोत संदर्भ अमान्य",
+    "hinglish": "Source reference invalid"
+  },
+  "Source section": {
+    "hi": "स्रोत अनुभाग",
+    "hinglish": "Source section"
+  },
+  "Source text is not available": {
+    "hi": "स्रोत पाठ उपलब्ध नहीं है",
+    "hinglish": "Source text available nahi hai"
+  },
+  "Start with a limited guest session.": {
+    "hi": "सीमित अतिथि सत्र से शुरू करें।",
+    "hinglish": "Limited guest session se start karo"
+  },
+  "Start with what you have.": {
+    "hi": "जो आपके पास है, उससे शुरू करें।",
+    "hinglish": "Jo aapke paas hai, usse start karo"
+  },
+  "Start with your first document": {
+    "hi": "अपने पहले दस्तावेज़ से शुरू करें।",
+    "hinglish": "Apne pehle document se start karo"
+  },
+  "Starting…": {
+    "hi": "शुरू हो रहा है…",
+    "hinglish": "Starting…"
+  },
+  "Supported clauses": {
+    "hi": "समर्थित प्रावधान",
+    "hinglish": "Supported clauses"
+  },
+  "Terms & conditions": {
+    "hi": "नियम एवं शर्तें",
+    "hinglish": "Terms & Conditions"
+  },
+  "The compared source passages match. This does not establish identical real-world practices.": {
+    "hi": "तुलना की गई स्रोत अनुच्छेद मेल खाते हैं। यह समान वास्तविक दुनिया के अभ्यासों की पुष्टि नहीं करता।",
+    "hinglish": "The compared source passages match. Yeh identical real-world practices ko establish nahi karta."
+  },
+  "The details make the difference.": {
+    "hi": "विवरण अंतर पैदा करते हैं।",
+    "hinglish": "The details make the difference."
+  },
+  "The display name changes. Original bytes, source version and hash stay preserved.": {
+    "hi": "डिस्प्ले नाम बदलता है। मूल बाइट्स, स्रोत संस्करण और हैश सुरक्षित रहते हैं।",
+    "hinglish": "The display name changes. Original bytes, source version and hash stay preserved."
+  },
+  "The initial release extracts embedded text. Image-only pages are flagged as requiring OCR, with coverage gaps shown instead of invented content.": {
+    "hi": "प्रारंभिक रिलीज़ एम्बेडेड टेक्स्ट निकालती है। केवल इमेज वाली पृष्ठों को OCR की आवश्यकता के रूप में चिह्नित किया जाता है, और कवरेज गैप दिखाए जाते हैं बजाय बनाए गए कंटेंट के।",
+    "hinglish": "The initial release extracts embedded text. Image-only pages are flagged as requiring OCR, with coverage gaps shown instead of invented content."
+  },
+  "These pages were linked from the website. Discovery is not a completeness guarantee.": {
+    "hi": "ये पृष्ठ वेबसाइट से लिंक किए गए थे। खोज पूर्णता की गारंटी नहीं है।",
+    "hinglish": "These pages were linked from the website. Discovery is not a completeness guarantee."
+  },
+  "This address is unavailable.": {
+    "hi": "यह पता उपलब्ध नहीं है।",
+    "hinglish": "Yeh address available nahi hai."
+  },
+  "This example clause limits refunds, with an exception for legal requirements.": {
+    "hi": "यह उदाहरण क्लॉज रिफंड को सीमित करता है, कानूनी आवश्यकताओं के लिए एक अपवाद के साथ।",
+    "hinglish": "Yeh example clause refunds ko limit karta hai, legal requirements ke liye ek exception ke saath."
+  },
+  "This file is empty.": {
+    "hi": "यह फ़ाइल खाली है।",
+    "hinglish": "Yeh file empty hai."
+  },
+  "This is a temporary guest session. Durable account export requires registration.": {
+    "hi": "यह एक अस्थायी अतिथि सत्र है। स्थायी खाता निर्यात के लिए पंजीकरण आवश्यक है।",
+    "hinglish": "Yeh ek temporary guest session hai. Durable account export ke liye registration zaroori hai."
+  },
+  "This record supports inspection of the captured document. It does not prove real-world compliance, legal enforceability or admissibility.": {
+    "hi": "यह रिकॉर्ड कैप्चर किए गए दस्तावेज़ की जांच का समर्थन करता है। यह वास्तविक दुनिया के अनुपालन, कानूनी प्रवर्तनीयता या स्वीकार्यता को साबित नहीं करता।",
+    "hinglish": "Yeh record captured document ki inspection ko support karta hai. Yeh real-world compliance, legal enforceability ya admissibility ko prove nahi karta."
+  },
+  "Transparent assessment rules": {
+    "hi": "पारदर्शी मूल्यांकन नियम",
+    "hinglish": "Assessment ke clear rules"
+  },
+  "Try another name.": {
+    "hi": "एक और नाम आज़माएँ।",
+    "hinglish": "Ek aur naam try karo."
+  },
+  "Try another official starting page.": {
+    "hi": "एक और आधिकारिक प्रारंभिक पृष्ठ आज़माएँ।",
+    "hinglish": "Ek aur official starting page try karo."
+  },
+  "Try changing filters. No findings does not establish that a term is absent or that the document is safe.": {
+    "hi": "फ़िल्टर बदलकर देखें। कोई खोज न मिलने का मतलब यह नहीं है कि शब्द अनुपस्थित है या दस्तावेज़ सुरक्षित है।",
+    "hinglish": "Filters badal ke dekho. No findings ka matlab nahi ki term absent hai ya document safe hai."
+  },
+  "Turn complex agreements into clear, checkable findings. See what your documents say, what they mean, and exactly where the evidence lives.": {
+    "hi": "जटिल समझौतों को स्पष्ट, जाँच योग्य निष्कर्षों में बदलें। देखें कि आपके दस्तावेज़ क्या कहते हैं, उनका क्या मतलब है, और साक्ष्य कहाँ स्थित है।",
+    "hinglish": "Complex agreements ko clear, checkable findings mein badlo. Dekho ki aapke documents kya kahte hain, unka kya matlab hai, aur evidence exactly kahan hai."
+  },
+  "Type DELETE to confirm": {
+    "hi": "पुष्टि करने के लिए DELETE टाइप करें",
+    "hinglish": "DELETE type karo to confirm."
+  },
+  "Unavailable": {
+    "hi": "उपलब्ध नहीं",
+    "hinglish": "Unavailable."
+  },
+  "Understand every clause.": {
+    "hi": "हर क्लॉज़ को समझें।",
+    "hinglish": "Har clause ko samjhein."
+  },
+  "Understand the important parts": {
+    "hi": "महत्वपूर्ण हिस्सों को समझें।",
+    "hinglish": "Mahatvapurn hisson ko samjhein."
+  },
+  "Unsupported interpretation": {
+    "hi": "असमर्थित व्याख्या",
+    "hinglish": "Asamarthit vyakhya."
+  },
+  "Untitled document": {
+    "hi": "अनाम दस्तावेज़",
+    "hinglish": "Anam dastavez."
+  },
+  "Update password": {
+    "hi": "पासवर्ड अपडेट करें",
+    "hinglish": "Password update karein."
+  },
+  "Upload & analyze": {
+    "hi": "अपलोड करें और विश्लेषण करें",
+    "hinglish": "Upload karein aur analyze karein."
+  },
+  "Upload a document": {
+    "hi": "दस्तावेज़ अपलोड करें",
+    "hinglish": "Document upload karein"
+  },
+  "Upload a file, paste text, or discover policies linked from an official website.": {
+    "hi": "फ़ाइल अपलोड करें, टेक्स्ट पेस्ट करें, या आधिकारिक वेबसाइट से लिंक की गई नीतियों को खोजें।",
+    "hinglish": "File upload karein, text paste karein, ya official website se linked policies discover karein."
+  },
+  "Upload an agreement or discover a website’s policies to begin your review.": {
+    "hi": "एक समझौता अपलोड करें या वेबसाइट की नीतियों को खोजें ताकि आप अपनी समीक्षा शुरू कर सकें।",
+    "hinglish": "Agreement upload karein ya website ki policies discover karein taaki review shuru kar sakein."
+  },
+  "Upload an agreement or paste text to begin.": {
+    "hi": "एक समझौता अपलोड करें या टेक्स्ट पेस्ट करें ताकि शुरू हो सके।",
+    "hinglish": "Agreement upload karein ya text paste karein taaki start ho sake."
+  },
+  "Upload at least two sources and wait for extraction before comparing them.": {
+    "hi": "कम से कम दो स्रोत अपलोड करें और तुलना करने से पहले निष्कर्षण के लिए प्रतीक्षा करें।",
+    "hinglish": "Kam se kam do sources upload karein aur compare karne se pehle extraction ke liye wait karein."
+  },
+  "Upload file": {
+    "hi": "फ़ाइल अपलोड करें",
+    "hinglish": "File upload karein"
+  },
+  "Uploaded file or pasted text": {
+    "hi": "अपलोड की गई फ़ाइल या पेस्ट किया गया टेक्स्ट",
+    "hinglish": "Uploaded file ya pasted text"
+  },
+  "Use recovery token": {
+    "hi": "रिकवरी टोकन का उपयोग करें",
+    "hinglish": "Use recovery token"
+  },
+  "Use your account to access your saved documents.": {
+    "hi": "सहेजे हुए दस्तावेज़ों के लिए अपने खाते में प्रवेश करें।",
+    "hinglish": "Saved documents ke liye apne account se sign in karein."
+  },
+  "Verification": {
+    "hi": "सत्यापन",
+    "hinglish": "Verification"
+  },
+  "Verification link sent": {
+    "hi": "सत्यापन लिंक भेजा गया",
+    "hinglish": "Verification link sent"
+  },
+  "Verification method & execution metadata": {
+    "hi": "सत्यापन विधि और निष्पादन मेटाडेटा",
+    "hinglish": "Verification method & execution metadata"
+  },
+  "Verified against source": {
+    "hi": "स्रोत के अनुसार सत्यापित",
+    "hinglish": "Source ke anusar verified"
+  },
+  "Verify": {
+    "hi": "सत्यापित करें",
+    "hinglish": "Verify karein"
+  },
+  "Verify email": {
+    "hi": "ईमेल सत्यापित करें",
+    "hinglish": "Email verify karein"
+  },
+  "Verify every claim.": {
+    "hi": "हर दावे को सत्यापित करें।",
+    "hinglish": "Har claim ko verify karein."
+  },
+  "Verify your email": {
+    "hi": "अपना ईमेल सत्यापित करें",
+    "hinglish": "Apna email verify karein"
+  },
+  "Veriora distinguishes the document’s wording from an AI interpretation. A verified finding means the interpretation was checked against the captured source.": {
+    "hi": "Veriora दस्तावेज़ के शब्दों को AI व्याख्या से अलग करता है। एक सत्यापित निष्कर्ष का मतलब है कि व्याख्या को कैप्चर किए गए स्रोत के विरुद्ध जाँचा गया।",
+    "hinglish": "Veriora document ke wording ko AI interpretation se alag karta hai. Ek verified finding ka matlab hai ki interpretation ko captured source ke against check kiya gaya."
+  },
+  "Veriora home": {
+    "hi": "वेरिओरा होम",
+    "hinglish": "Veriora Home"
+  },
+  "View evidence": {
+    "hi": "साक्ष्य देखें",
+    "hinglish": "Evidence Dekho"
+  },
+  "View library": {
+    "hi": "लाइब्रेरी देखें",
+    "hinglish": "Library Dekho"
+  },
+  "Website URL": {
+    "hi": "वेबसाइट URL",
+    "hinglish": "Website URL"
+  },
+  "Welcome back": {
+    "hi": "फिर से स्वागत है",
+    "hinglish": "Welcome Back"
+  },
+  "What does this agreement say about cancellation?": {
+    "hi": "इस अनुबंध में रद्दीकरण के बारे में क्या कहा गया है?",
+    "hinglish": "Is agreement mein cancellation ke baare mein kya kaha gaya hai?"
+  },
+  "What happens to scanned PDFs?": {
+    "hi": "स्कैन किए गए PDF को क्या होता है?",
+    "hinglish": "Scanned PDFs ko kya hota hai?"
+  },
+  "What was processed": {
+    "hi": "क्या प्रोसेस किया गया?",
+    "hinglish": "Kya processed hua?"
+  },
+  "What would you like to analyze?": {
+    "hi": "आप क्या विश्लेषण करना चाहेंगे?",
+    "hinglish": "Aap kya analyze karna chahenge?"
+  },
+  "When the document cannot establish an answer, Veriora should say so.": {
+    "hi": "जब दस्तावेज़ उत्तर स्थापित नहीं कर सकता, तो Veriora को ऐसा बताना चाहिए।",
+    "hinglish": "Jab document answer establish nahi kar sakta, Veriora ko aisa batana chahiye."
+  },
+  "Where are my documents sent?": {
+    "hi": "मेरे दस्तावेज़ कहाँ भेजे जाते हैं?",
+    "hinglish": "Mere documents kahaan bheje jaate hain?"
+  },
+  "Workspace panels": {
+    "hi": "वर्कस्पेस पैनल",
+    "hinglish": "Workspace panels"
+  },
+  "YOUR DOCUMENT WORKSPACE": {
+    "hi": "आपका दस्तावेज़ कार्यक्षेत्र",
+    "hinglish": "Your document workspace"
+  },
+  "YOUR SOURCE. YOUR CHOICE.": {
+    "hi": "आपका स्रोत। आपका विकल्प।",
+    "hinglish": "Your source. Your choice."
+  },
+  "YOUR VERIORA WORKSPACE": {
+    "hi": "आपका Veriora कार्यक्षेत्र",
+    "hinglish": "Your Veriora workspace"
+  },
+  "You can delete documents at any time. Retention cleanup removes expired source files and derived content. Backup and provider retention may follow separate policies.": {
+    "hi": "आप किसी भी समय दस्तावेज़ हटा सकते हैं। रिटेंशन क्लीनअप समाप्त हो चुके स्रोत फ़ाइलों और व्युत्पन्न सामग्री को हटाता है। बैकअप और प्रदाता रिटेंशन अलग नीतियों का पालन कर सकते हैं।",
+    "hinglish": "You can delete documents at any time. Retention cleanup removes expired source files and derived content. Backup and provider retention may follow separate policies."
+  },
+  "You can safely leave this page. Processing continues on the server.": {
+    "hi": "आप सुरक्षित रूप से इस पृष्ठ को छोड़ सकते हैं। प्रोसेसिंग सर्वर पर जारी रहती है।",
+    "hinglish": "You can safely leave this page. Processing continues on the server."
+  },
+  "You choose a configured AI provider before analysis. External processing requires explicit consent. Confidential mode does not send content to external providers. Provider retention terms may differ.": {
+    "hi": "आप विश्लेषण से पहले कॉन्फ़िगर किए गए AI प्रदाता का चयन करते हैं। बाहरी प्रोसेसिंग के लिए स्पष्ट सहमति आवश्यक है। गोपनीय मोड सामग्री को बाहरी प्रदाताओं को नहीं भेजता। प्रदाता रिटेंशन शर्तें भिन्न हो सकती हैं।",
+    "hinglish": "You choose a configured AI provider before analysis. External processing requires explicit consent. Confidential mode does not send content to external providers. Provider retention terms may differ."
+  },
+  "You choose where the text goes.": {
+    "hi": "आप चुनते हैं कि टेक्स्ट कहाँ जाएगा।",
+    "hinglish": "Aap chunte hain ki text kahan jayega."
+  },
+  "You stay in control of your documents and processing choices.": {
+    "hi": "आप अपने दस्तावेज़ों और प्रोसेसिंग विकल्पों पर नियंत्रण बनाए रखते हैं।",
+    "hinglish": "Aap apne documents aur processing choices par control banaye rakhte hain."
+  },
+  "Your data, your decisions": {
+    "hi": "आपका डेटा, आपके निर्णय",
+    "hinglish": "Aapka data, aapke decisions"
+  },
+  "Your document question": {
+    "hi": "दस्तावेज़ से जुड़ा आपका प्रश्न",
+    "hinglish": "Document ke baare mein aapka sawal"
+  },
+  "Your document text will be sent to the selected provider for interpretation and verification. Provider retention and processing terms apply.": {
+    "hi": "आपका दस्तावेज़ टेक्स्ट चयनित प्रदाता को व्याख्या और सत्यापन के लिए भेजा जाएगा। प्रदाता की प्रतिधारण और प्रोसेसिंग शर्तें लागू होती हैं।",
+    "hinglish": "Aapka document text selected provider ko interpretation aur verification ke liye bheja jayega. Provider retention aur processing terms apply."
+  },
+  "Your documents belong here": {
+    "hi": "आपके दस्तावेज़ यहाँ हैं",
+    "hinglish": "Aapke documents yahan hain."
+  },
+  "Your guest workspace is temporary. Create an account in this session to retain these documents.": {
+    "hi": "आपका अतिथि कार्यक्षेत्र अस्थायी है। इस सत्र में एक खाता बनाएं ताकि आप इन दस्तावेजों को सुरक्षित रख सकें।",
+    "hinglish": "Your guest workspace temporary hai. Is session mein ek account create karo to yeh documents retain ho sake."
+  },
+  "Your library provides document deletion. Settings disclose retention and account controls. Provider-side retention is governed separately by the provider.": {
+    "hi": "आपकी लाइब्रेरी दस्तावेज़ हटाने की सुविधा देती है। सेटिंग्स में प्रतिधारण और खाता नियंत्रण का खुलासा किया जाता है। प्रदाता पक्ष का प्रतिधारण अलग से प्रदाता द्वारा नियंत्रित होता है।",
+    "hinglish": "Your library document deletion provide karti hai. Settings mein retention aur account controls disclose hote hain. Provider-side retention alag se provider ke dwara governed hai."
+  },
+  "Your next document starts here": {
+    "hi": "आपका अगला दस्तावेज़ यहाँ से शुरू होता है।",
+    "hinglish": "Your next document yahan se start hota hai."
+  },
+  "Your obligations": {
+    "hi": "आपकी जिम्मेदारियाँ",
+    "hinglish": "Your obligations"
+  },
+  "Your sources are private": {
+    "hi": "आपके स्रोत निजी हैं।",
+    "hinglish": "Your sources private hain."
+  },
+  "Your sources, their analyses, and the evidence that connects them.": {
+    "hi": "आपके स्रोत, उनके विश्लेषण और उनसे जुड़े साक्ष्य।",
+    "hinglish": "Aapke sources, analyses aur unse connected evidence."
+  },
+  "characters · Exact submitted text is retained as your source.": {
+    "hi": "अक्षर · सबमिट किया गया सटीक पाठ आपके स्रोत के रूप में संरक्षित रहता है।",
+    "hinglish": "Characters · Exact submitted text is retained as your source."
+  },
+  "findings": {
+    "hi": "निष्कर्ष",
+    "hinglish": "Findings"
+  },
+  "for a persistent library and report exports. Creating an account in this session preserves your current guest documents.": {
+    "hi": "एक स्थायी लाइब्रेरी और रिपोर्ट एक्सपोर्ट्स के लिए। इस सत्र में एक खाता बनाना आपके वर्तमान अतिथि दस्तावेज़ों को संरक्षित रखता है।",
+    "hinglish": "For a persistent library and report exports. Creating an account in this session preserves your current guest documents."
+  },
+  "knowing the limits.": {
+    "hi": "सीमाओं को जानना।",
+    "hinglish": "Knowing the limits."
+  },
+  "or choose a file from your device": {
+    "hi": "या अपने डिवाइस से फ़ाइल चुनें",
+    "hinglish": "Or choose a file from your device"
+  },
+  "selected": {
+    "hi": "चयनित",
+    "hinglish": "Selected"
+  },
+  "selected document(s). External legal research is not enabled.": {
+    "hi": "चयनित दस्तावेज़(ओं)। बाहरी कानूनी शोध सक्षम नहीं है।",
+    "hinglish": "Selected document(s). External legal research is not enabled."
+  },
+  "to a traceable understanding.": {
+    "hi": "एक ट्रेस करने योग्य समझ तक।",
+    "hinglish": "to a traceable understanding."
+  },
+  "to export a report. Guest results are temporary.": {
+    "hi": "रिपोर्ट निर्यात करने के लिए। अतिथि परिणाम अस्थायी हैं।",
+    "hinglish": "to export a report. Guest results are temporary."
+  },
+  "token": {
+    "hi": "टोकन",
+    "hinglish": "token"
+  },
+  "· Unicode offsets": {
+    "hi": "· यूनिकोड ऑफ़सेट्स",
+    "hinglish": "· Unicode offsets"
+  },
+  "”, its extracted text, analyses and derived records will be removed. This cannot be undone. Minimal audit records may remain without document text.": {
+    "hi": "”, इसका निकाला गया पाठ, विश्लेषण और व्युत्पन्न रिकॉर्ड हटाए जाएंगे। यह वापस नहीं किया जा सकता। न्यूनतम ऑडिट रिकॉर्ड दस्तावेज़ पाठ के बिना रह सकते हैं।",
+    "hinglish": "”, its extracted text, analyses and derived records will be removed. This cannot be undone. Minimal audit records may remain without document text."
+  },
+  "Original quotations preserved": {
+    "hi": "मूल उद्धरण सुरक्षित हैं",
+    "hinglish": "Original quotes unchanged hain"
+  },
+  "Rule-based review priority, not a legal verdict": {
+    "hi": "नियम-आधारित समीक्षा प्राथमिकता, कानूनी निर्णय नहीं",
+    "hinglish": "Rule-based review priority, legal verdict nahi"
+  },
+  "How to read this summary": {
+    "hi": "इस सारांश को कैसे पढ़ें",
+    "hinglish": "Is summary ko kaise padhein"
+  },
+  "Only supported findings with validated source quotations appear here. Missing findings do not prove that a term is absent.": {
+    "hi": "यहाँ केवल सत्यापित स्रोत उद्धरणों से समर्थित निष्कर्ष दिखते हैं। निष्कर्ष न मिलना किसी शर्त के अनुपस्थित होने का प्रमाण नहीं है।",
+    "hinglish": "Yahan sirf validated source quotes se supported findings hain. Finding na milne se term absent hona prove nahi hota."
+  },
+  "Summary": {
+    "hi": "सारांश",
+    "hinglish": "Summary"
+  },
+  "Completed": {
+    "hi": "पूरा हुआ",
+    "hinglish": "Complete hua"
+  },
+  "Processing": {
+    "hi": "प्रसंस्करण जारी",
+    "hinglish": "Process ho raha hai"
+  },
+  "Failed": {
+    "hi": "विफल",
+    "hinglish": "Fail hua"
+  },
+  "Canceled": {
+    "hi": "रद्द किया गया",
+    "hinglish": "Cancel hua"
+  },
+  "Loading…": {
+    "hi": "लोड हो रहा है…",
+    "hinglish": "Load ho raha hai…"
+  },
+  "CLAUSE": {
+    "hi": "प्रावधान",
+    "hinglish": "Clause"
+  },
+  "OBLIGATION": {
+    "hi": "दायित्व",
+    "hinglish": "Zimmedari"
+  },
+  "RIGHT": {
+    "hi": "अधिकार",
+    "hinglish": "Haq"
+  },
+  "RESTRICTION": {
+    "hi": "प्रतिबंध",
+    "hinglish": "Pabandi"
+  },
+  "CONSENT": {
+    "hi": "सहमति",
+    "hinglish": "Consent"
+  },
+  "EXCEPTION": {
+    "hi": "अपवाद",
+    "hinglish": "Exception"
+  },
+  "RISK NOTE": {
+    "hi": "जोखिम संबंधी टिप्पणी",
+    "hinglish": "Risk note"
+  },
+  "PRIVACY": {
+    "hi": "गोपनीयता",
+    "hinglish": "Privacy"
+  },
+  "PAYMENT": {
+    "hi": "भुगतान",
+    "hinglish": "Payment"
+  },
+  "TERMINATION": {
+    "hi": "समाप्ति",
+    "hinglish": "Termination"
+  },
+  "DISPUTE": {
+    "hi": "विवाद",
+    "hinglish": "Dispute"
+  },
+  "PERMISSION": {
+    "hi": "अनुमति",
+    "hinglish": "Permission"
+  },
+  "OTHER": {
+    "hi": "अन्य",
+    "hinglish": "Other"
+  },
+  "Insufficient coverage, no supported findings, or unresolved interpretations.": {
+    "hi": "कवरेज अपर्याप्त है, समर्थित निष्कर्ष नहीं हैं, या व्याख्याएँ अनसुलझी हैं।",
+    "hinglish": "Coverage kam hai, supported findings nahi hain, ya interpretation unresolved hai."
+  },
+  "Supported categories do not justify a rule-based assessment.": {
+    "hi": "समर्थित श्रेणियाँ नियम-आधारित मूल्यांकन के लिए पर्याप्त नहीं हैं।",
+    "hinglish": "Supported categories se rule-based assessment justify nahi hota."
+  },
+  "Supported restrictions, obligations or risk notes require attention; no high-attention phrase matched.": {
+    "hi": "समर्थित प्रतिबंधों, दायित्वों या जोखिम टिप्पणियों पर ध्यान देना चाहिए; उच्च प्राथमिकता वाला वाक्यांश नहीं मिला।",
+    "hinglish": "Supported restrictions, duties ya risk notes par dhyan dein; high-attention phrase match nahi hua."
+  },
+  "Supported source includes an explicit unlimited-liability, irrevocable-license, rights-waiver or personal-data-sale phrase; review its scope and exceptions.": {
+    "hi": "समर्थित स्रोत में असीमित देयता, अपरिवर्तनीय लाइसेंस, अधिकार त्याग या व्यक्तिगत डेटा की बिक्री का स्पष्ट वाक्यांश है; उसका दायरा और अपवाद देखें।",
+    "hinglish": "Supported source mein unlimited liability, irrevocable license, rights waiver ya personal-data sale ka clear phrase hai; scope aur exceptions check karein."
+  },
+  "Complete processed scope contains supported findings and no classified obligation, restriction, risk note or high-attention phrase. This does not establish safety or absence of undiscovered terms.": {
+    "hi": "पूरे संसाधित दायरे में समर्थित निष्कर्ष हैं और कोई वर्गीकृत दायित्व, प्रतिबंध, जोखिम टिप्पणी या उच्च प्राथमिकता वाला वाक्यांश नहीं मिला। इससे सुरक्षा या अनदेखी शर्तों के न होने की पुष्टि नहीं होती।",
+    "hinglish": "Complete processed scope mein supported findings hain aur classified duty, restriction, risk note ya high-attention phrase nahi mila. Isse safety ya undiscovered terms absent hona prove nahi hota."
+  },
+  "Rule-based document attention only; not legal risk, enforceability, or evidence of a company's real-world practices.": {
+    "hi": "यह केवल नियम-आधारित दस्तावेज़ समीक्षा प्राथमिकता है; कानूनी जोखिम, प्रवर्तनीयता या कंपनी के वास्तविक व्यवहार का प्रमाण नहीं।",
+    "hinglish": "Ye sirf rule-based document attention hai; legal risk, enforceability ya company ke actual behaviour ka proof nahi."
+  },
+  "Prepare verified translations before exporting in this language.": {
+    "hi": "इस भाषा में निर्यात से पहले सत्यापित अनुवाद तैयार करें।",
+    "hinglish": "Is language mein export se pehle verified translation ready karein."
+  },
+  "Translation could not be verified. Original analysis remains available.": {
+    "hi": "अनुवाद सत्यापित नहीं हो सका। मूल विश्लेषण उपलब्ध है।",
+    "hinglish": "Translation verify nahi hui. Original analysis available hai."
+  },
+  "Original analysis overview": {
+    "hi": "मूल विश्लेषण का अवलोकन",
+    "hinglish": "Original analysis overview"
+  },
+  "Scope and limitations": {
+    "hi": "दायरा और सीमाएँ",
+    "hinglish": "Scope aur limitations"
+  },
+  "REPORT LANGUAGE": {
+    "hi": "रिपोर्ट की भाषा",
+    "hinglish": "Report ki language"
+  },
+  "Source & context": {
+    "hi": "स्रोत और संदर्भ",
+    "hinglish": "Source aur context"
+  },
+  "Show more": {
+    "hi": "और देखें",
+    "hinglish": "Aur dekhein"
+  },
+  "Show less": {
+    "hi": "कम देखें",
+    "hinglish": "Kam dekhein"
+  },
+  "Processing details": {
+    "hi": "प्रसंस्करण विवरण",
+    "hinglish": "Processing details"
+  },
+  "All rights reserved.": {
+    "hi": "सर्वाधिकार सुरक्षित।",
+    "hinglish": "Sabhi adhikar surakshit."
+  },
+  "Ask about this document": {
+    "hi": "इस दस्तावेज़ के बारे में पूछें",
+    "hinglish": "Is document ke baare mein poochhein"
+  }
+}

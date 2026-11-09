@@ -275,3 +275,34 @@ WCAG 2.2 recommendation: https://www.w3.org/TR/WCAG22/
 Gemini API pricing/data-use disclosure: https://ai.google.dev/gemini-api/docs/pricing
 Bharatiya Sakshya Adhiniyam 2023 (Sections 61–63): https://thc.nic.in/Central%20Governmental%20Acts/Bharatiya%20Sakshya%20Adhiniyam%2C%202023.pdf
 These sources are design inputs, not a claim of compliance. Reverify evolving SDK/API/provider specifications at implementation time.
+## 10 November 2026 implementation amendment
+
+Additive revision `dfda9673d7bc` creates pending_registrations, oauth_attempts, oauth_identities and localized_analyses; adds users.language with existing-row default en. No existing table/data reset. Pending secrets/state/nonce/verifier/token are hashed at rest; pending passwords use Argon2. The browser-only PKCE verifier/nonce live in a short-lived HttpOnly SameSite cookie. Successful Google subject identity uses shared session creation. JWT verification uses PyJWT[crypto], Google's fixed JWKS and token endpoints, pinned RS256, issuer/audience/expiry/nonce/email checks. Arbitrary third-party Google mailbox addresses without hosted-domain assurance use email signup instead. Explicit linking requires current verified session. OAuth callback query strings are redacted in Uvicorn access logs.
+
+Reference: [Google OIDC validation](https://developers.google.com/identity/openid-connect/openid-connect) and [server ID-token verification](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token).
+
+SMTP uses STARTTLS with certificate validation and optional authentication. Missing SMTP fails signup closed in all non-test environments. Verification requires the chosen password to prevent accepting an attacker-prepared password. Token consumption uses row locks; reset removes all sessions. Deployment must retain HTTPS/secure cookies, origin restrictions, database permissions, SMTP operational monitoring and proxy log redaction.
+
+Summary service revalidates source coordinates and uses attention-1.0 rules: incomplete/no valid/unresolved coverage -> Not Determinable; supported obligation/restriction/risk note with a positive high-attention English phrase -> High; other supported obligations/restrictions/risk notes -> Moderate; complete supported rights/permissions/exceptions only -> Low; unclassified scope -> Not Determinable. Positive phrases are unlimited liability, irrevocable license, rights/claims waiver, sale of personal data; a preceding no/not/never/without suppresses matching. This bounded lexical attention rule is not a legal-risk classifier and does not certify that all clauses were found. Original-language patterns outside this rule set may remain Not Determinable.
+
+Translation is an explicit POST, using the original consented analysis provider/fallback policy. Strict per-ID output is reviewed for semantic fidelity and cached by full findings fingerprint+language. Quotes never pass through a translated evidence channel. Analysis-row lock/unique cache constraint reduce duplicate calls. Long translations beyond200 findings/48k characters fail explicitly. Non-English retrieval normalization is a model request to the same authorized route; final answers still use original chunks and exact citations. Model calls/answer language persist. Manual retries and concurrent chat can consume quota; no unlimited-free-tier assumption.
+
+## Current implementation amendment — language and signup stages
+
+Migration `0f439d83280f` adds only nullable pending_registrations.verified_at. Existing pending passwords/tokens and user records are preserved. New email-first pending rows carry an empty password sentinel. Row-locked verification rotates the primary-key token digest and records verification, reducing expiry to15 minutes. The setup bearer is returned only after possession of the single-use emailed token; no user exists yet. Confirmed password hashing/activation occurs atomically during completion. Legacy verification paths never accept an empty password hash. Guest upgrade remains bound to the original session and CSRF proof.
+
+Global LanguageProvider uses a checked-in public-copy catalog, local anonymous preference, PostgreSQL profile language and serialized authenticated preference updates. It sets HTML lang to en/hi/hi-Latn. Components subscribe through shared context, not DOM mutation or page reload. The header globe controls navigation and all feature-page UI. Translation POST queries are deduplicated by analysis/language/fingerprint, with backend lock and unique cache guard; canonical findings and source quotes remain separate. Report exports use existing verified cache entries and do not initiate another provider call.
+
+SMTP uses the existing credentials unchanged. A display-name-only MAIL_FROM is formatted with a validated SMTP_USER mailbox; malformed/injected headers fail closed. TLS/authentication and a self-addressed diagnostic acceptance were executed. Google authorization entry returns200; a full consent/callback requires user interaction and remains unclaimed. Server-side OIDC state/nonce/signature/audience/expiry/linking tests remain in the regression suite.
+
+Public UI catalog generation is an optional build-time maintenance script; no user documents are involved and there is no runtime UI-translation provider. Human linguistic review remains advisable. Diagnostic scripts never print credential values or recipient addresses.
+
+
+## 2026-11-10: final UI and deployment preparation
+
+Production preparation adds STORAGE_BACKEND=s3 with a private S3-compatible bucket, bounded encrypted reads, conditional writes and durable failed-deletion retries. API/worker share stable encryption key and object prefix. No schema change was needed. Non-root Python container excludes tests/secrets via allowlist and uses requirements.runtime.lock; remote/container qualification remains pending. Vercel serves the frontend with API rewrite before SPA fallback. Explicit OAUTH_PROXY_HOSTS avoids canonical redirect loops behind trusted HTTPS ingress without accepting arbitrary forwarding hosts. app.reset_documents defaults to plan-only and forbids production execution; backup/target/scope/environment/expiry and separate approval gate any development/staging deletion.
+
+
+## Cleanup and hardcoding review (10 November 2026)
+
+Vite config loads VITE_* settings with loadEnv; explicit process settings take precedence over mode environment files. Backend production validation rejects loopback database/object-storage/configured Google callback hosts and malformed public/CORS origins. Official provider endpoints and Google identity trust anchors remain fixed security constants; model IDs/credentials remain privately configured. Tests use isolated synthetic SQLite fixtures, never a production fallback. No migrations or PostgreSQL write checks are needed for these changes.

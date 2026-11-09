@@ -1,0 +1,19 @@
+{
+  "provider": "gemini",
+  "supported_findings": 0,
+  "translation_hi": {
+    "error": "PROVIDER_UNAVAILABLE"
+  },
+  "translation_hinglish": {
+    "error": "PROVIDER_UNAVAILABLE"
+  },
+  "answer_en": {
+    "error": "PROVIDER_RATE_LIMITED"
+  },
+  "answer_hi": {
+    "error": "PROVIDER_RATE_LIMITED"
+  },
+  "answer_hinglish": {
+    "error": "PROVIDER_RATE_LIMITED"
+  }
+}

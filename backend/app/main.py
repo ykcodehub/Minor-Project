@@ -1,3 +1,18 @@
+import logging
+
+
+class AuthQueryRedaction(logging.Filter):
+    def filter(self, record):
+        if isinstance(record.args, tuple) and len(record.args) >= 3:
+            args = list(record.args)
+            if isinstance(args[2], str) and args[2].startswith("/api/v1/auth/"):
+                args[2] = args[2].split("?", 1)[0]
+                record.args = tuple(args)
+        return True
+
+
+logging.getLogger("uvicorn.access").addFilter(AuthQueryRedaction())
+
 import uuid
 
 from fastapi import FastAPI, HTTPException, Request
@@ -58,7 +73,7 @@ async def request_context(request: Request, call_next):
 async def http_error(request: Request, exc: HTTPException):
     return JSONResponse(
         {
-            "code": f"HTTP_{exc.status_code}",
+            "code": getattr(exc, "public_code", f"HTTP_{exc.status_code}"),
             "message": str(exc.detail),
             "request_id": request.state.request_id,
         },

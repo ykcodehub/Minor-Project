@@ -21,6 +21,8 @@ import {
 import { citationValid } from "../lib/evidence";
 import { useSession } from "../app/session";
 import { CoverageNotice } from "../components/CoverageNotice";
+import SmartSummary, { type SummaryData } from "./SmartSummary";
+import { useLanguage } from "../app/language";
 import QuestionPanel from "./QuestionPanel";
 import { Tabs } from "../components/Tabs";
 import { pageOffset } from "../lib/query";
@@ -43,6 +45,13 @@ export default function Workspace() {
   const { user } = useSession();
   const [selectedId, setSelectedId] = useState(params.get("finding") || "");
   const [mobileTab, setMobileTab] = useState("insights");
+  const [mode, setMode] = useState("summary");
+  useEffect(() => {
+    setMode("summary");
+    setView("findings");
+    setMobileTab("insights");
+  }, [id]);
+  const { language, t } = useLanguage();
   const [view, setView] = useState("findings");
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
@@ -92,10 +101,55 @@ export default function Workspace() {
       !!selectedId &&
       !findings.data?.items.some((f) => f.finding_id === selectedId),
   });
+  const summary = useQuery({
+    queryKey: ["smart-summary", id, language, analysis.data?.status],
+    queryFn: () =>
+      api<SummaryData>(`/analyses/${id}/summary?language=${language}`),
+    enabled: !!analysis.data,
+  });
+  async function prepareLanguage() {
+    setBusy(true);
+    setError(undefined);
+    try {
+      await post(`/analyses/${id}/translations?language=${language}`);
+      await summary.refetch();
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+  const translation = useQuery({
+    queryKey: [
+      "translation-preparation",
+      id,
+      language,
+      summary.data?.fingerprint,
+    ],
+    queryFn: async () => {
+      await post(`/analyses/${id}/translations?language=${language}`);
+      await summary.refetch();
+      return true;
+    },
+    enabled:
+      !!user &&
+      language !== "en" &&
+      !!summary.data &&
+      !summary.data.translation_ready &&
+      ["COMPLETED", "PARTIAL_COMPLETION"].includes(analysis.data?.status || ""),
+    retry: false,
+    staleTime: Infinity,
+  });
   const data = analysis.data;
   const all = useMemo(() => findings.data?.items || [], [findings.data?.items]);
-  const selected = selectedId
+  const selectedBase = selectedId
     ? all.find((f) => f.finding_id === selectedId) || selectedQuery.data
+    : undefined;
+  const selected = selectedBase
+    ? {
+        ...selectedBase,
+        ...summary.data?.translations[selectedBase.finding_id],
+      }
     : undefined;
   const citation = answerCitation || selected?.citations[0];
   const sourceId =
@@ -105,7 +159,10 @@ export default function Workspace() {
     data?.sources?.[0]?.id;
   const source = data?.sources?.find((s) => s.id === sourceId);
   const state = job.data?.state || data?.status;
-  const filtered = all;
+  const filtered = all.map((f) => ({
+    ...f,
+    ...summary.data?.translations[f.finding_id],
+  }));
   function filter(key: string, value: string) {
     const p = new URLSearchParams(params);
     if (value) p.set(key, value);
@@ -147,7 +204,7 @@ export default function Workspace() {
     setBusy(true);
     try {
       await download(
-        `/analyses/${id}/exports?format=${format}`,
+        `/analyses/${id}/exports?format=${format}&language=${language}`,
         `veriora-${id}.${format}`,
       );
     } catch (e) {
@@ -165,26 +222,29 @@ export default function Workspace() {
       setCopied(true);
     } catch {
       setError(
-        "Clipboard access is unavailable. Select and copy the reference text from the Evidence Passport.",
+        t(
+          "Clipboard access is unavailable. Select and copy the reference text from the Evidence Passport.",
+        ),
       );
     }
   }
-  if (analysis.isPending) return <Loading label="Opening your analysis…" />;
+  if (analysis.isPending)
+    return <Loading label={t("Opening your analysis…")} />;
   if (analysis.error)
     return (
       <section className="page">
         <ErrorNotice error={analysis.error} />
-        <Link to="/library">Back to library</Link>
+        <Link to="/library">{t("Back to library")}</Link>
       </section>
     );
   return (
     <section className="page workspace-page">
       <Link className="back-link" to="/library">
         <ArrowLeft size={15} />
-        Document library
+        {t("Document library")}
       </Link>
       <PageHeading
-        eyebrow="ANALYSIS WORKSPACE"
+        eyebrow={t("ANALYSIS WORKSPACE")}
         title={
           data?.sources?.length === 1
             ? data.sources[0].original_name
@@ -202,7 +262,7 @@ export default function Workspace() {
               onClick={() => void exportReport("json")}
             >
               <Download size={16} />
-              Manifest
+              {t("Manifest")}
             </button>
             <button
               className="button"
@@ -214,51 +274,88 @@ export default function Workspace() {
               onClick={() => void exportReport("pdf")}
             >
               <Download size={16} />
-              PDF report
+              {t("PDF report")}
             </button>
           </>
         }
       >
-        Findings you can inspect. Source evidence you can follow.
+        {t("Findings you can inspect. Source evidence you can follow.")}
       </PageHeading>
+      <div className="workspace-presentation">
+        <Tabs
+          label={t("Analysis presentation")}
+          value={mode}
+          onChange={setMode}
+          items={[
+            { value: "summary", label: t("Summary") },
+            { value: "detailed", label: t("Detailed Analysis") },
+          ]}
+        />
+        {language !== "en" && !summary.data?.translation_ready && (
+          <div>
+            <p className="muted small-copy">
+              {t(
+                "Original English explanations remain visible until translation is verified. Source quotes always stay unchanged. Uses your analysis provider.",
+              )}
+            </p>
+            <button
+              className="button secondary"
+              disabled={busy || active(state)}
+              onClick={() => void prepareLanguage()}
+            >
+              {t("Prepare verified translation")}
+            </button>
+          </div>
+        )}
+      </div>
       <ErrorNotice error={error || job.error || selectedQuery.error} />
       {user?.guest && (
         <p className="small-copy muted">
-          <Link to="/sign-in">Sign in</Link> to export a report. Guest results
-          are temporary.
+          <Link to="/sign-in">{t("Sign in")}</Link>{" "}
+          {t("to export a report. Guest results are temporary.")}
         </p>
       )}
       {active(state) && (
         <section className="panel processing" aria-live="polite">
           <Loading
-            label={`${job.data?.stage || "Queued"} · ${job.data?.state || data?.status}`}
+            label={`${job.data?.stage || t("Queued")} · ${job.data?.state || data?.status}`}
           />
           <p className="muted">
-            You can safely leave this page. Processing continues on the server.
+            {t(
+              "You can safely leave this page. Processing continues on the server.",
+            )}
           </p>
-          <div className="processing-stages">
-            {["RECEIVED", "GENERATING", "VERIFYING", "AGGREGATING"].map((s) => (
-              <span key={s} className={job.data?.stage === s ? "current" : ""}>
-                {s.toLowerCase()}
-              </span>
-            ))}
-          </div>
-          {job.data?.progress && (
-            <dl className="progress-units">
-              {Object.entries(job.data.progress).map(([key, value]) => (
-                <div key={key}>
-                  <dt>{key.replaceAll("_", " ")}</dt>
-                  <dd>{display(value)}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
+          <details>
+            <summary>{t("Processing details")}</summary>
+            <div className="processing-stages">
+              {["RECEIVED", "GENERATING", "VERIFYING", "AGGREGATING"].map(
+                (s) => (
+                  <span
+                    key={s}
+                    className={job.data?.stage === s ? "current" : ""}
+                  >
+                    {s.toLowerCase()}
+                  </span>
+                ),
+              )}
+            </div>
+            {job.data?.progress && (
+              <dl className="progress-units">
+                {Object.entries(job.data.progress).map(([key, value]) => (
+                  <div key={key}>
+                    <dt>{key.replaceAll("_", " ")}</dt>
+                    <dd>{display(value)}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </details>
           <button
             className="button secondary small"
             disabled={busy}
             onClick={() => void jobAction("cancel")}
           >
-            Cancel processing
+            {t("Cancel processing")}
           </button>
         </section>
       )}
@@ -268,367 +365,389 @@ export default function Workspace() {
           <div>
             <strong>
               {state === "FAILED"
-                ? "Analysis could not be completed"
-                : "Processing was canceled"}
+                ? t("Analysis could not be completed")
+                : t("Processing was canceled")}
             </strong>
             <p>
               {job.data?.error ||
-                "No complete analysis is available. Preserved sources remain inspectable."}
+                t(
+                  "No complete analysis is available. Preserved sources remain inspectable.",
+                )}
             </p>
             <button
               className="button secondary small"
               disabled={busy}
               onClick={() => void jobAction("retry")}
             >
-              Retry analysis
+              {t("Retry analysis")}
             </button>
           </div>
         </div>
       )}
-      <CoverageNotice coverage={data?.coverage} state={state} />
-      {data?.overview && (
-        <section className="panel analysis-overview">
-          <h2>Analysis overview</h2>
-          <p>{data.overview.summary}</p>
-          {data.overview.document_cues.map((cue, i) => (
-            <p className="small-copy muted" key={i}>
-              {cue.label} · {cue.method}
-            </p>
-          ))}
-          {data.overview.explicit_party_labels.length > 0 && (
-            <details>
-              <summary>Parties explicitly labelled in the source</summary>
-              {data.overview.explicit_party_labels.map((party, i) => (
-                <p key={i}>
-                  {party.text}
-                  <small className="muted"> · {party.method}</small>
-                </p>
-              ))}
-            </details>
-          )}
-        </section>
+      <ErrorNotice error={summary.error || translation.error} />
+      {mode === "summary" && summary.isPending && <Loading />}
+      {mode === "summary" && summary.data && (
+        <SmartSummary
+          data={summary.data}
+          language={language}
+          onSelect={(f) => {
+            select(f);
+            setMode("detailed");
+            setView("findings");
+            setMobileTab("source");
+          }}
+        />
       )}
-      <div className="workspace-nav">
-        <Tabs
-          label="Analysis views"
-          value={view}
-          onChange={(key) => {
-            setView(key);
-            if (key === "duties") filter("category", "");
-          }}
-          items={[
-            { value: "findings", label: "Findings" },
-            { value: "duties", label: "Rights & duties" },
-            {
-              value: "ask",
-              label: (
-                <>
-                  <MessageSquare size={16} />
-                  Ask Veriora
-                </>
-              ),
-            },
-            { value: "coverage", label: "Coverage" },
-          ]}
-        />
-        <span className="muted small-copy">
-          {data?.findings_count || 0} findings
-        </span>
-      </div>
-      {view === "coverage" ? (
-        <section className="panel coverage-detail">
-          <h2>What was processed</h2>
-          <CoverageNotice coverage={data?.coverage} state={state} />
-          <h3>Limitations</h3>
-          {data?.limitations?.map((l) => (
-            <p key={l}>{l}</p>
-          ))}
-          <details>
-            <summary>Provider and model execution metadata</summary>
-            <pre>{JSON.stringify(data?.model_calls || [], null, 2)}</pre>
-          </details>
-        </section>
-      ) : view === "ask" ? (
-        <QuestionPanel
-          analysisId={id}
-          sourceCount={data?.source_ids?.length || 0}
-          disabled={
-            active(state) ||
-            !["COMPLETED", "PARTIAL_COMPLETION"].includes(state || "")
-          }
-          onCitation={(c) => {
-            if (citationValid(c)) {
-              setAnswerCitation(c);
-              setSelectedId("");
-              setView("findings");
-              setMobileTab("source");
-            } else if (c.finding_id) {
-              setSelectedId(c.finding_id);
-              filter("finding", c.finding_id);
-              setView("findings");
-              setMobileTab("source");
-            }
-          }}
-        />
-      ) : (
-        <>
+      <div hidden={mode !== "detailed"}>
+        <div className="workspace-nav">
           <Tabs
-            className="mobile-workspace-tabs"
-            label="Workspace panels"
-            value={mobileTab}
-            onChange={setMobileTab}
+            label={t("Analysis views")}
+            value={view}
+            onChange={(key) => {
+              setView(key);
+              if (key === "duties") filter("category", "");
+            }}
             items={[
-              { value: "insights", label: "Insights" },
-              { value: "source", label: "Source & evidence" },
+              { value: "findings", label: "Findings" },
+              { value: "duties", label: t("Rights & duties") },
+              {
+                value: "ask",
+                label: (
+                  <>
+                    <MessageSquare size={16} />
+                    {t("Ask Veriora")}
+                  </>
+                ),
+              },
             ]}
           />
-          <div className="workspace-grid">
-            <section
-              className={`findings-panel ${mobileTab === "insights" ? "mobile-active" : ""}`}
-            >
-              <div className="finding-filters">
-                <label className="search-field">
-                  <Search size={17} />
-                  <span className="sr-only">Search findings</span>
-                  <input
-                    placeholder="Search findings or source text"
-                    value={params.get("q") || ""}
-                    onChange={(e) => filter("q", e.target.value)}
-                  />
-                </label>
-                <div className="filter-row">
-                  <label>
-                    <span className="sr-only">Finding category</span>
-                    <select
-                      value={params.get("category") || ""}
-                      onChange={(e) => filter("category", e.target.value)}
-                    >
-                      <option value="">All categories</option>
-                      {[
-                        "CLAUSE",
-                        "OBLIGATION",
-                        "RIGHT",
-                        "RESTRICTION",
-                        "CONSENT",
-                        "EXCEPTION",
-                        "RISK_NOTE",
-                        "PRIVACY",
-                        "PAYMENT",
-                        "TERMINATION",
-                        "DISPUTE",
-                        "PERMISSION",
-                        "OTHER",
-                      ].map((c) => (
-                        <option value={c} key={c}>
-                          {c.replaceAll("_", " ")}
-                        </option>
-                      ))}
-                    </select>
+          <span className="muted small-copy">
+            {data?.findings_count || 0} {t("findings")}
+          </span>
+        </div>
+        {view === "ask" ? (
+          <QuestionPanel
+            analysisId={id}
+            language={language}
+            sourceCount={data?.source_ids?.length || 0}
+            suggestions={summary.data?.suggested_questions || []}
+            disabled={
+              active(state) ||
+              !["COMPLETED", "PARTIAL_COMPLETION"].includes(state || "")
+            }
+            onCitation={(c) => {
+              if (citationValid(c)) {
+                setAnswerCitation(c);
+                setSelectedId("");
+                setView("findings");
+                setMobileTab("source");
+              } else if (c.finding_id) {
+                setSelectedId(c.finding_id);
+                filter("finding", c.finding_id);
+                setView("findings");
+                setMobileTab("source");
+              }
+            }}
+          />
+        ) : (
+          <>
+            <Tabs
+              className="mobile-workspace-tabs"
+              label={t("Workspace panels")}
+              value={mobileTab}
+              onChange={setMobileTab}
+              items={[
+                { value: "insights", label: "Insights" },
+                { value: "source", label: t("Source & evidence") },
+              ]}
+            />
+            <div className="workspace-grid">
+              <section
+                className={`findings-panel ${mobileTab === "insights" ? "mobile-active" : ""}`}
+              >
+                <div className="finding-filters">
+                  <label className="search-field">
+                    <Search size={17} />
+                    <span className="sr-only">{t("Search findings")}</span>
+                    <input
+                      placeholder={t("Search findings or source text")}
+                      value={params.get("q") || ""}
+                      onChange={(e) => filter("q", e.target.value)}
+                    />
                   </label>
-                  <label>
-                    <span className="sr-only">Evidence status</span>
-                    <select
-                      value={params.get("status") || ""}
-                      onChange={(e) => filter("status", e.target.value)}
-                    >
-                      <option value="">All evidence states</option>
-                      {[
-                        "SUPPORTED",
-                        "PARTIALLY_SUPPORTED",
-                        "UNSUPPORTED",
-                        "AMBIGUOUS",
-                      ].map((s) => (
-                        <option value={s} key={s}>
-                          {s.replaceAll("_", " ")}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                {(data?.sources?.length || 0) > 1 && (
-                  <label>
-                    Source document
-                    <select
-                      value={params.get("source") || ""}
-                      onChange={(e) => filter("source", e.target.value)}
-                    >
-                      <option value="">All documents</option>
-                      {data?.sources?.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.original_name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-              </div>
-              <ErrorNotice error={findings.error} />
-              {findings.isPending ? (
-                <Loading label="Loading findings…" />
-              ) : (
-                (view === "duties"
-                  ? filtered.filter((f) =>
-                      [
-                        "RIGHT",
-                        "OBLIGATION",
-                        "RESTRICTION",
-                        "CONSENT",
-                        "EXCEPTION",
-                      ].includes(f.category),
-                    )
-                  : filtered
-                ).map((f) => (
-                  <article
-                    className={`finding-card ${f.finding_id === selectedId ? "selected" : ""}`}
-                    key={f.finding_id}
-                  >
-                    <div className="row between">
-                      <span className="tiny-label">
-                        {f.category.replaceAll("_", " ")}
-                      </span>
-                      <Status
-                        value={f.support_status}
-                        valid={
-                          f.citations.length > 0 &&
-                          f.citations.every(citationValid)
-                        }
-                      />
-                    </div>
-                    <h2>{f.statement}</h2>
-                    <p>{f.rationale}</p>
-                    {f.qualifications?.length > 0 && (
-                      <p className="qualification">
-                        Qualification: {f.qualifications.join(" ")}
-                      </p>
-                    )}
-                    <div className="row between">
-                      <span className="muted small-copy">
-                        {f.citations[0]?.page
-                          ? `Page ${f.citations[0].page}`
-                          : "Source section"}
-                        {f.citations[0]?.clause_label &&
-                          ` · ${f.citations[0].clause_label}`}
-                      </span>
-                      <button
-                        className="text-link"
-                        onClick={() => select(f)}
-                        aria-pressed={f.finding_id === selectedId}
+                  <div className="filter-row">
+                    <label>
+                      <span className="sr-only">{t("Finding category")}</span>
+                      <select
+                        value={params.get("category") || ""}
+                        onChange={(e) => filter("category", e.target.value)}
                       >
-                        View evidence <ArrowRight size={15} />
+                        <option value="">{t("All categories")}</option>
+                        {[
+                          "CLAUSE",
+                          "OBLIGATION",
+                          "RIGHT",
+                          "RESTRICTION",
+                          "CONSENT",
+                          "EXCEPTION",
+                          "RISK_NOTE",
+                          "PRIVACY",
+                          "PAYMENT",
+                          "TERMINATION",
+                          "DISPUTE",
+                          "PERMISSION",
+                          "OTHER",
+                        ].map((c) => (
+                          <option value={c} key={c}>
+                            {t(c.replaceAll("_", " "))}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">{t("Evidence status")}</span>
+                      <select
+                        value={params.get("status") || ""}
+                        onChange={(e) => filter("status", e.target.value)}
+                      >
+                        <option value="">{t("All evidence states")}</option>
+                        {[
+                          "SUPPORTED",
+                          "PARTIALLY_SUPPORTED",
+                          "UNSUPPORTED",
+                          "AMBIGUOUS",
+                        ].map((s) => (
+                          <option value={s} key={s}>
+                            {t(s.replaceAll("_", " "))}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  {(data?.sources?.length || 0) > 1 && (
+                    <label>
+                      {t("Source document")}
+                      <select
+                        value={params.get("source") || ""}
+                        onChange={(e) => filter("source", e.target.value)}
+                      >
+                        <option value="">{t("All documents")}</option>
+                        {data?.sources?.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.original_name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                </div>
+                <ErrorNotice error={findings.error} />
+                {findings.isPending ? (
+                  <Loading label={t("Loading findings…")} />
+                ) : (
+                  (view === "duties"
+                    ? filtered.filter((f) =>
+                        [
+                          "RIGHT",
+                          "OBLIGATION",
+                          "RESTRICTION",
+                          "CONSENT",
+                          "EXCEPTION",
+                        ].includes(f.category),
+                      )
+                    : filtered
+                  ).map((f) => (
+                    <article
+                      className={`finding-card ${f.finding_id === selectedId ? "selected" : ""}`}
+                      key={f.finding_id}
+                    >
+                      <div className="row between">
+                        <span className="tiny-label">
+                          {f.category.replaceAll("_", " ")}
+                        </span>
+                        <Status
+                          value={f.support_status}
+                          valid={
+                            f.citations.length > 0 &&
+                            f.citations.every(citationValid)
+                          }
+                        />
+                      </div>
+                      <h2>{f.statement}</h2>
+                      <p>{f.rationale}</p>
+                      {f.qualifications?.length > 0 && (
+                        <p className="qualification">
+                          {t("Qualification:")}
+                          {f.qualifications.join(" ")}
+                        </p>
+                      )}
+                      <div className="row between">
+                        <span className="muted small-copy">
+                          {f.citations[0]?.page
+                            ? `${t("Page")} ${f.citations[0].page}`
+                            : t("Source section")}
+                          {f.citations[0]?.clause_label &&
+                            ` · ${f.citations[0].clause_label}`}
+                        </span>
+                        <button
+                          className="text-link"
+                          onClick={() => select(f)}
+                          aria-pressed={f.finding_id === selectedId}
+                        >
+                          {t("View evidence")}
+                          <ArrowRight size={15} />
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
+                <Pagination
+                  offset={offset}
+                  total={findings.data?.total ?? null}
+                  pageSize={30}
+                  count={all.length}
+                  onChange={(n) => filter("offset", String(n))}
+                />
+                {!findings.isPending && !filtered.length && (
+                  <Empty
+                    title={
+                      active(state)
+                        ? t("Findings are being prepared")
+                        : findings.error
+                          ? t("Findings unavailable")
+                          : t("No findings in this view")
+                    }
+                  >
+                    {active(state)
+                      ? t(
+                          "Results appear as the server completes verification.",
+                        )
+                      : t(
+                          "Try changing filters. No findings does not establish that a term is absent or that the document is safe.",
+                        )}
+                  </Empty>
+                )}
+              </section>
+              <aside
+                className={`evidence-panel ${mobileTab === "source" ? "mobile-active" : ""}`}
+              >
+                {sourceId ? (
+                  <div className="panel viewer-panel">
+                    <SourceViewer sourceId={sourceId} citation={citation} />
+                  </div>
+                ) : (
+                  <Empty title={t("No captured source available")} />
+                )}
+                {selected && (
+                  <section className="panel passport">
+                    <div className="row between">
+                      <h2>{t("Evidence Passport")}</h2>
+                      <button className="text-link" onClick={() => void copy()}>
+                        <Copy size={15} />
+                        {copied ? t("Copied") : t("Copy reference")}
                       </button>
                     </div>
-                  </article>
-                ))
-              )}
-              <Pagination
-                offset={offset}
-                total={findings.data?.total ?? null}
-                pageSize={30}
-                count={all.length}
-                onChange={(n) => filter("offset", String(n))}
-              />
-              {!findings.isPending && !filtered.length && (
-                <Empty
-                  title={
-                    active(state)
-                      ? "Findings are being prepared"
-                      : findings.error
-                        ? "Findings unavailable"
-                        : "No findings in this view"
-                  }
-                >
-                  {active(state)
-                    ? "Results appear as the server completes verification."
-                    : "Try changing filters. No findings does not establish that a term is absent or that the document is safe."}
-                </Empty>
-              )}
-            </section>
-            <aside
-              className={`evidence-panel ${mobileTab === "source" ? "mobile-active" : ""}`}
-            >
-              {sourceId ? (
-                <div className="panel viewer-panel">
-                  <SourceViewer sourceId={sourceId} citation={citation} />
-                </div>
-              ) : (
-                <Empty title="No captured source available" />
-              )}
-              {selected && (
-                <section className="panel passport">
-                  <div className="row between">
-                    <h2>Evidence Passport</h2>
-                    <button className="text-link" onClick={() => void copy()}>
-                      <Copy size={15} />
-                      {copied ? "Copied" : "Copy reference"}
-                    </button>
-                  </div>
-                  <Status
-                    value={selected.support_status}
-                    valid={
-                      selected.citations.length > 0 &&
-                      selected.citations.every(citationValid)
-                    }
-                  />
-                  <blockquote>
-                    {citation?.quote || "No source quotation was provided."}
-                  </blockquote>
-                  <p>{selected.statement}</p>
-                  <dl>
-                    <dt>Source document</dt>
-                    <dd>{source?.original_name || citation?.source_id}</dd>
-                    <dt>Original source</dt>
-                    <dd>
-                      {source?.source_url || "Uploaded file or pasted text"}
-                    </dd>
-                    <dt>Source identifier / version</dt>
-                    <dd className="mono">{sourceId}</dd>
-                    <dt>Acquired</dt>
-                    <dd>
-                      {source?.captured_at
-                        ? new Date(source.captured_at).toLocaleString()
-                        : "Unavailable"}
-                    </dd>
-                    <dt>Source SHA-256</dt>
-                    <dd className="mono">{source?.sha256 || "Unavailable"}</dd>
-                    <dt>Location</dt>
-                    <dd>
-                      {citation?.page ? `Page ${citation.page} · ` : ""}
-                      {citation?.section_id} · Unicode offsets {citation?.start}
-                      –{citation?.end}
-                    </dd>
-                    <dt>Citation validity</dt>
-                    <dd>{citation?.match_status || "INVALID"}</dd>
-                    <dt>Qualifications</dt>
-                    <dd>
-                      {selected.qualifications?.join(" ") ||
-                        "No additional qualifications recorded; inspect surrounding source context."}
-                    </dd>
-                  </dl>
-                  <details>
-                    <summary>Verification method & execution metadata</summary>
-                    <p className="small-copy">
-                      Generator: {selected.provider} / {selected.model}
-                    </p>
-                    <pre>
-                      {JSON.stringify(selected.verification || {}, null, 2)}
-                    </pre>
+                    <Status
+                      value={selected.support_status}
+                      valid={
+                        selected.citations.length > 0 &&
+                        selected.citations.every(citationValid)
+                      }
+                    />
+                    <blockquote>
+                      {citation?.quote ||
+                        t("No source quotation was provided.")}
+                    </blockquote>
+                    <p>{selected.statement}</p>
+                    <dl>
+                      <dt>{t("Source document")}</dt>
+                      <dd>{source?.original_name || citation?.source_id}</dd>
+                      <dt>{t("Original source")}</dt>
+                      <dd>
+                        {source?.source_url ||
+                          t("Uploaded file or pasted text")}
+                      </dd>
+                      <dt>{t("Source identifier / version")}</dt>
+                      <dd className="mono">{sourceId}</dd>
+                      <dt>{t("Acquired")}</dt>
+                      <dd>
+                        {source?.captured_at
+                          ? new Date(source.captured_at).toLocaleString()
+                          : t("Unavailable")}
+                      </dd>
+                      <dt>{t("Source SHA-256")}</dt>
+                      <dd className="mono">
+                        {source?.sha256 || t("Unavailable")}
+                      </dd>
+                      <dt>{t("Location")}</dt>
+                      <dd>
+                        {citation?.page
+                          ? `${t("Page")} ${citation.page} · `
+                          : ""}
+                        {citation?.section_id} {t("· Unicode offsets")}{" "}
+                        {citation?.start}–{citation?.end}
+                      </dd>
+                      <dt>{t("Citation validity")}</dt>
+                      <dd>{citation?.match_status || "INVALID"}</dd>
+                      <dt>{t("Qualifications")}</dt>
+                      <dd>
+                        {selected.qualifications?.join(" ") ||
+                          t(
+                            "No additional qualifications recorded; inspect surrounding source context.",
+                          )}
+                      </dd>
+                    </dl>
+                    <details>
+                      <summary>
+                        {t("Verification method & execution metadata")}
+                      </summary>
+                      <p className="small-copy">
+                        {t("Generator:")}
+                        {selected.provider} / {selected.model}
+                      </p>
+                      <pre>
+                        {JSON.stringify(selected.verification || {}, null, 2)}
+                      </pre>
+                      <p className="small-copy muted">
+                        {t(
+                          "A model verifier is not independent human adjudication. Source matching and semantic interpretation are separate checks.",
+                        )}
+                      </p>
+                    </details>
                     <p className="small-copy muted">
-                      A model verifier is not independent human adjudication.
-                      Source matching and semantic interpretation are separate
-                      checks.
+                      {t(
+                        "This record supports inspection of the captured document. It does not prove real-world compliance, legal enforceability or admissibility.",
+                      )}
                     </p>
-                  </details>
-                  <p className="small-copy muted">
-                    This record supports inspection of the captured document. It
-                    does not prove real-world compliance, legal enforceability
-                    or admissibility.
-                  </p>
-                </section>
-              )}
-            </aside>
-          </div>
-        </>
-      )}
+                  </section>
+                )}
+              </aside>
+            </div>
+          </>
+        )}
+        <details className="coverage-footer" data-testid="processing-coverage">
+          <summary>{t("Processing coverage")}</summary>
+          <CoverageNotice coverage={data?.coverage} state={state} />
+          {data?.overview && (
+            <details>
+              <summary>{t("Original analysis overview")}</summary>
+              <p>{data.overview.summary}</p>
+            </details>
+          )}
+          <details>
+            <summary>{t("Limitations")}</summary>
+            {data?.limitations?.map((l) => (
+              <p className="small-copy" key={l}>
+                {l}
+              </p>
+            ))}
+          </details>
+          <details>
+            <summary>{t("Provider and model execution metadata")}</summary>
+            <pre>{JSON.stringify(data?.model_calls || [], null, 2)}</pre>
+          </details>
+        </details>
+      </div>
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +16,8 @@ import {
   Status,
 } from "../components/ui";
 export default function SourcePage() {
+  const { t } = useLanguage();
+
   const { id = "" } = useParams();
   const { user } = useSession();
   const navigate = useNavigate();
@@ -53,22 +56,22 @@ export default function SourcePage() {
     return (
       <section className="page">
         <ErrorNotice error={query.error} />
-        <Link to="/library">Back to library</Link>
+        <Link to="/library">{t("Back to library")}</Link>
       </section>
     );
   const source = query.data!;
   return (
     <section className="page">
       <PageHeading
-        eyebrow="CAPTURED SOURCE"
+        eyebrow={t("CAPTURED SOURCE")}
         title={source.original_name}
         actions={
           <Link className="button secondary" to="/library">
-            Back to library
+            {t("Back to library")}
           </Link>
         }
       >
-        Preserved original source, separate from AI interpretation.
+        {t("Preserved original source, separate from AI interpretation.")}
       </PageHeading>
       <ErrorNotice error={error} />
       <ErrorNotice error={source.processing_error} />
@@ -76,8 +79,9 @@ export default function SourcePage() {
         source.job_id && (
           <div className="notice">
             <p>
-              Extraction did not complete. You can retry the preserved source or
-              upload a corrected copy.
+              {t(
+                "Extraction did not complete. You can retry the preserved source or upload a corrected copy.",
+              )}
             </p>
             <button
               className="button secondary"
@@ -95,7 +99,7 @@ export default function SourcePage() {
                 }
               }}
             >
-              Retry extraction
+              {t("Retry extraction")}
             </button>
           </div>
         )}
@@ -111,36 +115,38 @@ export default function SourcePage() {
         </div>
         <aside>
           <section className="panel passport">
-            <h2>Source provenance</h2>
+            <h2>{t("Source provenance")}</h2>
             <Status value={source.status} />
             <dl>
-              <dt>Captured</dt>
+              <dt>{t("Captured")}</dt>
               <dd>{new Date(source.captured_at).toLocaleString()}</dd>
-              <dt>Source identifier / version</dt>
+              <dt>{t("Source identifier / version")}</dt>
               <dd className="mono">{source.id}</dd>
-              <dt>SHA-256 of original bytes</dt>
+              <dt>{t("SHA-256 of original bytes")}</dt>
               <dd className="mono">{source.sha256}</dd>
-              <dt>Original source</dt>
-              <dd>{source.source_url || "Uploaded file or pasted text"}</dd>
+              <dt>{t("Original source")}</dt>
+              <dd>{source.source_url || t("Uploaded file or pasted text")}</dd>
             </dl>
             <Notice>
-              A hash identifies these captured bytes. It does not prove remote
-              origin, conduct, or legal admissibility.
+              {t(
+                "A hash identifies these captured bytes. It does not prove remote origin, conduct, or legal admissibility.",
+              )}
             </Notice>
           </section>
           <section className="panel passport">
-            <h2>Analyze this source</h2>
+            <h2>{t("Analyze this source")}</h2>
             <p className="muted">
-              External interpretation requires a configured provider and your
-              consent.
+              {t(
+                "External interpretation requires a configured provider and your consent.",
+              )}
             </p>
             <label>
-              AI provider
+              {t("AI provider")}
               <select
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
               >
-                <option value="">Choose configured provider</option>
+                <option value="">{t("Choose configured provider")}</option>
                 {user?.providers
                   ?.filter((p) => p.configured)
                   .map((p) => (
@@ -156,8 +162,9 @@ export default function SourcePage() {
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
               />
-              I authorize sending this document text to the selected provider.
-              Its processing and retention terms apply.
+              {t(
+                "I authorize sending this document text to the selected provider. Its processing and retention terms apply.",
+              )}
             </label>
             <button
               className="button"
@@ -166,13 +173,14 @@ export default function SourcePage() {
               }
               onClick={() => void analyze()}
             >
-              {busy ? "Starting…" : "Analyze document"}
+              {busy ? t("Starting…") : t("Analyze document")}
               <ArrowRight size={16} />
             </button>
             {!user?.providers?.some((p) => p.configured) && (
               <Notice warning>
-                AI analysis is unavailable until an administrator configures a
-                provider. No analysis has been generated.
+                {t(
+                  "AI analysis is unavailable until an administrator configures a provider. No analysis has been generated.",
+                )}
               </Notice>
             )}
           </section>

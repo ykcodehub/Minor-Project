@@ -1,96 +1,70 @@
 # Veriora 2.0
 
-Veriora is an evidence-focused legal document workspace. It explains captured text and links interpretations to checkable source passages. It does not prove actual conduct, enforceability or court admissibility.
+Veriora explains legal documents using checkable source evidence. Findings describe captured document text, not a company's actual conduct, legal enforceability or court admissibility.
 
-## Features and status
+## Implemented workflows
 
-- Accounts/guest sessions, ownership, CSRF/session security, retention and durable deletion.
-- PDF/DOCX/TXT/HTML uploads, pasted text, encrypted originals, hashes and mapped token-aware chunks.
-- Secure policy discovery, source selection, capture metadata and explicit missing/inaccessible categories.
-- Gemini/Groq/OpenRouter adapters, structured validation, explicit routing consent and usage metadata.
-- Separate generation, exact source checks and semantic/context review; supported/partial/unsupported/ambiguous states.
-- PostgreSQL jobs, actual progress, cancellation/retry, retained findings, conversations and encrypted reports.
-- Source highlighting, Evidence Passports, server search/pagination, source-grounded Q&A and abstention.
-- Real dashboard/library counts, display-name changes and retained-text comparison.
-- Optional scoped read-only private MCP adapter; public OAuth is not implemented.
+- Email-first verified registration, password reset, Google OpenID Connect, secure sessions and per-user authorization.
+- PDF, DOCX, TXT and HTML uploads; pasted text; SSRF-protected legal-page discovery with explicit coverage limitations.
+- Section/paragraph/token-aware chunking with original offsets and page references where extraction provides them.
+- Gemini, Groq and OpenRouter adapters with selected-model routing, structured validation and separate source/semantic review.
+- PostgreSQL jobs, real progress, cancellation/retry, analysis history, grounded questions, evidence navigation and reports.
+- Summary opens first; Detailed Analysis preserves findings, source viewer and chat. Technical coverage appears at the bottom of Detailed Analysis. Quotes/context expand on demand.
+- Global English, Hindi and Hinglish preferences; original quotations remain unchanged. Suggested questions use supported categories present in the document.
+- Private encrypted storage: filesystem for development, S3-compatible object storage required in production. Remote S3 qualification remains pending.
 
-See [requirements audit](docs/REQUIREMENTS_AUDIT.md) and [executed verification](docs/VERIFICATION.md). Production readiness is not claimed.
+See [requirement status](docs/REQUIREMENTS_AUDIT.md), [verification evidence](docs/VERIFICATION.md), and [step-by-step usage](HOW_TO_RUN.md). Production readiness is not claimed.
 
-## Stack and architecture
+## Architecture and repository
 
-React19, TypeScript, Vite, Tailwind, TanStack Query and Lucide; Python 3.12?3.13, FastAPI, Pydantic, SQLAlchemy2, Alembic and PostgreSQL16+. PyMuPDF/python-docx/BeautifulSoup extract text; tiktoken measures chunks. Tests use pytest, Vitest, ESLint and Playwright.
-
-```text
-Browser -> authenticated API -> PostgreSQL + encrypted private storage
-                               -> durable job -> separate worker
-Extraction -> mapped chunks -> selected provider -> exact + semantic review
-Persisted findings -> source viewer / grounded Q&A / reports
-```
-
-REST and MCP reuse authorization/application services. No Redis/vector DB/microservices are required.
+React 19 / TypeScript / Vite / TanStack Query / Lucide; Python 3.12-3.13 / FastAPI / SQLAlchemy / Alembic / PostgreSQL 16+. Extraction uses PyMuPDF, python-docx and BeautifulSoup; chunk sizing uses tiktoken. No Redis or vector database is required.
 
 ```text
-backend/app/          API, models, config, security, worker, providers, services
-backend/migrations/  reviewed Alembic revisions
-backend/tests/       synthetic fixtures and integration/security/provenance tests
-frontend/src/        application, feature pages, shared components and styles
-frontend/e2e/        isolated regressions and explicit live browser scenario
-scripts/test_e2e.py   temporary browser-test service orchestration
-docs/                specs, audit, verification, deployment and OpenAPI
-compose.yml          optional local PostgreSQL service
-HOW_TO_RUN.md        exact commands, user journey and troubleshooting
+frontend/src/         application, workspace, shared UI and localization
+frontend/e2e/         browser regressions
+backend/app/          HTTP API, security, providers, services and worker
+backend/migrations/   versioned PostgreSQL schema
+backend/tests/        unit, API, security and evidence regressions
+scripts/              local verification and deployment configuration tools
+docs/                 specifications, audit, verification and operations
 ```
 
-## Installation and running
+Browser -> API -> PostgreSQL and encrypted storage. A separately supervised worker consumes durable jobs, extracts/chunks text, calls the selected provider, verifies evidence and persists results. Reports and questions reuse authorization and evidence services. Optional private read-only MCP is available; public MCP OAuth is planned.
 
-Requirements: Python 3.12?3.13, Node22.12+ or24+, and reachable PostgreSQL. **Preserve existing backend/.env; never copy a template over it.** For a new checkout only, create that file privately from placeholders if absent.
+## Local setup
+
+Requires Python 3.12-3.13, Node 22.12+ or 24+, and PostgreSQL. Run from the repository root in PowerShell:
 
 ```powershell
-py -3.13 -m venv .venv        # only if missing
+py -3.13 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r backend/requirements.lock
 python -m pip install --no-deps -e backend
 cd frontend
 npm ci
 cd ../backend
-python -m app.manage migrate
+# Configure backend/.env privately ONLY if it does not already exist.
 python -m app.manage check
+python -m app.manage migrate
+python -m alembic check
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Second terminal from root: `cd backend`, then `..\.venv\Scripts\python.exe -m app.worker`.
+In separate activated terminals, run `python -m app.worker` from backend and `npm run dev` from frontend. UI: http://127.0.0.1:5173 ; API docs: http://127.0.0.1:8000/docs . The development proxy forwards /api; keep Google login on its configured canonical hostname.
 
-Third terminal from root: `cd frontend`, then `npm run dev -- --strictPort`.
+For a new database, create a PostgreSQL role/database you control and configure DATABASE_URL privately. Existing configured remote PostgreSQL needs no local Docker database. Migrations preserve existing records; do not downgrade/reset to fix errors. Never overwrite an existing .env.
 
-**App: http://localhost:5173**. **API: http://127.0.0.1:8000/docs**; live schema `/openapi.json`. `/api/v1/ready` checks DB connectivity. [HOW_TO_RUN.md](HOW_TO_RUN.md) explains every workflow and failure recovery.
+## Configuration
 
-## PostgreSQL and environment
-
-The runtime requires PostgreSQL. Plain postgresql:// and postgres:// URLs normalize internally to psycopg; no secret file is rewritten and no SQLite fallback occurs. Explicit isolated tests alone may use SQLite. A configured remote database needs no local service. For a new local database, configure root compose placeholders privately, run `docker compose up -d`, and supply its URL in backend/.env.
-
-API and worker must share configuration/storage. Run Alembic upgrades and `alembic check`; never reset existing data to fix migrations. Added revisions create the storage-deletion outbox and retained report metadata without dropping tables.
-
-| Variables | Purpose |
-|---|---|
-| DATABASE_URL | Private PostgreSQL URL, preserving required TLS parameters. |
-| ENVIRONMENT | development/production or explicit isolated test mode. |
-| STORAGE_KEY / STORAGE_PATH | Stable Fernet key and private persistent volume. |
-| SECURE_COOKIES / ALLOWED_ORIGINS / PUBLIC_URL | Session HTTPS behavior, browser origins and email links. |
-| MAX_UPLOAD_BYTES / MAX_PAGES / MAX_DOCUMENT_TOKENS | Ingestion budgets. |
-| GEMINI_API_KEY/MODEL, GROQ_API_KEY/MODEL, OPENROUTER_API_KEY/MODEL | Backend-only provider configuration. |
-| PROVIDER_PRICING | Optional current price estimates; no invented free entitlement or spend guarantee. |
-| SMTP_HOST/PORT/USER/PASSWORD, MAIL_FROM | Verification and recovery delivery. |
-| MCP_BEARER_TOKEN / MCP_USER_ID / MCP_TOKEN_EXPIRES_AT / MCP_SCOPES | Optional private MCP process environment. |
-
-`python -m app.manage providers` checks catalogs without printing keys/model configuration. Availability does not guarantee quota. Analysis requires explicit external-processing consent; confidential mode blocks transfer. Preferences never silently authorize fallback. Development without SMTP verifies locally; production registration requires delivery.
+[backend/.env.example](backend/.env.example) contains placeholders only. DATABASE_URL selects PostgreSQL/psycopg; ENVIRONMENT, SECURE_COOKIES, PUBLIC_URL and ALLOWED_ORIGINS control runtime security. STORAGE_KEY must remain stable; STORAGE_PATH is development-only. STORAGE_BACKEND, S3_BUCKET, S3_REGION, S3_ENDPOINT_URL and S3_PREFIX select private production objects; AWS SDK credentials come from host secrets/IAM. MAX_UPLOAD_BYTES, MAX_PAGES and MAX_DOCUMENT_TOKENS bound ingestion. Each provider uses its *_API_KEY and *_MODEL; the user's selected provider is preserved. SMTP_HOST/PORT/USER/PASSWORD and MAIL_FROM enable real email; GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI enable Google. OAUTH_PROXY_HOSTS explicitly allowlists the production HTTPS backend ingress behind a same-origin rewrite. Never expose secrets through VITE_* variables.
 
 ## Tests
 
 ```powershell
 cd backend
-..\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
-..\.venv\Scripts\python.exe -m ruff check app tests
-..\.venv\Scripts\python.exe -m alembic check
+python -m pytest tests -q
+python -m ruff check app tests
+python -m alembic check
 cd ../frontend
 npm run lint
 npm test
@@ -98,20 +72,25 @@ npm run build
 npm run test:e2e
 ```
 
-The browser harness uses temporary storage/database and disabled providers on8002/5174, then stops its own processes. Live tests are opt-in, consume provider quota and preserve synthetic PostgreSQL rows. See HOW_TO_RUN. Reports distinguish mocked, live and unverified checks; passing synthetic tests is not a semantic accuracy benchmark.
+Build includes TypeScript checks. The browser harness uses isolated data and synthetic external-provider boundaries; it does not prove production Google, SMTP or AI service availability. See verification for executed counts and skips.
 
-## Privacy, deployment and limitations
+## Branding and deployment
 
-Passwords use Argon2. HttpOnly SameSite sessions, CSRF/Origin checks and resource ownership/expiry guard private data. Sources and retained reports are encrypted. Deletion revokes access transactionally and queues physical removal for retry; content-free audits and separately governed backups have different retention. Local deletion cannot control provider retention.
+Place the final logo at frontend/public/logo.png. Until supplied, a safe text mark appears. The footer uses the current year.
 
-Jobs use DB claims, leases and heartbeats. Interrupted generation fails explicitly; manual retries may repeat provider usage. Per-call resume and enforceable monetary ceilings remain incomplete. Large-source context limits can produce ambiguity/abstention.
+Deploy the frontend to Vercel and API/worker to persistent Python/container hosting, with a fresh PostgreSQL database and private S3-compatible bucket. [Deployment instructions](docs/DEPLOYMENT.md) cover generated API/SPA rewrites, Docker, storage, OAuth, SMTP and release gates. No infrastructure was deployed. [Database cleanup](docs/DATABASE_RESET.md) is read-only by default, requires separate approval/backup for development or staging, and refuses production deletion.
 
-OCR, expert review, semantic conflict detection, change alerts, trusted timestamps, S3 storage, public MCP OAuth and institutional SSO remain unimplemented. Human evidence evaluation, full accessibility/security review, parser isolation, backup restore and production operations need qualification.
+## Security, limitations and contribution
 
-Deployment uses static frontend hosting, HTTPS API, PostgreSQL, a private persistent volume and supervised worker. Production requires secure cookies/stable key. Restrict database/OS privileges; never expose storage or secrets through static hosting. See [deployment](docs/DEPLOYMENT.md). No cloud deployment is claimed.
+Preserve .env, encryption keys, private documents and database backups outside Git. Encrypted storage does not remove provider privacy obligations: review consent and retention before sending documents. Source quotation checks and model review cannot guarantee legal correctness. OCR, human reviewer sign-off, trusted timestamps, semantic comparison alerts and public MCP OAuth remain planned. Production S3/IAM, domain-specific OAuth/SMTP, container hosting, backup/restore and load qualification remain release gates.
 
-## MCP and contribution
+Use small changes, preserve existing contracts and migrations, run the relevant regression suite and update the requirement audit. Never commit credentials, reset user data or claim unexecuted tests passed.
 
-The pinned MCP SDK exposes five read-only private tools: list_my_documents, get_document_sections, search_document_clauses, get_evidence_passport and get_analysis_report. Configure a strong expiring bearer, fixed verified account and explicit read scopes in the process environment, then run `python -m uvicorn app.mcp_server:create_app --factory --host 127.0.0.1 --port 8001` from backend/. Endpoint: `/mcp`. Pass the bearer through the client's secret manager, never a URL/frontend. This adapter refuses production; public OAuth/interoperability remains a release gap.
 
-Use cohesive modules, strict schemas, shared authorization and preserved source offsets. Add meaningful negative tests and update audit/OpenAPI for contract changes. Review migrations; do not fix schema drift destructively. Keep .env, runtime storage and test artifacts ignored. Avoid infrastructure without a concrete requirement.
+## Configuration and cleanup boundaries
+
+The brand wordmark has no trailing dot. Navigation includes visible hover/active/focus states and respects reduced motion. Summary guidance expands on demand; Veriora AI uses a neutral localized input prompt and document-derived suggestions. Citation page labels use the global language catalog.
+
+Development proxy overrides can be supplied through frontend environment files or VITE_API_TARGET in the process environment (process values win); restart Vite after changes. Production public/CORS origins must be HTTPS origins without credentials, paths or query strings. Loopback production database, object-store and configured Google callback hosts are rejected. Provider API URLs, allowed Google issuers, supported languages, risk rules and test fixtures are intentional constants rather than fabricated application results.
+
+Do not delete dependencies, diagnostic scripts, specifications or tests merely because they are absent from the browser bundle. Runtime/test/build tooling have separate uses; generated files and private data are ignored/excluded from deployment artifacts. See the latest requirements audit and verification record for cleanup scope. No PostgreSQL modifications are part of the cleanup audit.

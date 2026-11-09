@@ -383,7 +383,11 @@ def run_once():
 
 
 def cleanup():
+    from app.models import AuthToken, OAuthAttempt, PendingRegistration
+
     with SessionLocal() as db:
+        for model in (PendingRegistration, OAuthAttempt, AuthToken):
+            db.execute(delete(model).where(model.expires_at <= now()))
         for source in db.scalars(select(Source).where(Source.expires_at <= now())).all():
             delete_source(db, source)
         db.execute(delete(Session).where(Session.expires_at <= now()))

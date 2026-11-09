@@ -1,0 +1,9 @@
+{
+  "google_configured": true,
+  "smtp_configured": true,
+  "smtp_authenticated": true,
+  "smtp_message_accepted": true,
+  "google_authorization_http_status": 200,
+  "google_authorization_page_reached": true,
+  "google_callback_verified": false
+}

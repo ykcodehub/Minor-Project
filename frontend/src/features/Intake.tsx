@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -26,13 +27,15 @@ export default function Intake({
 }: {
   initialMode?: string;
 }) {
+  const { t } = useLanguage();
+
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, ensure } = useSession();
   const mode = params.get("mode") || initialMode;
   const [file, setFile] = useState<File>();
   const [text, setText] = useState("");
-  const [name, setName] = useState("Untitled document");
+  const [name, setName] = useState(t("Untitled document"));
   const [url, setUrl] = useState("");
   const [drag, setDrag] = useState(false);
   const [provider, setProvider] = useState(user?.preferred_provider || "");
@@ -65,15 +68,15 @@ export default function Intake({
     setError(undefined);
     if (!next) return;
     if (!/\.(pdf|docx|txt|html?)$/i.test(next.name)) {
-      setError("Choose a PDF, DOCX, TXT or HTML file.");
+      setError(t("Choose a PDF, DOCX, TXT or HTML file."));
       return;
     }
     if (next.size > 20 * 1024 * 1024) {
-      setError("Files must be 20 MB or smaller.");
+      setError(t("Files must be 20 MB or smaller."));
       return;
     }
     if (next.size === 0) {
-      setError("This file is empty.");
+      setError(t("This file is empty."));
       return;
     }
     setFile(next);
@@ -86,16 +89,18 @@ export default function Intake({
         if (job.state === "FAILED")
           throw Error(
             job.error ||
-              "Document processing failed. Inspect the source and retry.",
+              t("Document processing failed. Inspect the source and retry."),
           );
         if (["CANCELLED", "CANCELED"].includes(job.state))
-          throw Error("Processing was canceled.");
+          throw Error(t("Processing was canceled."));
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, 1200));
     }
     throw Error(
-      "Processing is still running. You can reopen the document from your library.",
+      t(
+        "Processing is still running. You can reopen the document from your library.",
+      ),
     );
   }
   async function analyze(sourceIds: string[]) {
@@ -113,8 +118,8 @@ export default function Intake({
       return;
     }
     if (!consent)
-      throw Error("Please authorize the selected provider before analysis.");
-    setStage("QUEUING ANALYSIS");
+      throw Error(t("Please authorize the selected provider before analysis."));
+    setStage(t("QUEUING ANALYSIS"));
     const a = await post<{ analysis_id: string }>("/analyses", {
       source_ids: sourceIds,
       provider: destination,
@@ -141,7 +146,7 @@ export default function Intake({
           if (mode === "text") {
             source = await post<Created>("/sources/text", { name, text });
           } else {
-            if (!file) throw Error("Choose a document first.");
+            if (!file) throw Error(t("Choose a document first."));
             const body = new FormData();
             body.append("file", file);
             source = await api<Created>("/sources/upload", {
@@ -166,7 +171,7 @@ export default function Intake({
     try {
       const sources: string[] = [];
       for (const candidate of selected) {
-        setStage("FETCHING SELECTED POLICY");
+        setStage(t("FETCHING SELECTED POLICY"));
         const s = await post<Created>("/sources/url", {
           discovery_job_id: discoveryId,
           url: candidate,
@@ -184,10 +189,10 @@ export default function Intake({
   return (
     <section className="page intake-page">
       <PageHeading
-        eyebrow="START WITH THE SOURCE"
-        title="What would you like to analyze?"
+        eyebrow={t("START WITH THE SOURCE")}
+        title={t("What would you like to analyze?")}
       >
-        Bring a document. Keep the context. Get back to the exact words.
+        {t("Bring a document. Keep the context. Get back to the exact words.")}
       </PageHeading>
       <div className="intake-layout">
         <div>
@@ -195,12 +200,12 @@ export default function Intake({
             <div
               className="tabs"
               role="tablist"
-              aria-label="Document input method"
+              aria-label={t("Document input method")}
             >
               {[
-                { id: "file", title: "Upload file", Icon: Upload },
-                { id: "text", title: "Paste text", Icon: ScanText },
-                { id: "url", title: "Website URL", Icon: Link2 },
+                { id: "file", title: t("Upload file"), Icon: Upload },
+                { id: "text", title: t("Paste text"), Icon: ScanText },
+                { id: "url", title: t("Website URL"), Icon: Link2 },
               ].map(({ id, title, Icon }) => (
                 <button
                   role="tab"
@@ -238,12 +243,12 @@ export default function Intake({
                     <span className="upload-symbol">
                       <Upload size={28} />
                     </span>
-                    <h2>Drop your document here</h2>
-                    <p>or choose a file from your device</p>
+                    <h2>{t("Drop your document here")}</h2>
+                    <p>{t("or choose a file from your device")}</p>
                     <label className="button secondary file-label">
-                      Choose file
+                      {t("Choose file")}
                       <input
-                        aria-label="Choose document file"
+                        aria-label={t("Choose document file")}
                         type="file"
                         accept=".pdf,.docx,.txt,.html,.htm"
                         disabled={busy}
@@ -254,7 +259,9 @@ export default function Intake({
                       />
                     </label>
                     <small>
-                      PDF, DOCX, TXT, HTML · Up to 20 MB · Up to 150 pages
+                      {t(
+                        "PDF, DOCX, TXT, HTML · Up to 20 MB · Up to 150 pages",
+                      )}
                     </small>
                   </div>
                   {file && (
@@ -263,13 +270,13 @@ export default function Intake({
                       <div>
                         <strong>{file.name}</strong>
                         <span className="muted">
-                          {(file.size / 1024).toFixed(1)} KB
+                          {(file.size / 1024).toFixed(1)} {t("KB")}
                         </span>
                       </div>
                       <button
                         type="button"
                         className="icon-button"
-                        aria-label="Remove file"
+                        aria-label={t("Remove file")}
                         onClick={() => {
                           setFile(undefined);
                           setCreated(undefined);
@@ -285,7 +292,7 @@ export default function Intake({
               {mode === "text" && (
                 <div className="fields">
                   <label>
-                    Document name
+                    {t("Document name")}
                     <input
                       maxLength={200}
                       required
@@ -297,7 +304,7 @@ export default function Intake({
                     />
                   </label>
                   <label>
-                    Original document text
+                    {t("Original document text")}
                     <textarea
                       required
                       rows={11}
@@ -307,12 +314,16 @@ export default function Intake({
                         setText(e.target.value);
                         setCreated(undefined);
                       }}
-                      placeholder="Paste the complete agreement or the passage you want to inspect."
+                      placeholder={t(
+                        "Paste the complete agreement or the passage you want to inspect.",
+                      )}
                     />
                   </label>
                   <small className="muted">
-                    {text.length.toLocaleString()} characters · Exact submitted
-                    text is retained as your source.
+                    {text.length.toLocaleString()}{" "}
+                    {t(
+                      "characters · Exact submitted text is retained as your source.",
+                    )}
                   </small>
                 </div>
               )}
@@ -321,24 +332,26 @@ export default function Intake({
                   <div className="url-illustration">
                     <Link2 size={30} />
                   </div>
-                  <h2>Find the policies behind a website.</h2>
+                  <h2>{t("Find the policies behind a website.")}</h2>
                   <p className="muted">
-                    Review accessible official legal pages before choosing what
-                    to analyze.
+                    {t(
+                      "Review accessible official legal pages before choosing what to analyze.",
+                    )}
                   </p>
                   <label>
-                    Official website URL
+                    {t("Official website URL")}
                     <input
                       type="url"
                       required
-                      placeholder="https://example.com"
+                      placeholder={"https://example.com"}
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
                     />
                   </label>
                   <Notice>
-                    Discovery checks accessible links. Other terms may exist,
-                    and protected pages will not be bypassed.
+                    {t(
+                      "Discovery checks accessible links. Other terms may exist, and protected pages will not be bypassed.",
+                    )}
                   </Notice>
                 </div>
               )}
@@ -347,15 +360,17 @@ export default function Intake({
                 <Loading
                   label={
                     stage.replaceAll("_", " ").toLowerCase() ||
-                    "Processing your source…"
+                    t("Processing your source…")
                   }
                 />
               )}
               <div className="form-footer">
                 <span className="muted">
                   {mode === "url"
-                    ? "Select sources after discovery."
-                    : "Original source and acquisition metadata are preserved."}
+                    ? t("Select sources after discovery.")
+                    : t(
+                        "Original source and acquisition metadata are preserved.",
+                      )}
                 </span>
                 <button
                   className="button"
@@ -363,10 +378,10 @@ export default function Intake({
                   disabled={busy || (mode === "file" && !file)}
                 >
                   {mode === "url"
-                    ? "Find legal documents"
+                    ? t("Find legal documents")
                     : configured.length && privacy === "external"
-                      ? "Upload & analyze"
-                      : "Save & inspect source"}
+                      ? t("Upload & analyze")
+                      : t("Save & inspect source")}
                   <ArrowRight size={17} />
                 </button>
               </div>
@@ -374,13 +389,13 @@ export default function Intake({
           </div>
           {discoveryId && (
             <div className="panel discovery-panel">
-              <h2>Discovered policy candidates</h2>
+              <h2>{t("Discovered policy candidates")}</h2>
               <ErrorNotice error={discovery.error || discoveryJob.error} />
               {discoveryJob.data?.state === "FAILED" && (
                 <ErrorNotice
                   error={
                     discoveryJob.data.error ||
-                    "Policy discovery failed. Check the URL and try again."
+                    t("Policy discovery failed. Check the URL and try again.")
                   }
                 />
               )}
@@ -390,8 +405,9 @@ export default function Intake({
                 />
               )}
               <Notice>
-                These pages were linked from the website. Discovery is not a
-                completeness guarantee.
+                {t(
+                  "These pages were linked from the website. Discovery is not a completeness guarantee.",
+                )}
               </Notice>
               {discovery.data?.candidates?.length
                 ? discovery.data.candidates.map((c) => (
@@ -422,7 +438,7 @@ export default function Intake({
                             c.type ||
                             c.kind ||
                             c.category ||
-                            "Legal policy"}
+                            t("Legal policy")}
                         </strong>
                         <a
                           href={c.url}
@@ -444,14 +460,14 @@ export default function Intake({
                     </label>
                   ))
                 : !active(discoveryJob.data?.state) && (
-                    <Empty title="No accessible candidates yet">
-                      Try another official starting page.
+                    <Empty title={t("No accessible candidates yet")}>
+                      {t("Try another official starting page.")}
                     </Empty>
                   )}
               {(discovery.data?.missing_categories || discovery.data?.missing)
                 ?.length ? (
                 <p className="muted">
-                  Not found or inaccessible:{" "}
+                  {t("Not found or inaccessible:")}{" "}
                   {(
                     discovery.data.missing_categories ||
                     discovery.data.missing ||
@@ -469,7 +485,8 @@ export default function Intake({
                 disabled={busy || !selected.length}
                 onClick={() => void analyzeSelected()}
               >
-                Analyze {selected.length || ""} selected{" "}
+                {t("Analyze")}
+                {selected.length || ""} {t("selected")}{" "}
                 {selected.length === 1 ? "document" : "documents"}
                 <ArrowRight size={17} />
               </button>
@@ -478,32 +495,32 @@ export default function Intake({
         </div>
         <aside className="intake-aside">
           <div className="panel">
-            <p className="eyebrow">PROCESSING & PRIVACY</p>
-            <h3>You choose where the text goes.</h3>
+            <p className="eyebrow">{t("PROCESSING & PRIVACY")}</p>
+            <h3>{t("You choose where the text goes.")}</h3>
             <label>
-              Processing mode
+              {t("Processing mode")}
               <select
                 value={privacy}
                 onChange={(e) => setPrivacy(e.target.value)}
               >
-                <option value="external">External AI provider</option>
+                <option value="external">{t("External AI provider")}</option>
                 <option value="confidential">
-                  Confidential · source inspection only
+                  {t("Confidential · source inspection only")}
                 </option>
               </select>
             </label>
             {privacy === "external" ? (
               <>
                 <label>
-                  AI provider
+                  {t("AI provider")}
                   <select
                     value={provider}
                     onChange={(e) => setProvider(e.target.value)}
                   >
                     <option value="">
                       {configured.length
-                        ? "Choose configured provider"
-                        : "No provider configured"}
+                        ? t("Choose configured provider")
+                        : t("No provider configured")}
                     </option>
                     {configured.map((p) => (
                       <option key={p.name} value={p.name}>
@@ -513,9 +530,9 @@ export default function Intake({
                   </select>
                 </label>
                 <p className="muted small-copy">
-                  Your document text will be sent to the selected provider for
-                  interpretation and verification. Provider retention and
-                  processing terms apply.
+                  {t(
+                    "Your document text will be sent to the selected provider for interpretation and verification. Provider retention and processing terms apply.",
+                  )}
                 </p>
                 <label className="check-label">
                   <input
@@ -523,31 +540,36 @@ export default function Intake({
                     checked={consent}
                     onChange={(e) => setConsent(e.target.checked)}
                   />
-                  I authorize this document to be processed by the selected AI
-                  provider.
+                  {t(
+                    "I authorize this document to be processed by the selected AI provider.",
+                  )}
                 </label>
                 {!configured.length && (
                   <Notice warning>
-                    Source inspection works without AI credentials. An
-                    administrator must configure a provider to enable analysis.
+                    {t(
+                      "Source inspection works without AI credentials. An administrator must configure a provider to enable analysis.",
+                    )}
                   </Notice>
                 )}
               </>
             ) : (
               <Notice>
-                External AI transfer is blocked. You can preserve and inspect
-                extracted text; confidential AI processing is not configured.
+                {t(
+                  "External AI transfer is blocked. You can preserve and inspect extracted text; confidential AI processing is not configured.",
+                )}
               </Notice>
             )}
           </div>
           <div className="aside-note">
-            <h3>A source, not a promise.</h3>
+            <h3>{t("A source, not a promise.")}</h3>
             <p>
-              Findings explain what a document says. They do not establish legal
-              enforceability or what an organization does in practice.
+              {t(
+                "Findings explain what a document says. They do not establish legal enforceability or what an organization does in practice.",
+              )}
             </p>
             <Link to="/#verification" className="text-link">
-              About verification <ArrowRight size={15} />
+              {t("About verification")}
+              <ArrowRight size={15} />
             </Link>
           </div>
         </aside>

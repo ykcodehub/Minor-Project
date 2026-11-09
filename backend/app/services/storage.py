@@ -2,7 +2,9 @@
 
 import hashlib
 import os
+import re
 import uuid
+from functools import lru_cache
 from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -33,8 +35,11 @@ def _publish_once(target: Path, data: bytes):
 def cipher():
     cfg = settings()
     root = cfg.storage_path.resolve()
-    root.mkdir(parents=True, exist_ok=True)
     key = cfg.storage_key.encode()
+    if cfg.storage_backend == "s3" and not key:
+        raise StorageError("Object storage requires the configured original encryption key.")
+    if cfg.storage_backend == "filesystem":
+        root.mkdir(parents=True, exist_ok=True)
     if not key:
         key_path = root / ".storage-key"
         if not key_path.exists():
@@ -66,6 +71,30 @@ def path(key: str) -> Path:
     return target
 
 
+def _validate_object_key(key):
+    if not re.fullmatch(r"(?:key-[a-f0-9]{16}/)?[A-Za-z0-9_-]+\.enc", key):
+        raise ValueError("Invalid private object identifier")
+
+
+@lru_cache
+def s3_client():
+    import boto3
+    from botocore.config import Config
+
+    cfg = settings()
+    return boto3.client(
+        "s3",
+        region_name=cfg.s3_region,
+        endpoint_url=cfg.s3_endpoint_url or None,
+        config=Config(connect_timeout=10, read_timeout=30, retries={"max_attempts": 2, "mode": "standard"}),
+    )
+
+
+def _object_name(key):
+    _validate_object_key(key)
+    return settings().s3_prefix.rstrip("/") + "/" + key if settings().s3_prefix else key
+
+
 def write(data: bytes, source_id: str):
     value = cipher()
     key_bytes = (
@@ -73,8 +102,24 @@ def write(data: bytes, source_id: str):
     )
     fingerprint = hashlib.sha256(key_bytes).hexdigest()[:16]
     key = f"key-{fingerprint}/{source_id}.enc"
-    path(key).parent.mkdir(parents=True, exist_ok=True)
+    _validate_object_key(key)
     encrypted = value.encrypt(data)
+    if settings().storage_backend == "s3":
+        from botocore.exceptions import BotoCoreError, ClientError
+
+        try:
+            s3_client().put_object(
+                Bucket=settings().s3_bucket,
+                Key=_object_name(key),
+                Body=encrypted,
+                ContentType="application/octet-stream",
+                IfNoneMatch="*",
+                ServerSideEncryption="AES256",
+            )
+        except (BotoCoreError, ClientError):
+            raise StorageError("Private object storage write failed.") from None
+        return key, hashlib.sha256(data).hexdigest()
+    path(key).parent.mkdir(parents=True, exist_ok=True)
     with path(key).open("xb") as file:
         file.write(encrypted)
         file.flush()
@@ -83,13 +128,30 @@ def write(data: bytes, source_id: str):
 
 
 def read(key: str, expected_hash: str):
-    encrypted = path(key).read_bytes()
+    _validate_object_key(key)
+    if settings().storage_backend == "s3":
+        from botocore.exceptions import BotoCoreError, ClientError
+
+        try:
+            response = s3_client().get_object(Bucket=settings().s3_bucket, Key=_object_name(key))
+            body = response["Body"]
+            try:
+                limit = settings().max_upload_bytes * 2 + 1048576
+                encrypted = body.read(limit + 1)
+                if len(encrypted) > limit:
+                    raise StorageError("Private object exceeds the storage read limit.")
+            finally:
+                body.close()
+        except (BotoCoreError, ClientError):
+            raise StorageError("Private object storage read failed.") from None
+    else:
+        encrypted = path(key).read_bytes()
     try:
         data = cipher().decrypt(encrypted)
     except InvalidToken:
         # Legacy flat originals can use their preserved development key. Never rewrite it.
         legacy = settings().storage_path.resolve() / ".storage-key"
-        if "/" in key or not legacy.exists():
+        if settings().storage_backend == "s3" or "/" in key or not legacy.exists():
             raise StorageError("The configured storage key cannot decrypt this retained source.") from None
         try:
             data = Fernet(legacy.read_bytes()).decrypt(encrypted)
@@ -101,4 +163,13 @@ def read(key: str, expected_hash: str):
 
 
 def remove(key: str):
-    path(key).unlink(missing_ok=True)
+    _validate_object_key(key)
+    if settings().storage_backend == "s3":
+        from botocore.exceptions import BotoCoreError, ClientError
+
+        try:
+            s3_client().delete_object(Bucket=settings().s3_bucket, Key=_object_name(key))
+        except (BotoCoreError, ClientError):
+            raise OSError("Private object storage deletion failed; retry required.") from None
+    else:
+        path(key).unlink(missing_ok=True)

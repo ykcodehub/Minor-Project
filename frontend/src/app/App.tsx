@@ -1,6 +1,8 @@
 import { lazy, Suspense, useState } from "react";
 import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
-import { ArrowUpRight, FileText, LogOut, Settings2 } from "lucide-react";
+import { ArrowUpRight, LogOut, Settings2, Globe2 } from "lucide-react";
+import { BrandMark } from "../components/BrandMark";
+import { useLanguage } from "./language";
 import { useSession } from "./session";
 import { post } from "../lib/api";
 import { ErrorNotice, Loading } from "../components/ui";
@@ -14,6 +16,8 @@ const Workspace = lazy(() => import("../features/Workspace"));
 const Compare = lazy(() => import("../features/Compare"));
 const SourcePage = lazy(() => import("../features/SourcePage"));
 export default function App() {
+  const { language, setLanguage, t } = useLanguage();
+  const [languageOpen, setLanguageOpen] = useState(false);
   const { user, refresh } = useSession();
   const navigate = useNavigate();
   const [authError, setAuthError] = useState<unknown>();
@@ -34,31 +38,77 @@ export default function App() {
   return (
     <>
       <a className="skip" href="#main">
-        Skip to content
+        {t("Skip to content")}
       </a>
       <header className="topbar">
-        <Link className="brand" to="/" aria-label="Veriora home">
-          <span className="brand-mark">
-            <FileText size={21} />
-          </span>
-          veriora<span className="brand-dot">.</span>
+        <Link className="brand" to="/" aria-label={t("Veriora home")}>
+          <BrandMark />
+          {"veriora"}
         </Link>
-        <nav aria-label="Main navigation">
-          <NavLink to="/dashboard">Dashboard</NavLink>
-          <NavLink to="/analyze">Analyze</NavLink>
-          <NavLink to="/library">Library</NavLink>
+        <nav aria-label={t("Main navigation")}>
+          <NavLink to="/dashboard">{t("Dashboard")}</NavLink>
+          <NavLink to="/analyze">{t("Analyze")}</NavLink>
+          <NavLink to="/library">{t("Library")}</NavLink>
         </nav>
         <div className="account-nav">
+          <div
+            className="global-language"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setLanguageOpen(false);
+                e.currentTarget.querySelector("button")?.focus();
+              }
+            }}
+          >
+            <button
+              className="icon-button"
+              data-testid="global-language-toggle"
+              aria-label={t("Language")}
+              aria-expanded={languageOpen}
+              onClick={() => setLanguageOpen(!languageOpen)}
+            >
+              <Globe2 size={19} />
+              <span className="language-code">
+                {language === "hi"
+                  ? "हिं"
+                  : language === "hinglish"
+                    ? "HI/EN"
+                    : "EN"}
+              </span>
+            </button>
+            {languageOpen && (
+              <div className="language-popover">
+                <label>
+                  {t("Application language")}
+                  <select
+                    data-testid="global-language-select"
+                    aria-label={t("Application language")}
+                    value={language}
+                    onChange={(e) => {
+                      void setLanguage(e.target.value as typeof language).catch(
+                        setAuthError,
+                      );
+                      setLanguageOpen(false);
+                    }}
+                  >
+                    <option value="en">{"English"}</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="hinglish">{"Hinglish"}</option>
+                  </select>
+                </label>
+              </div>
+            )}
+          </div>
           {user ? (
             <>
               <Link className="account" to="/settings">
                 <Settings2 size={17} />
-                <span>{user.guest ? "Guest session" : "Account"}</span>
+                <span>{user.guest ? t("Guest session") : t("Account")}</span>
               </Link>
               <button
                 className="icon-button"
-                title="Sign out"
-                aria-label="Sign out"
+                title={t("Sign out")}
+                aria-label={t("Sign out")}
                 disabled={signingOut}
                 onClick={() => void logout()}
               >
@@ -66,13 +116,15 @@ export default function App() {
               </button>
               {user.guest && (
                 <Link className="button small" to="/sign-in">
-                  Save your work <ArrowUpRight size={15} />
+                  {t("Save your work")}
+                  <ArrowUpRight size={15} />
                 </Link>
               )}
             </>
           ) : (
             <Link className="button secondary small" to="/sign-in">
-              Sign in <ArrowUpRight size={15} />
+              {t("Sign in")}
+              <ArrowUpRight size={15} />
             </Link>
           )}
         </div>
@@ -85,6 +137,10 @@ export default function App() {
             <Route path="/analyze" element={<Intake />} />
             <Route path="/discover" element={<Intake initialMode="url" />} />
             <Route path="/sign-in" element={<Auth />} />
+            <Route path="/register" element={<Auth key="register" />} />
+            <Route path="/verify-email" element={<Auth key="verify" />} />
+            <Route path="/forgot-password" element={<Auth key="recover" />} />
+            <Route path="/reset-password" element={<Auth key="reset" />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/library" element={<Library />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -95,10 +151,10 @@ export default function App() {
               path="*"
               element={
                 <section className="page narrow">
-                  <h1>Page not found</h1>
-                  <p>This address is unavailable.</p>
+                  <h1>{t("Page not found")}</h1>
+                  <p>{t("This address is unavailable.")}</p>
                   <Link className="button" to="/analyze">
-                    Analyze a document
+                    {t("Analyze a document")}
                   </Link>
                 </section>
               }
@@ -108,11 +164,13 @@ export default function App() {
       </main>
       <footer className="footer">
         <Link className="brand" to="/">
-          veriora<span className="brand-dot">.</span>
+          {"veriora"}
         </Link>
-        <span>Document intelligence. Evidence first.</span>
         <span>
-          Interpretations inform your review. They are not legal advice.
+          © {new Date().getFullYear()} Veriora · {t("All rights reserved.")}
+        </span>
+        <span>
+          {t("Interpretations inform your review. They are not legal advice.")}
         </span>
       </footer>
     </>

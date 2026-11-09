@@ -1,0 +1,9 @@
+node_modules
+.env*
+test-results
+playwright-report
+e2e
+**/*.test.ts
+**/*.test.tsx
+src/test-setup.ts
+*.tsbuildinfo

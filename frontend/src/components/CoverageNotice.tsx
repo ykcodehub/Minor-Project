@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { FileText } from "lucide-react";
 import { Notice, Status } from "./ui";
 export function coverageSummary(
@@ -39,6 +40,8 @@ export function CoverageNotice({
   state?: string;
   extraction?: boolean;
 }) {
+  const { t } = useLanguage();
+
   const warnings = Array.isArray(coverage.warnings)
     ? coverage.warnings.filter((w): w is string => typeof w === "string")
     : [];
@@ -47,7 +50,7 @@ export function CoverageNotice({
       <div className="coverage-bar">
         <FileText size={18} />
         <strong>
-          {extraction ? "Extraction coverage" : "Processing coverage"}
+          {extraction ? t("Extraction coverage") : t("Processing coverage")}
         </strong>
         <span>{coverageSummary(coverage, extraction)}</span>
         {state && <Status value={state} />}

@@ -12,6 +12,7 @@ from app.models import (
     AnalysisSource,
     Finding,
     Job,
+    LocalizedAnalysis,
     ModelCall,
     Question,
     Report,
@@ -27,6 +28,7 @@ from app.schemas import (
     ConversationResponse,
     FindingResponse,
     JobResponse,
+    Language,
     QuestionInput,
     QuestionResponse,
     ReportResponse,
@@ -212,10 +214,22 @@ def ask_question(analysis_id: str, data: QuestionInput, db: Db, user: CurrentUse
         finding_dict(f) for f in db.scalars(select(Finding).where(Finding.analysis_id == analysis.id))
     ]
     try:
+        from app.services.localization import retrieval_question
         from app.services.retrieval import retrieve_chunks
 
-        chunks = retrieve_chunks(db, [s.id for s in sources], data.question, owner_id=user.id)
-        result = ask(data.question, findings, sections, providers, retrieved_chunks=chunks)
+        search_question, retrieval_calls = retrieval_question(data.question, providers)
+        for call in retrieval_calls:
+            db.add(ModelCall(job_id=job.id, data=call))
+        chunks = retrieve_chunks(db, [s.id for s in sources], search_question, owner_id=user.id)
+        result = ask(
+            data.question,
+            findings,
+            sections,
+            providers,
+            retrieved_chunks=chunks,
+            language=data.language or user.language,
+        )
+        result["language"] = data.language or user.language
     except ProviderError as exc:
         for call in exc.model_calls:
             db.add(ModelCall(job_id=job.id, data=call))
@@ -247,7 +261,13 @@ def question_history(analysis_id: str, db: Db, user: CurrentUser):
 
 
 @router.get("/analyses/{analysis_id}/exports")
-def export_analysis(analysis_id: str, db: Db, user: CurrentUser, format: Literal["json", "pdf"] = "json"):
+def export_analysis(
+    analysis_id: str,
+    db: Db,
+    user: CurrentUser,
+    format: Literal["json", "pdf"] = "json",
+    language: Language = "en",
+):
     if user.is_guest:
         raise HTTPException(403, "Create an account for durable evidence exports.")
     analysis = owned(db, Analysis, analysis_id, user)
@@ -275,6 +295,33 @@ def export_analysis(analysis_id: str, db: Db, user: CurrentUser, format: Literal
             call_dict(c) for c in db.scalars(select(ModelCall).where(ModelCall.job_id == analysis.job_id))
         ],
     }
+
+    if language != "en":
+        from app.services.localization import fingerprint
+
+        saved = db.scalar(
+            select(LocalizedAnalysis).where(
+                LocalizedAnalysis.analysis_id == analysis.id,
+                LocalizedAnalysis.language == language,
+                LocalizedAnalysis.fingerprint == fingerprint(sorted(findings, key=lambda f: f["id"])),
+            )
+        )
+        if findings and not saved:
+            raise HTTPException(409, "Prepare verified translations before exporting in this language.")
+        if saved:
+            manifest["findings"] = [
+                {
+                    **f,
+                    "original_explanation": {
+                        "statement": f["statement"],
+                        "rationale": f.get("rationale", ""),
+                        "qualifications": f.get("qualifications", []),
+                    },
+                    **saved.data.get(f["id"], {}),
+                }
+                for f in findings
+            ]
+    manifest["language"] = language
 
     def save_report(payload):
         ident = uid()
@@ -422,3 +469,100 @@ def retry_job(job_id: str, db: Db, user: CurrentUser):
             source.status = "QUEUED"
     db.commit()
     return {"job_id": job.id, "state": job.state}
+
+
+@router.get("/analyses/{analysis_id}/summary")
+def analysis_summary(analysis_id: str, db: Db, user: CurrentUser, language: Language = "en"):
+    from app.services.localization import fingerprint
+    from app.services.summary import suggested_questions, summarize
+
+    analysis = owned(db, Analysis, analysis_id, user)
+    job = db.get(Job, analysis.job_id)
+    findings = [
+        finding_dict(f)
+        for f in db.scalars(select(Finding).where(Finding.analysis_id == analysis.id).order_by(Finding.id))
+    ]
+    sections = [
+        s.data
+        for s in db.scalars(
+            select(Section).where(Section.source_id.in_([s.id for s in analysis_sources(db, analysis)]))
+        )
+    ]
+    summary = summarize(findings, sections, analysis.coverage, job.state)
+    translations = {}
+    if language != "en":
+        saved = db.scalar(
+            select(LocalizedAnalysis).where(
+                LocalizedAnalysis.analysis_id == analysis.id,
+                LocalizedAnalysis.language == language,
+                LocalizedAnalysis.fingerprint == fingerprint(findings),
+            )
+        )
+        if saved:
+            translations = saved.data
+    # GET never makes a billable provider request. Client explicitly prepares a translation.
+    return {
+        "summary": summary,
+        "language": language,
+        "translations": translations,
+        "translation_ready": language == "en" or bool(translations) or not findings,
+        "fingerprint": fingerprint(findings),
+        "suggested_questions": suggested_questions(findings, language),
+    }
+
+
+@router.post("/analyses/{analysis_id}/translations")
+def translate_analysis(analysis_id: str, db: Db, user: CurrentUser, language: Language):
+    from sqlalchemy.exc import IntegrityError
+
+    from app.providers.base import ProviderError
+    from app.services.localization import fingerprint, localize
+
+    analysis = owned(db, Analysis, analysis_id, user)
+    job = db.get(Job, analysis.job_id)
+    if job.state not in ("COMPLETED", "PARTIAL_COMPLETION"):
+        raise HTTPException(409, "Wait for analysis results before translating.")
+    findings = [
+        finding_dict(f)
+        for f in db.scalars(select(Finding).where(Finding.analysis_id == analysis.id).order_by(Finding.id))
+    ]
+    stamp = fingerprint(findings)
+    saved = db.scalar(
+        select(LocalizedAnalysis).where(
+            LocalizedAnalysis.analysis_id == analysis.id,
+            LocalizedAnalysis.language == language,
+            LocalizedAnalysis.fingerprint == stamp,
+        )
+    )
+    if language == "en" or saved or not findings:
+        return {"ready": True}
+    throttle(db, "translation:" + user.id, 10, 3600)
+    # Serialize translations for this analysis to avoid duplicate billable requests.
+    analysis = owned(db, Analysis, analysis_id, user, lock=True)
+    saved = db.scalar(
+        select(LocalizedAnalysis).where(
+            LocalizedAnalysis.analysis_id == analysis.id,
+            LocalizedAnalysis.language == language,
+            LocalizedAnalysis.fingerprint == stamp,
+        )
+    )
+    if saved:
+        return {"ready": True}
+    providers = allowed_providers([job.payload["provider"], *job.payload.get("fallback_providers", [])])
+    try:
+        translated, calls = localize(findings, language, providers)
+    except ProviderError as exc:
+        for call in exc.model_calls:
+            db.add(ModelCall(job_id=job.id, data=call))
+        db.commit()
+        raise HTTPException(
+            503, "Translation could not be verified. Original analysis remains available."
+        ) from None
+    for call in calls:
+        db.add(ModelCall(job_id=job.id, data=call))
+    db.add(LocalizedAnalysis(analysis_id=analysis.id, language=language, fingerprint=stamp, data=translated))
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+    return {"ready": True}

@@ -225,3 +225,28 @@ Recorded audits and fixes
 Keep design source, tokens and implementation aligned. No separate components/common/ui/components nesting, duplicated navigation bars, placeholder pages, or variants without a real product state. Changes to trust labeling or evidence status require Product + QA review, not only visual approval.
 12. Minimum design approval artifacts
 Four clean documents are the current pre-development deliverable. After approval, implementation should start with a single clickable UI prototype or Figma file containing Landing, Intake, Discovery, Processing, Results/Evidence, Ask, Library, Settings states—not an enormous speculative design system. Design approval is contingent on real content examples with exceptions, unsupported findings, partial coverage and mobile evidence navigation.
+## 10 November 2026 interaction amendment
+
+Keep the existing workspace and its default Detailed Analysis view. Add a compact Summary/Detailed Analysis tab pair and English/Hindi (हिन्दी)/Hinglish selector above it. Summary uses restrained cards for benefits, obligations, restrictions, potential risks and exceptions. Show assessment category, expandable documented rule and source/real-world conduct distinction. Empty categories do not imply a provision is absent. Original quotes retain source language; page/section actions restore detailed evidence navigation. A clear Prepare verified translation action explains provider usage and keeps English visible until a translation passes checks. No fabricated confidence/risk percentages.
+
+Account settings persist explanation language and expose explicit Google linking. Auth supports /sign-in, /register, /verify-email, /forgot-password and /reset-password through shared form components. Google button reflects configuration availability. Email signup never implies activation before verification; verification asks for the chosen password. Recovery uses neutral anti-enumeration copy. Verification links use fragments and are cleared from the address bar. Loading/error/success feedback remains visible and keyboard-operable. No emojis or decorative trust seals.
+
+Automated mobile, source navigation, multilingual headings and original quote preservation checks accompany the existing axe/public-screen and token-lifecycle tests. Full manual screen-reader/linguistic review remains pending.
+
+## Current design amendment — header language and Summary
+
+The global header includes a compact Lucide globe action with a labeled English/Hindi/Hinglish select, keyboard access and Escape dismissal. The chosen language applies immediately across navigation and feature pages. Remove the duplicate analysis/settings language selectors. Retain original source quotes and stable citation coordinates, and clearly disclose when document explanation translation is unavailable.
+
+Summary uses a restrained white/neutral layout: overview and risk panel, textual Low/Moderate/High/Not Determinable indicator with Lucide status icon, visible high/unknown warnings, category cards, exact source blockquotes and clickable locators. A separate method rail explains limitations and assessment rules. Counts represent unique displayed supported findings; no decorative risk gauge or confidence percentage. Collapse to one column on small screens. Keep the Summary/Detailed Analysis switch and evidence viewer intact.
+
+Registration displays Email -> Verify -> Password steps. Initial signup has only email; after clicking the emailed verification link, show Create Password and Confirm Password. Login remains email/password plus Google and recovery. Pending/success/error states are explicit and account-existence-neutral. No fake OTPs, emojis or activation shortcuts.
+
+
+## 2026-11-10: final UI and deployment preparation
+
+Summary is the default analysis presentation. Summary/Detailed Analysis tabs remain directly below the heading. Compact risk/category cards show key information; quotes, qualifications and rationale expand through Source & context. Large categories expose two clauses initially and Show more. Detailed Analysis retains source, finding filters, passports, chat and exports; Processing Coverage appears in a collapsed bottom disclosure. Processing diagnostics expand separately from the current real stage. Veriora AI opens with concise scope and supported-category question suggestions. Global English/Hindi/Hinglish and original source quotations are preserved. Header uses a 32px logo frame loading /logo.png with text fallback; footer flows below content without overlaying the workspace.
+
+
+## Cleanup and hardcoding review (10 November 2026)
+
+Remove decorative dots from both header/footer wordmarks, retaining domain names and ordinary sentence punctuation. Main navigation uses restrained background/underline transitions, explicit active states and keyboard outlines; reduced-motion disables transitions. Summary reading guidance is initially collapsed while source-linked findings remain accessible. Veriora AI uses a short neutral localized prompt rather than assuming a cancellation or data-sharing provision. Exact quotations remain unchanged.

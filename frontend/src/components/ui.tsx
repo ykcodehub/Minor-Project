@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -7,10 +8,11 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 export function ErrorNotice({ error }: { error: unknown }) {
+  const { t } = useLanguage();
   return error ? (
     <div role="alert" className="notice error">
       <AlertTriangle size={18} />
-      <span>{error instanceof Error ? error.message : String(error)}</span>
+      <span>{t(error instanceof Error ? error.message : String(error))}</span>
     </div>
   ) : null;
 }
@@ -21,18 +23,20 @@ export function Notice({
   children: ReactNode;
   warning?: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <div className={`notice ${warning ? "warning" : ""}`}>
       <Info size={18} />
-      <div>{children}</div>
+      <div>{typeof children === "string" ? t(children) : children}</div>
     </div>
   );
 }
 export function Loading({ label = "Loading…" }: { label?: string }) {
+  const { t } = useLanguage();
   return (
     <div role="status" className="loading">
       <LoaderCircle className="spin" size={22} />
-      {label}
+      {t(label)}
     </div>
   );
 }
@@ -58,20 +62,22 @@ export function Status({
   value: string;
   valid?: boolean;
 }) {
+  const { t } = useLanguage();
+
   const supported = value === "SUPPORTED" && valid;
   const ready = ["READY", "COMPLETED"].includes(value);
   const text = supported
-    ? "Verified against source"
+    ? t("Verified against source")
     : !valid
-      ? "Source reference invalid"
+      ? t("Source reference invalid")
       : {
-          PARTIALLY_SUPPORTED: "Partially supported",
-          UNSUPPORTED: "Unsupported interpretation",
-          AMBIGUOUS: "Needs review",
-          READY: "Source ready",
+          PARTIALLY_SUPPORTED: t("Partially supported"),
+          UNSUPPORTED: t("Unsupported interpretation"),
+          AMBIGUOUS: t("Needs review"),
+          READY: t("Source ready"),
           COMPLETED: "Completed",
-          PARTIAL: "Extraction incomplete",
-          PARTIAL_COMPLETION: "Partially completed",
+          PARTIAL: t("Extraction incomplete"),
+          PARTIAL_COMPLETION: t("Partially completed"),
           QUEUED: "Queued",
           PROCESSING: "Processing",
           FAILED: "Failed",
@@ -82,7 +88,7 @@ export function Status({
       className={`status ${supported || ready ? "supported" : ["UNSUPPORTED", "FAILED"].includes(value) || !valid ? "unsupported" : "neutral"}`}
     >
       {supported || ready ? <CheckCircle2 size={14} /> : <Info size={14} />}{" "}
-      {text}
+      {t(text)}
     </span>
   );
 }

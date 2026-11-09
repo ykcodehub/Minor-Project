@@ -361,3 +361,39 @@ Contract fixtures + human annotations
 Regression and evaluation report
 “Verified” labeling and release
 A feature is accepted only when automated tests, source-provenance assertions, expected failure cases, accessibility checks and owner review for its FR IDs have passed. Unimplemented P1/P2 requirements must not be presented as active functionality.
+## 10 November 2026 amendment: new functional contracts
+
+| ID | Required behavior |
+|---|---|
+| FR-AUTH-05 | Google authorization-code OIDC with PKCE S256, hashed expiring single-use state, nonce, JWT RS256 signature/issuer/audience/expiry/email checks and browser binding. Existing-account linking requires an authenticated CSRF-protected action and matching verified email; no automatic email collision merge. |
+| FR-AUTH-06 | Email signup returns an anti-enumeration202 response and stores a pending registration/password hash separately. One-hour hashed token plus chosen password activates the account once. No verification bypass in development or production. Expired records are cleaned by the worker. |
+| FR-AUTH-07 | TLS-delivered single-use hashed recovery token; validated12–128 character replacement; invalidate all sessions after reset. Unknown accounts and delivery failures use the same generic recovery response. Globally missing mail configuration returns503. |
+| FR-SUM-01 | Optional summary preserves detailed findings/history/reports. Only supported findings with validated source quotes enter summary cards. Exact page/section links navigate to original retained text. |
+| FR-SUM-02 | Versioned attention-1.0 rules produce Low/Moderate/High/Not Determinable with explanation, no percentages and visible company-conduct limitation. Failed/partial/unresolved coverage cannot be labeled Low. |
+| FR-LANG-01 | Validate en/hi/hinglish, persist registered preference, allow per-workspace override; translate statement/rationale/qualifications separately without changing any quote, page, offset or status. |
+| FR-LANG-02 | Explicit authorized-provider translation, strict ID/schema check, separate fidelity review and fingerprinted PostgreSQL cache. Failed/unverified translation leaves the original analysis accessible. GET requests never initiate paid translation. |
+| FR-LANG-03 | Natural English/Hindi/Hinglish question, authorized scoped retrieval, original-source quote validation and independent answer review; insufficiency abstains in selected language. Store answer language and registered conversation history. |
+
+Verification/reset links place tokens in URL fragments; browser removes tokens from its visible URL after capture. Endpoints never echo tokens. Test-only mail capture is a transport for isolated tests, not a fake OTP or activation bypass. Scope and executed results are in REQUIREMENTS_AUDIT.md and VERIFICATION.md.
+
+## Current amendment — additional acceptance contracts
+
+| ID | Required behavior |
+|---|---|
+| FR-AUTH-08 | Email-only registration/start returns a neutral202 response, no account/password creation. Verification consumes the emailed one-hour token and issues a separate hashed15-minute setup capability. Complete requires matching validated password/confirmation and consumes setup once; only then activates the account. |
+| FR-LANG-04 | Header globe selector applies English/Hindi/Hinglish across route UI, dashboard, summary, details, evidence, chat and report exports. PATCH /me/language is authenticated/CSRF-protected and persists independently of retention/provider settings. Navigation/reload preserve preference. |
+| FR-LANG-05 | Static UI messages require no AI calls; every wired key has Hindi/Hinglish catalog entries. Cached explanation translations are prepared once per findings fingerprint/language; error states preserve original explanations. Quotes, coordinates, hashes and provenance stay authoritative and unchanged. |
+| FR-UI-06 | Summary has a responsive evidence-first risk header, meaningful warning state, category cards, unique supported-clause count and exact-source actions. Existing Detailed Analysis, history, filters, report generation and chat remain functional. |
+| FR-EXP-06 | language query selects verified cached explanation text for JSON/PDF reports without an extra AI request. Missing translation returns409 rather than silently claiming translated output. Original quotes/explanations, coverage warnings and model metadata remain inspectable. |
+
+The old /auth/register and /auth/verify endpoints retain their original password-first behavior for compatibility with outstanding clients/links. The current React registration UI exclusively uses /auth/registration/start, /verify and /complete. Public account-existence checks are absent. SMTP accepted delivery is distinct from confirmed inbox receipt; Google consent-page reachability is distinct from a completed user-approved OIDC callback.
+
+
+## 2026-11-10: final UI and deployment preparation
+
+Extension requirements UI-FINAL-01..04: Summary default on entry; visible Summary/Detailed tabs; Processing Coverage exclusively at the bottom of Detailed Analysis; expandable exact source/context and category-limited clauses. BRAND-01: /logo.png with load/error-safe fallback, consistent responsive sizing and current-year footer. CHAT-SUGGEST-01: localized suggested questions derive from actual supported finding categories, with no additional AI call. OPS-STORAGE-01: production encrypted S3 adapter, development filesystem preserved. OPS-RESET-01: read-only document cleanup plan, separately approved backup-gated development/staging execution, never production. Deployment must not change existing credentials/data.
+
+
+## Cleanup and hardcoding review (10 November 2026)
+
+UI-CLEAN-01 requires a dot-free wordmark, hover/active/keyboard focus navigation and reduced-motion compliance. UI-CLEAN-02 requires expandable Summary guidance, neutral localized question prompts and localized page citation labels. CONFIG-CLEAN-01 requires frontend environment-file proxy overrides and production loopback-target rejection. This cleanup must not modify PostgreSQL records or .env.

@@ -1,7 +1,8 @@
+import { useLanguage } from "../app/language";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Download, Save, Trash2 } from "lucide-react";
-import { api, download } from "../lib/api";
+import { api, download, post } from "../lib/api";
 import { useSession } from "../app/session";
 import {
   Empty,
@@ -11,6 +12,8 @@ import {
   PageHeading,
 } from "../components/ui";
 export default function Settings() {
+  const { t } = useLanguage();
+
   const { user, loading, refresh } = useSession();
   const [days, setDays] = useState(30);
   const [provider, setProvider] = useState("gemini");
@@ -71,15 +74,15 @@ export default function Settings() {
   return (
     <section className="page narrow">
       <PageHeading
-        eyebrow="ACCOUNT & PRIVACY"
-        title="Your data, your decisions"
+        eyebrow={t("ACCOUNT & PRIVACY")}
+        title={t("Your data, your decisions")}
       >
-        Control retention and choose your preferred processing provider.
+        {t("Control retention and choose your preferred processing provider.")}
       </PageHeading>
       {!user ? (
-        <Empty title="Sign in to manage your account">
+        <Empty title={t("Sign in to manage your account")}>
           <Link to="/sign-in" className="text-link">
-            Go to sign in
+            {t("Go to sign in")}
           </Link>
         </Empty>
       ) : (
@@ -87,15 +90,38 @@ export default function Settings() {
           <ErrorNotice error={error} />
           {user.guest && (
             <Notice warning>
-              This is a temporary guest session. Durable account export requires
-              registration.
+              {t(
+                "This is a temporary guest session. Durable account export requires registration.",
+              )}
             </Notice>
           )}
           <form className="panel settings-panel fields" onSubmit={save}>
-            <h2>Account & retention</h2>
-            <p className="muted">{user.guest ? "Guest session" : user.email}</p>
+            <h2>{t("Account & retention")}</h2>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={busy || user.guest}
+              onClick={async () => {
+                setBusy(true);
+                setError(undefined);
+                try {
+                  const result = await post<{ url: string }>(
+                    "/auth/google/link",
+                  );
+                  window.location.assign(result.url);
+                } catch (e) {
+                  setError(e);
+                  setBusy(false);
+                }
+              }}
+            >
+              {t("Link verified Google identity")}
+            </button>
+            <p className="muted">
+              {user.guest ? t("Guest session") : user.email}
+            </p>
             <label>
-              Document retention
+              {t("Document retention")}
               <select
                 value={days}
                 onChange={(e) => setDays(Number(e.target.value))}
@@ -110,12 +136,12 @@ export default function Settings() {
               </select>
             </label>
             <p className="small-copy muted">
-              You can delete documents at any time. Retention cleanup removes
-              expired source files and derived content. Backup and provider
-              retention may follow separate policies.
+              {t(
+                "You can delete documents at any time. Retention cleanup removes expired source files and derived content. Backup and provider retention may follow separate policies.",
+              )}
             </p>
             <label>
-              Preferred AI provider
+              {t("Preferred AI provider")}
               <select
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
@@ -123,33 +149,34 @@ export default function Settings() {
                 {(user.providers || []).map((p) => (
                   <option key={p.name} value={p.name}>
                     {p.name}
-                    {p.configured ? ` · ${p.model}` : " · not configured"}
+                    {p.configured ? ` · ${p.model}` : t(" · not configured")}
                   </option>
                 ))}
               </select>
             </label>
             <Notice>
-              Each analysis still requires consent. Provider fallback is never
-              silently authorized by this preference.
+              {t(
+                "Each analysis still requires consent. Provider fallback is never silently authorized by this preference.",
+              )}
             </Notice>
             <div className="actions">
               <button className="button" disabled={busy || user.guest}>
                 <Save size={17} />
-                {busy ? "Saving…" : "Save preferences"}
+                {busy ? t("Saving…") : t("Save preferences")}
               </button>
               {saved && (
                 <span role="status" className="success-text">
-                  Preferences saved
+                  {t("Preferences saved")}
                 </span>
               )}
             </div>
           </form>
           <section className="panel settings-panel">
-            <h2>Export your account data</h2>
+            <h2>{t("Export your account data")}</h2>
             <p className="muted">
-              Download your available account and analysis metadata in
-              machine-readable form. Individual reports are available in each
-              analysis.
+              {t(
+                "Download your available account and analysis metadata in machine-readable form. Individual reports are available in each analysis.",
+              )}
             </p>
             <button
               className="button secondary"
@@ -157,18 +184,18 @@ export default function Settings() {
               onClick={() => void exportData()}
             >
               <Download size={17} />
-              Export account data
+              {t("Export account data")}
             </button>
           </section>
           <section className="panel settings-panel danger-zone">
-            <h2>Delete account and documents</h2>
+            <h2>{t("Delete account and documents")}</h2>
             <p className="muted">
-              Remove your session/account, original sources and derived records.
-              Minimal audit records may remain without source content. This
-              action cannot be undone.
+              {t(
+                "Remove your session/account, original sources and derived records. Minimal audit records may remain without source content. This action cannot be undone.",
+              )}
             </p>
             <label>
-              Type DELETE to confirm
+              {t("Type DELETE to confirm")}
               <input
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
@@ -181,7 +208,7 @@ export default function Settings() {
               onClick={() => void remove()}
             >
               <Trash2 size={17} />
-              Delete my account and data
+              {t("Delete my account and data")}
             </button>
           </section>
         </>

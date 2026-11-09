@@ -228,3 +228,28 @@ Independent acceptance decisions
 Definition of product done: A new user can analyze at least one supported source; all verified findings link to exact captured evidence; incomplete data and AI uncertainty remain visible; no protected document leaks across sessions; exported metadata can be reconciled against its source; benchmark and limitations are published internally.
 11. Collaboration and change management
 The PRD owns why/what/priorities; FRD owns exact functional behavior; TRD owns implementation contracts; Design owns interface rules. Each ticket uses a requirement ID and acceptance checks. Feature ownership may be reassigned without reworking the project structure. One reviewer approves cross-module API changes. All four specifications are versioned in Git and updated in the same PR as material behavior changes.
+## 10 November 2026 amendment: identity, summaries and languages
+
+This user-authorized extension promotes Hindi/Hinglish explanations and Google sign-in into the current implementation scope. Original evidence remains in its source language. Accounts become active only after email ownership verification or a verified Google identity. Pending email registrations are separate and expire after one hour; verification also requires the chosen password to prevent pre-registration account takeover. Google identities are bound by stable subject, not automatically linked by matching email. Existing verified accounts/data are preserved.
+
+The results workspace adds an optional Summary/Detailed Analysis toggle. Short benefit, duty, restriction, risk and exception cards link to original evidence. Low/Moderate/High are transparent document-attention categories, not predictions of legal outcomes or company conduct; insufficient verified evidence produces Not Determinable. English, Hindi and Hinglish preferences persist for registered users. Changing language translates explanations only after an explicit provider request, validates fidelity and caches the result separately. Document-scoped chat accepts informal multilingual questions and preserves exact citations.
+
+Acceptance remains partial for external integrations: Google and SMTP credentials are missing. Isolated email-token/browser/OIDC-signature checks run, but live Google/mailbox delivery is not certified. Groq live Hindi/Hinglish translation and English cited answering passed; Hindi/Hinglish live answers hit rate limits. Human linguistic/semantic evaluation remains a release gate.
+
+## Current amendment — global language, email-first signup and Summary refinement
+
+The current registration experience starts with only an email address. Email ownership is proven before password creation; the user then chooses and confirms a password. No active user or password is created during the email stage. Existing verified accounts, Google identities and older issued signup/verification API contracts remain supported.
+
+Language belongs to the application header globe menu, not an individual analysis. English/Hindi/Hinglish changes update UI/navigation immediately and persist in PostgreSQL for both account and guest sessions; anonymous visitors retain a browser preference. Saved analysis explanations use fingerprinted verified caches. UI catalog translation is static and does not send user content or create runtime provider calls. Non-English document explanations can still fail explicitly on provider/quota issues; original source quotations never change.
+
+Summary keeps the Detailed Analysis toggle and existing evidence workflows. It presents a distinct document-risk panel, explicit warnings, benefits, obligations, restrictions, critical clauses and method notes. Risk labels retain the documented conservative rules, with Not Determinable for insufficient support. They do not certify company conduct, enforceability or legal outcomes. Localized reports preserve exact source quotes and original explanation metadata.
+
+
+## 2026-11-10: final UI and deployment preparation
+
+The analysis entry point defaults to Summary; Detailed Analysis remains a visible top-level choice. Users see evidence-grounded risks, benefits and obligations before technical coverage. Expandable source/context and bounded cards reduce default scrolling. Branding uses a supplied /logo.png with a safe fallback and dynamic-year footer. Production release requires a separately hosted API/worker, fresh PostgreSQL and qualified private object storage; configuration preparation is not a deployed product.
+
+
+## Cleanup and hardcoding review (10 November 2026)
+
+UI cleanup preserves real PostgreSQL-backed documents and verified findings. Brand punctuation is removed, navigation remains accessible with reduced-motion support, and longer explanation guidance is progressively disclosed. No fabricated users, analysis results or numerical confidence indicators were introduced.

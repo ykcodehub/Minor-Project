@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronLeft,
@@ -19,6 +20,8 @@ export function SourceViewer({
   sourceId: string;
   citation?: Citation;
 }) {
+  const { t } = useLanguage();
+
   const query = useQuery({
     queryKey: ["source", sourceId],
     queryFn: () => api<Source>(`/sources/${sourceId}`),
@@ -66,18 +69,18 @@ export function SourceViewer({
     <section className="source-viewer">
       <div className="viewer-heading">
         <div>
-          <span className="tiny-label">ORIGINAL SOURCE</span>
+          <span className="tiny-label">{t("ORIGINAL SOURCE")}</span>
           <h3>
             <FileText size={17} />
-            {query.data?.original_name || "Document source"}
+            {query.data?.original_name || t("Document source")}
           </h3>
         </div>
         {query.data?.kind !== "url" && (
           <button
             className="icon-button"
             onClick={() => void original()}
-            aria-label="Download original source"
-            title="Download original source"
+            aria-label={t("Download original source")}
+            title={t("Download original source")}
           >
             <Download size={17} />
           </button>
@@ -86,7 +89,7 @@ export function SourceViewer({
       <div className="viewer-toolbar">
         <div className="row">
           <button
-            aria-label="Previous source section"
+            aria-label={t("Previous source section")}
             className="icon-button"
             disabled={index === 0}
             onClick={() => setIndex((i) => i - 1)}
@@ -95,12 +98,12 @@ export function SourceViewer({
           </button>
           <span>
             {section?.page
-              ? `Page ${section.page}`
+              ? `${t("Page")} ${section.page}`
               : `Section ${sections.length ? index + 1 : 0}`}{" "}
             <span className="muted">/ {sections.length}</span>
           </span>
           <button
-            aria-label="Next source section"
+            aria-label={t("Next source section")}
             className="icon-button"
             disabled={index >= sections.length - 1}
             onClick={() => setIndex((i) => i + 1)}
@@ -111,7 +114,7 @@ export function SourceViewer({
         <div className="row">
           <button
             className="icon-button"
-            aria-label="Decrease source font size"
+            aria-label={t("Decrease source font size")}
             disabled={zoom <= 80}
             onClick={() => setZoom((z) => z - 10)}
           >
@@ -120,7 +123,7 @@ export function SourceViewer({
           <span>{zoom}%</span>
           <button
             className="icon-button"
-            aria-label="Increase source font size"
+            aria-label={t("Increase source font size")}
             disabled={zoom >= 200}
             onClick={() => setZoom((z) => z + 10)}
           >
@@ -130,7 +133,7 @@ export function SourceViewer({
       </div>
       <ErrorNotice error={query.error || error} />
       {query.isPending ? (
-        <Loading label="Loading captured source…" />
+        <Loading label={t("Loading captured source…")} />
       ) : section ? (
         <div className="source-paper" style={{ fontSize: `${zoom}%` }}>
           <p className="source-location">
@@ -151,13 +154,16 @@ export function SourceViewer({
             )}
           </div>
           <p className="source-extraction-note">
-            Extracted source text. Original file layout may differ; locations
-            refer to the captured extraction.
+            {t(
+              "Extracted source text. Original file layout may differ; locations refer to the captured extraction.",
+            )}
           </p>
         </div>
       ) : (
-        <Empty title="Source text is not available">
-          Extraction may still be running, or this document may require OCR.
+        <Empty title={t("Source text is not available")}>
+          {t(
+            "Extraction may still be running, or this document may require OCR.",
+          )}
         </Empty>
       )}
     </section>

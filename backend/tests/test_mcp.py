@@ -19,12 +19,9 @@ TOKEN = "synthetic-mcp-token-" + "x" * 48
 
 
 def _register(client, email="owner@example.com"):
-    response = client.post(
-        "/api/v1/auth/register", json={"email": email, "password": "Synthetic-password-123"}
-    )
-    assert response.status_code == 201, response.text
-    client.headers["X-CSRF-Token"] = response.json()["csrf_token"]
-    return response.json()["id"]
+    from test_api import register
+
+    return register(client, email=email)["id"]
 
 
 def _configure(monkeypatch, user_id, scopes=TOOLS):

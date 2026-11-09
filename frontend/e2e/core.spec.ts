@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { test, expect } from "@playwright/test";
 test("real guest upload, source inspection, deletion and session logout", async ({
   page,
@@ -78,13 +79,50 @@ test("registered account session, persistent settings and deletion", async ({
   await page
     .getByRole("button", { name: "Create an account", exact: true })
     .click();
-  await page.getByLabel("Email address").fill(`ui-${Date.now()}@example.com`);
+  const email = `ui-${Date.now()}@example.com`;
+  await page.getByLabel("Email address").fill(email);
+  await expect(page.getByLabel("Password", { exact: true })).toHaveCount(0);
   await page
-    .getByLabel("Password", { exact: true })
+    .getByRole("button", { name: "Send verification link", exact: true })
+    .click();
+  await expect(
+    page.getByText("If this address can be registered", { exact: false }),
+  ).toBeVisible();
+  const deliveries = readFileSync(process.env.VERIORA_TEST_MAILBOX!, "utf8")
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  const token = deliveries.findLast(
+    (m) => m.email === email && m.purpose === "signup",
+  ).token;
+  await page.goto(`/sign-in?purpose=signup#token=${token}`);
+  await expect(page.getByLabel("Create Password", { exact: true })).toHaveCount(
+    0,
+  );
+  await page
+    .getByRole("button", { name: "Verify email", exact: true })
+    .first()
+    .click();
+  await expect(
+    page.getByLabel("Create Password", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Create Password", { exact: true })
+    .fill("Synthetic-password-2026!");
+  await page
+    .getByLabel("Confirm Password", { exact: true })
     .fill("Synthetic-password-2026!");
   await page
     .getByRole("button", { name: "Create account", exact: true })
     .click();
+  await expect(
+    page.getByText("Account created. Sign in to continue."),
+  ).toBeVisible();
+  await page.getByLabel("Email address").fill(email);
+  await page
+    .getByLabel("Password", { exact: true })
+    .fill("Synthetic-password-2026!");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL("/library");
   await page.getByRole("link", { name: "Account", exact: true }).click();
   await page.getByLabel("Document retention").selectOption("7");
@@ -131,6 +169,34 @@ test("registered account session, persistent settings and deletion", async ({
     path: "test-results/comparison-desktop.png",
     fullPage: true,
   });
+  await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  await page.goto("/forgot-password");
+  await page.getByLabel("Email address").fill(email);
+  await page
+    .getByRole("button", { name: "Send recovery instructions" })
+    .click();
+  await expect(
+    page.getByText("If this account can be recovered", { exact: false }),
+  ).toBeVisible();
+  const resetMail = readFileSync(process.env.VERIORA_TEST_MAILBOX!, "utf8")
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line))
+    .findLast((m) => m.email === email && m.purpose === "recover");
+  await page.goto(`/sign-in?purpose=recover#token=${resetMail.token}`);
+  await page
+    .getByLabel("Password", { exact: true })
+    .fill("Replacement-browser-password-2026!");
+  await page.getByRole("button", { name: "Update password" }).click();
+  await expect(
+    page.getByText("Password updated. Sign in with your new password."),
+  ).toBeVisible();
+  await page.getByLabel("Email address").fill(email);
+  await page
+    .getByLabel("Password", { exact: true })
+    .fill("Replacement-browser-password-2026!");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL("/library");
   await page.goto("/settings");
   await page.getByLabel("Type DELETE to confirm").fill("DELETE");
   await page

@@ -57,7 +57,7 @@ test("synthetic workspace links evidence, rejects invalid citation, abstains and
     const url = new URL(route.request().url());
     let data: unknown;
     const path = url.pathname;
-    if (path === "/api/v1/me")
+    if (path === "/api/v1/me" || path === "/api/v1/me/language")
       data = {
         id: "synthetic-user",
         email: "fixture@example.com",
@@ -82,6 +82,36 @@ test("synthetic workspace links evidence, rejects invalid citation, abstains and
         },
         limitations: ["Synthetic browser fixture only."],
         findings_count: 2,
+      };
+    else if (path.endsWith("/summary"))
+      data = {
+        language: url.searchParams.get("language") || "en",
+        translation_ready: true,
+        translations: {
+          "supported-finding": {
+            statement:
+              url.searchParams.get("language") === "hi"
+                ? "रद्दीकरण अवधि के अंत में प्रभावी होता है।"
+                : url.searchParams.get("language") === "hinglish"
+                  ? "Cancellation billing period ke end par hota hai."
+                  : finding.statement,
+            rationale: finding.rationale,
+            qualifications: finding.qualifications,
+          },
+        },
+        summary: {
+          level: "Not Determinable",
+          rule: "Unresolved synthetic finding.",
+          rule_version: "attention-1.0",
+          disclaimer: "Synthetic fixture only.",
+          groups: {
+            benefits: [],
+            obligations: [finding],
+            restrictions: [],
+            potential_risks: [],
+            exceptions: [finding],
+          },
+        },
       };
     else if (path.endsWith("/findings")) data = [finding, invalid];
     else if (path === "/api/v1/jobs/synthetic-job")
@@ -126,11 +156,60 @@ test("synthetic workspace links evidence, rejects invalid citation, abstains and
   });
   await page.goto("/analysis/synthetic-analysis");
   await expect(
+    page.getByRole("tab", { name: "Summary", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await expect(
+    page.getByRole("heading", { name: "Document summary" }),
+  ).toBeVisible();
+  await expect(page.getByTestId("processing-coverage")).not.toBeVisible();
+  await page
+    .getByRole("tab", { name: "Detailed Analysis", exact: true })
+    .click();
+  await expect(page.getByTestId("processing-coverage")).toBeVisible();
+  expect(
+    await page.evaluate(() => {
+      const coverage = document.querySelector(
+        '[data-testid="processing-coverage"]',
+      )!;
+      const grid = document.querySelector(".workspace-grid")!;
+      return (
+        coverage.getBoundingClientRect().top >=
+        grid.getBoundingClientRect().bottom
+      );
+    }),
+  ).toBe(true);
+  await expect(
     page.getByText("Verified against source", { exact: true }).first(),
   ).toBeVisible();
   await expect(
     page.getByText("Source reference invalid", { exact: true }),
   ).toBeVisible();
+  await page.getByRole("tab", { name: "Summary", exact: true }).click();
+  await page.screenshot({
+    path: "test-results/summary-desktop.png",
+    fullPage: true,
+  });
+  await page.getByTestId("global-language-toggle").click();
+  await page.getByTestId("global-language-select").selectOption("hi");
+  await expect(
+    page.getByRole("heading", { name: "दस्तावेज़ का सारांश" }),
+  ).toBeVisible();
+  await page.locator(".clause-context summary").first().click();
+  await expect(page.locator(".summary-clause blockquote").first()).toHaveText(
+    citation.quote,
+  );
+  await page.getByTestId("global-language-toggle").click();
+  await page.getByTestId("global-language-select").selectOption("hinglish");
+  await expect(
+    page.getByRole("heading", { name: "Document ka summary" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: /Original source dekhein/ })
+    .first()
+    .click();
+  await expect(page.locator(".source-text mark")).toHaveText(citation.quote);
+  await page.getByTestId("global-language-toggle").click();
+  await page.getByTestId("global-language-select").selectOption("en");
   await page.getByRole("button", { name: "View evidence" }).first().click();
   await expect(page.locator(".source-text mark")).toHaveText(citation.quote);
   await expect(page.locator(".source-text")).toHaveText(text);
@@ -143,6 +222,13 @@ test("synthetic workspace links evidence, rejects invalid citation, abstains and
   });
   await page.getByRole("button", { name: "View evidence" }).nth(1).click();
   await expect(page.locator(".source-text mark")).toHaveCount(0);
+  await page.reload();
+  await expect(
+    page.getByRole("tab", { name: "Summary", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await page
+    .getByRole("tab", { name: "Detailed Analysis", exact: true })
+    .click();
   await page.getByRole("tab", { name: "Ask Veriora" }).click();
   await page
     .getByLabel("Your document question")

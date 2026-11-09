@@ -1,22 +1,65 @@
-import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useLanguage } from "../app/language";
+import { useEffect, useState } from "react";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { ArrowRight, FileText } from "lucide-react";
 import type { User } from "../lib/types";
-import { post } from "../lib/api";
+import { api, post } from "../lib/api";
 import { useSession } from "../app/session";
+import { useQuery } from "@tanstack/react-query";
 import { ErrorNotice, Notice } from "../components/ui";
 export default function Auth() {
+  const { t } = useLanguage();
+
   const [params] = useSearchParams();
+  const { pathname } = useLocation();
   const [mode, setMode] = useState(
-    params.has("token")
-      ? params.get("purpose") === "recover"
-        ? "reset"
-        : "verify"
-      : "login",
+    params.has("token") || window.location.hash.includes("token=")
+      ? params.get("purpose") === "signup"
+        ? "signup-verify"
+        : params.get("purpose") === "recover"
+          ? "reset"
+          : "verify"
+      : (
+          {
+            "/register": "register",
+            "/verify-email": "verify",
+            "/forgot-password": "recover",
+            "/reset-password": "reset",
+          } as Record<string, string>
+        )[pathname] || "login",
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState(params.get("token") || "");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [token, setToken] = useState(() => {
+    const value =
+      new URLSearchParams(window.location.hash.slice(1)).get("token") ||
+      params.get("token") ||
+      "";
+    return value;
+  });
+  useEffect(() => {
+    if (token)
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname +
+          "?purpose=" +
+          (params.get("purpose") || "verify"),
+      );
+  }, [token, params]);
+  const options = useQuery({
+    queryKey: ["auth-options"],
+    queryFn: () =>
+      api<{ google: boolean; email: boolean; google_login_url: string }>(
+        "/auth/options",
+      ),
+  });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>();
   const [message, setMessage] = useState("");
@@ -31,31 +74,50 @@ export default function Auth() {
       if (mode === "recover") {
         await post("/auth/recover", { email });
         setMessage(
-          "If this account can be recovered, recovery instructions will be sent to its email address.",
+          t(
+            "If this account can be recovered, recovery instructions will be sent to its email address.",
+          ),
         );
       } else if (mode === "verify") {
-        await post("/auth/verify", { token });
-        setMessage("Email verified. You can now sign in.");
+        await post("/auth/verify", { token, password });
+        setMessage(t("Email verified. You can now sign in."));
         setMode("login");
       } else if (mode === "reset") {
         await post("/auth/reset", { token, password });
-        setMessage("Password updated. Sign in with your new password.");
+        setMessage(t("Password updated. Sign in with your new password."));
         setMode("login");
-      } else {
-        const profile = await post<User>(
-          `/auth/${mode === "register" ? "register" : "login"}`,
-          { email, password },
+      } else if (mode === "signup-verify") {
+        const result = await post<{ setup_token: string }>(
+          "/auth/registration/verify",
+          { token },
         );
-        if (mode === "register" && !profile.verified) {
-          await refresh();
-          setMessage(
-            "Account created. Check your email to verify your account before signing in.",
-          );
-          setMode("login");
-        } else {
-          await refresh();
-          navigate("/library");
-        }
+        setToken(result.setup_token);
+        setMode("create-password");
+        setMessage(t("Email verified. Create your password to finish."));
+      } else if (mode === "create-password") {
+        if (password !== confirmPassword)
+          throw Error(t("Passwords do not match."));
+        await post("/auth/registration/complete", {
+          token,
+          password,
+          confirm_password: confirmPassword,
+        });
+        setMode("login");
+        setPassword("");
+        setConfirmPassword("");
+        setToken("");
+        setMessage(t("Account created. Sign in to continue."));
+      } else if (mode === "register") {
+        await post("/auth/registration/start", { email });
+        setMessage(
+          t(
+            "If this address can be registered, check your email for a verification link. No account is activated until verification.",
+          ),
+        );
+      } else {
+        await post<User>("/auth/login", { email, password });
+        await refresh();
+        navigate("/library");
       }
     } catch (e) {
       setError(e);
@@ -66,45 +128,105 @@ export default function Auth() {
   return (
     <section className="auth-page page">
       <div className="auth-intro">
-        <p className="eyebrow">A PRIVATE PLACE FOR YOUR DOCUMENTS</p>
+        <p className="eyebrow">{t("A PRIVATE PLACE FOR YOUR DOCUMENTS")}</p>
         <h1>
-          Keep the source.
+          {t("Keep the source.")}
           <br />
-          <em>Keep the context.</em>
+          <em>{t("Keep the context.")}</em>
         </h1>
         <p>
-          Return to your analyses, inspect supporting passages and export a
-          record of your findings.
+          {t(
+            "Return to your analyses, inspect supporting passages and export a record of your findings.",
+          )}
         </p>
         <div className="auth-detail">
           <FileText size={26} />
-          <p>Evidence stays connected to the document version you reviewed.</p>
+          <p>
+            {t(
+              "Evidence stays connected to the document version you reviewed.",
+            )}
+          </p>
         </div>
       </div>
       <div className="panel auth-form">
-        <p className="eyebrow">YOUR VERIORA WORKSPACE</p>
+        <p className="eyebrow">{t("YOUR VERIORA WORKSPACE")}</p>
         <h2>
           {
             (
               {
-                login: "Welcome back",
-                register: "Create an account",
-                recover: "Recover your account",
-                verify: "Verify your email",
-                reset: "Set a new password",
+                login: t("Welcome back"),
+                register: t("Create an account"),
+                recover: t("Recover your account"),
+                verify: t("Verify your email"),
+                reset: t("Set a new password"),
+                "signup-verify": t("Verify your email"),
+                "create-password": t("Create your password"),
               } as Record<string, string>
             )[mode]
           }
         </h2>
         <p className="muted">
           {mode === "register"
-            ? "Save your documents and revisit your evidence."
-            : "Use your account to access your saved documents."}
+            ? t("Save your documents and revisit your evidence.")
+            : t("Use your account to access your saved documents.")}
         </p>
+        {params.get("oauth") === "link_required" && (
+          <Notice warning>
+            {t(
+              "Sign in with your existing email/password first, then link Google in Account settings.",
+            )}
+          </Notice>
+        )}
+        {["login", "register"].includes(mode) && (
+          <button
+            className="button secondary"
+            disabled={!options.data?.google || busy}
+            onClick={async () => {
+              setBusy(true);
+              setError(undefined);
+              try {
+                // Establish the cookie through a top-level request on the configured callback origin.
+                const target = options.data?.google_login_url;
+                if (!target) throw Error("Google sign-in is not configured.");
+                window.location.assign(target);
+              } catch (e) {
+                setError(e);
+                setBusy(false);
+              }
+            }}
+          >
+            {t("Continue with Google")}
+          </button>
+        )}
+        {options.data && !options.data.google && (
+          <p className="small-copy muted">
+            {t("Google sign-in is not configured on this deployment.")}
+          </p>
+        )}
+        {["register", "signup-verify", "create-password"].includes(mode) && (
+          <ol className="signup-steps" aria-label={t("Registration steps")}>
+            {[t("Email"), t("Verify"), t("Password")].map((step, index) => (
+              <li
+                key={step}
+                aria-current={
+                  index ===
+                  (mode === "register" ? 0 : mode === "signup-verify" ? 1 : 2)
+                    ? "step"
+                    : undefined
+                }
+              >
+                <span>{index + 1}</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+        )}
         <form onSubmit={submit} className="fields">
-          {!["verify", "reset"].includes(mode) && (
+          {!["verify", "reset", "signup-verify", "create-password"].includes(
+            mode,
+          ) && (
             <label>
-              Email address
+              {t("Email address")}
               <input
                 type="email"
                 autoComplete="email"
@@ -114,12 +236,18 @@ export default function Auth() {
               />
             </label>
           )}
-          {["login", "register", "reset"].includes(mode) && (
+          {["login", "reset", "verify", "create-password"].includes(mode) && (
             <label>
-              Password
+              {mode === "create-password"
+                ? t("Create Password")
+                : t("Password")}
               <input
                 type="password"
-                aria-label="Password"
+                aria-label={
+                  mode === "create-password"
+                    ? t("Create Password")
+                    : t("Password")
+                }
                 aria-describedby="password-help"
                 required
                 minLength={12}
@@ -131,13 +259,35 @@ export default function Auth() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <small id="password-help" className="muted">
-                At least 12 characters.
+                {t("At least 12 characters.")}
               </small>
             </label>
           )}
+          {mode === "create-password" && (
+            <label>
+              {t("Confirm Password")}
+              <input
+                type="password"
+                autoComplete="new-password"
+                required
+                minLength={12}
+                maxLength={128}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </label>
+          )}
+          {mode === "signup-verify" && (
+            <p className="muted">
+              {t(
+                "Confirm ownership using your emailed link. No password or active account has been created yet.",
+              )}
+            </p>
+          )}
           {["verify", "reset"].includes(mode) && (
             <label>
-              {mode === "reset" ? "Recovery" : "Verification"} token
+              {mode === "reset" ? t("Recovery") : t("Verification")}{" "}
+              {t("token")}
               <input
                 required
                 value={token}
@@ -149,14 +299,16 @@ export default function Auth() {
           {message && <Notice>{message}</Notice>}
           <button className="button" disabled={busy}>
             {busy
-              ? "Please wait…"
+              ? t("Please wait…")
               : (
                   {
-                    login: "Sign in",
-                    register: "Create account",
-                    recover: "Send recovery instructions",
-                    verify: "Verify email",
-                    reset: "Update password",
+                    login: t("Sign in"),
+                    register: t("Send verification link"),
+                    "signup-verify": t("Verify email"),
+                    "create-password": t("Create account"),
+                    recover: t("Send recovery instructions"),
+                    verify: t("Verify email"),
+                    reset: t("Update password"),
                   } as Record<string, string>
                 )[mode]}
             <ArrowRight size={17} />
@@ -166,10 +318,10 @@ export default function Auth() {
           {mode === "login" ? (
             <>
               <button className="text-link" onClick={() => setMode("recover")}>
-                Forgot your password?
+                {t("Forgot your password?")}
               </button>
               <p>
-                New to Veriora?{" "}
+                {t("New to Veriora?")}{" "}
                 <button
                   className="text-link"
                   onClick={() => {
@@ -177,7 +329,7 @@ export default function Auth() {
                     setError(undefined);
                   }}
                 >
-                  Create an account
+                  {t("Create an account")}
                 </button>
               </p>
             </>
@@ -189,21 +341,21 @@ export default function Auth() {
                 setError(undefined);
               }}
             >
-              Back to sign in
+              {t("Back to sign in")}
             </button>
           )}
           <div className="row wrap">
             <button className="text-link" onClick={() => setMode("verify")}>
-              Verify email
+              {t("Verify email")}
             </button>
             <button className="text-link" onClick={() => setMode("reset")}>
-              Use recovery token
+              {t("Use recovery token")}
             </button>
           </div>
         </div>
         <p className="small-copy muted">
-          Just exploring?{" "}
-          <Link to="/analyze">Start with a limited guest session.</Link>
+          {t("Just exploring?")}{" "}
+          <Link to="/analyze">{t("Start with a limited guest session.")}</Link>
         </p>
       </div>
     </section>

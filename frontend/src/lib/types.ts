@@ -3,7 +3,9 @@ export interface Provider {
   model: string;
   configured: boolean;
 }
+export type Language = "en" | "hi" | "hinglish";
 export interface User {
+  language?: Language;
   id: string;
   email: string;
   is_guest: boolean;

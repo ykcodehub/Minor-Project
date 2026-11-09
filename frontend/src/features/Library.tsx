@@ -1,3 +1,4 @@
+import { useLanguage } from "../app/language";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,6 +24,8 @@ import {
   Status,
 } from "../components/ui";
 export default function Library() {
+  const { t } = useLanguage();
+
   const { user, loading } = useSession();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
@@ -66,33 +69,37 @@ export default function Library() {
   return (
     <section className="page">
       <PageHeading
-        eyebrow="YOUR DOCUMENT WORKSPACE"
-        title="Document library"
+        eyebrow={t("YOUR DOCUMENT WORKSPACE")}
+        title={t("Document library")}
         actions={
           <>
             <Link className="button secondary" to="/compare">
-              Compare sources
+              {t("Compare sources")}
             </Link>
             <Link className="button" to="/analyze">
               <Plus size={17} />
-              New analysis
+              {t("New analysis")}
             </Link>
           </>
         }
       >
-        Your sources, their analyses, and the evidence that connects them.
+        {t(
+          "Your sources, their analyses, and the evidence that connects them.",
+        )}
       </PageHeading>
       {!user ? (
         <div className="panel">
-          <Empty title="Your documents belong here">
-            Sign in for a saved library, or start with a limited guest session.
+          <Empty title={t("Your documents belong here")}>
+            {t(
+              "Sign in for a saved library, or start with a limited guest session.",
+            )}
           </Empty>
           <div className="center actions">
             <Link to="/sign-in" className="button">
-              Sign in
+              {t("Sign in")}
             </Link>
             <Link to="/analyze" className="button secondary">
-              Analyze as a guest
+              {t("Analyze as a guest")}
             </Link>
           </div>
         </div>
@@ -100,18 +107,19 @@ export default function Library() {
         <>
           {user.guest && (
             <Notice warning>
-              Guest documents are temporary.{" "}
-              <Link to="/sign-in">Create an account</Link> for a persistent
-              library and report exports. Creating an account in this session
-              preserves your current guest documents.
+              {t("Guest documents are temporary.")}{" "}
+              <Link to="/sign-in">{t("Create an account")}</Link>{" "}
+              {t(
+                "for a persistent library and report exports. Creating an account in this session preserves your current guest documents.",
+              )}
             </Notice>
           )}
           <div className="library-tools">
             <label className="search-field">
               <Search size={17} />
-              <span className="sr-only">Search documents</span>
+              <span className="sr-only">{t("Search documents")}</span>
               <input
-                placeholder="Search your documents"
+                placeholder={t("Search your documents")}
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -120,7 +128,7 @@ export default function Library() {
               />
             </label>
             <label className="inline-label">
-              Sort by
+              {t("Sort by")}
               <select
                 value={sort}
                 onChange={(e) => {
@@ -128,8 +136,8 @@ export default function Library() {
                   setOffset(0);
                 }}
               >
-                <option value="captured_desc">Newest first</option>
-                <option value="name_asc">Document name</option>
+                <option value="captured_desc">{t("Newest first")}</option>
+                <option value="name_asc">{t("Document name")}</option>
               </select>
             </label>
           </div>
@@ -139,10 +147,10 @@ export default function Library() {
           ) : sources.length ? (
             <div className="panel library-table">
               <div className="library-table-head">
-                <span>DOCUMENT</span>
-                <span>CAPTURED</span>
-                <span>STATE</span>
-                <span>ACTIONS</span>
+                <span>{t("DOCUMENT")}</span>
+                <span>{t("CAPTURED")}</span>
+                <span>{t("STATE")}</span>
+                <span>{t("ACTIONS")}</span>
               </div>
               {sources.map((source) => (
                 <article className="library-row" key={source.id}>
@@ -184,7 +192,7 @@ export default function Library() {
                     </button>
                     <Link
                       className="icon-button"
-                      title="Open document"
+                      title={t("Open document")}
                       aria-label={`Open ${source.original_name}`}
                       to={
                         source.analysis_id
@@ -196,7 +204,7 @@ export default function Library() {
                     </Link>
                     <button
                       className="icon-button danger-text"
-                      title="Delete document"
+                      title={t("Delete document")}
                       aria-label={`Delete ${source.original_name}`}
                       onClick={() => setPendingDelete(source)}
                     >
@@ -211,13 +219,15 @@ export default function Library() {
               <Empty
                 title={
                   search
-                    ? "No matching documents"
-                    : "Your next document starts here"
+                    ? t("No matching documents")
+                    : t("Your next document starts here")
                 }
               >
                 {search
-                  ? "Try another name."
-                  : "Upload an agreement or discover a website’s policies to begin your review."}
+                  ? t("Try another name.")
+                  : t(
+                      "Upload an agreement or discover a website’s policies to begin your review.",
+                    )}
               </Empty>
             </div>
           )}
@@ -235,10 +245,11 @@ export default function Library() {
           titleId="rename-title"
           onClose={() => setRenaming(undefined)}
         >
-          <h2 id="rename-title">Rename document</h2>
+          <h2 id="rename-title">{t("Rename document")}</h2>
           <p>
-            The display name changes. Original bytes, source version and hash
-            stay preserved.
+            {t(
+              "The display name changes. Original bytes, source version and hash stay preserved.",
+            )}
           </p>
           <form
             onSubmit={(e) => {
@@ -247,7 +258,7 @@ export default function Library() {
             }}
           >
             <label>
-              Document display name
+              {t("Document display name")}
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -262,13 +273,13 @@ export default function Library() {
                 className="button secondary"
                 onClick={() => setRenaming(undefined)}
               >
-                Cancel
+                {t("Cancel")}
               </button>
               <button
                 className="button"
                 disabled={rename.isPending || !title.trim()}
               >
-                Save name
+                {t("Save name")}
               </button>
             </div>
           </form>
@@ -279,11 +290,12 @@ export default function Library() {
           titleId="delete-title"
           onClose={() => setPendingDelete(undefined)}
         >
-          <h2 id="delete-title">Delete this document?</h2>
+          <h2 id="delete-title">{t("Delete this document?")}</h2>
           <p>
-            “{pendingDelete.original_name}”, its extracted text, analyses and
-            derived records will be removed. This cannot be undone. Minimal
-            audit records may remain without document text.
+            “{pendingDelete.original_name}
+            {t(
+              "”, its extracted text, analyses and derived records will be removed. This cannot be undone. Minimal audit records may remain without document text.",
+            )}
           </p>
           <ErrorNotice error={deletion.error} />
           <div className="actions">
@@ -293,14 +305,14 @@ export default function Library() {
               disabled={deletion.isPending}
               onClick={() => setPendingDelete(undefined)}
             >
-              Keep document
+              {t("Keep document")}
             </button>
             <button
               className="button danger"
               disabled={deletion.isPending}
               onClick={() => deletion.mutate(pendingDelete.id)}
             >
-              {deletion.isPending ? "Deleting…" : "Delete document"}
+              {deletion.isPending ? t("Deleting…") : t("Delete document")}
             </button>
           </div>
         </ConfirmDialog>

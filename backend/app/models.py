@@ -26,6 +26,7 @@ class User(Base):
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
     retention_days: Mapped[int] = mapped_column(Integer, default=30)
+    language: Mapped[str] = mapped_column(String(10), default="en", server_default="en")
     preferred_provider: Mapped[str] = mapped_column(String(30), default="gemini")
 
 
@@ -188,3 +189,39 @@ class Report(Base):
 
 
 Index("ix_sources_owner_created", Source.owner_id, Source.captured_at)
+
+
+class PendingRegistration(Base):
+    __tablename__ = "pending_registrations"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    email: Mapped[str] = mapped_column(String(320), unique=True)
+    password_hash: Mapped[str] = mapped_column(Text)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    guest_id: Mapped[str | None] = mapped_column(String(36))
+    session_hash: Mapped[str | None] = mapped_column(String(64))
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class OAuthIdentity(Base):
+    __tablename__ = "oauth_identities"
+    id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+
+
+class OAuthAttempt(Base):
+    __tablename__ = "oauth_attempts"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    nonce_hash: Mapped[str] = mapped_column(String(64))
+    verifier_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    link_user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+
+
+class LocalizedAnalysis(Base):
+    __tablename__ = "localized_analyses"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    analysis_id: Mapped[str] = mapped_column(ForeignKey("analyses.id", ondelete="CASCADE"), index=True)
+    language: Mapped[str] = mapped_column(String(10))
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    data: Mapped[dict] = mapped_column(JSON)
+    __table_args__ = (UniqueConstraint("analysis_id", "language", "fingerprint"),)

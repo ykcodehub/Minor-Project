@@ -67,9 +67,33 @@ STOP_WORDS = frozenset(
 # These widen retrieval only; all answers still require exact source verification.
 TERM_GROUPS = (
     {"retain", "retained", "retention", "delete", "deletion", "erase", "erasure"},
-    {"cancel", "cancellation", "terminate", "termination", "renew", "renewal"},
-    {"pay", "payment", "payments", "fee", "fees", "charge", "charges", "cost"},
-    {"share", "sharing", "disclose", "disclosure", "transfer", "transfers"},
+    {
+        "cancel",
+        "cancellation",
+        "terminate",
+        "termination",
+        "renew",
+        "renewal",
+        "रद्द",
+        "समाप्त",
+        "band",
+        "khatam",
+    },
+    {
+        "pay",
+        "payment",
+        "payments",
+        "fee",
+        "fees",
+        "charge",
+        "charges",
+        "cost",
+        "भुगतान",
+        "पैसे",
+        "paisa",
+        "paise",
+    },
+    {"share", "sharing", "disclose", "disclosure", "transfer", "transfers", "साझा", "बेचना", "baant", "bech"},
     {"consent", "permission", "authorize", "authorization"},
 )
 

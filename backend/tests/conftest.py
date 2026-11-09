@@ -15,6 +15,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setattr(cfg, "storage_key", Fernet.generate_key().decode())
     monkeypatch.setattr(cfg, "smtp_host", "")
     monkeypatch.setattr(cfg, "environment", "development")
+
     for provider in ("gemini", "groq", "openrouter"):
         monkeypatch.setattr(cfg, provider + "_api_key", "")
         monkeypatch.setattr(cfg, provider + "_model", "")
@@ -29,7 +30,14 @@ def client(tmp_path, monkeypatch):
     Base.metadata.create_all(engine)
     previous = SessionLocal.kw["bind"]
     SessionLocal.configure(bind=engine)
-    with TestClient(app, raise_server_exceptions=True) as test:
+    mail = []
+
+    def capture(email, purpose, token):
+        mail.append({"email": email, "purpose": purpose, "token": token})
+
+    monkeypatch.setattr("app.api.auth.deliver", capture)
+    with TestClient(app, base_url="http://localhost", raise_server_exceptions=True) as test:
+        test.veriora_mail = mail
         test.headers["Origin"] = "http://localhost:5173"
         yield test
     SessionLocal.configure(bind=previous)
