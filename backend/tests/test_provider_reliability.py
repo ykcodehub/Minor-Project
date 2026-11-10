@@ -81,7 +81,8 @@ def test_max_tokens_bounded_budget_recovery(monkeypatch):
     p, requests, _sleeps = setup_provider(monkeypatch, [limited])
     with pytest.raises(ProviderError, match="PROVIDER_OUTPUT_LIMIT"):
         p.generate("s", "p", Output, "candidate_generation")
-    assert len(requests) == 2
+    assert len(requests) == 3
+    assert requests[-1] != requests[-2]
 
 
 @pytest.mark.parametrize(
@@ -112,9 +113,14 @@ def test_exhausted_retries_are_bounded(monkeypatch, response, code):
     p, requests, sleeps = setup_provider(monkeypatch, [response])
     with pytest.raises(ProviderError, match=code) as exc:
         p.generate("s", "p", Output, "candidate_generation")
-    assert len(requests) == 3 and len(sleeps) == 2
-    assert len(exc.value.model_calls) == 3
-    assert 2 <= sleeps[0] <= 3 and 4 <= sleeps[1] <= 5
+    expected = 2 if code == "PROVIDER_INVALID_OUTPUT" else 3
+    assert len(requests) == expected and len(sleeps) == expected - 1
+    assert len(exc.value.model_calls) == expected
+    assert 2 <= sleeps[0] <= 3
+    if expected == 3:
+        assert 4 <= sleeps[1] <= 5
+    else:
+        assert requests[0] != requests[1]
 
 
 def test_worker_api_preserves_actionable_failure_and_retry_consent(client, monkeypatch):

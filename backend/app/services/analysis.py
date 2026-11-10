@@ -350,6 +350,28 @@ def _fit_candidate_chunks(chunks, sections, providers):
     )
 
 
+def _split_source_chunk(chunk, sections):
+    from app.services.chunking import chunk_sections, count_tokens
+
+    spans = chunk["spans"]
+    children = []
+    if len(spans) > 1:
+        middle = len(spans) // 2
+        children = [{"spans": spans[:middle]}, {"spans": spans[middle:]}]
+    elif spans:
+        span = spans[0]
+        section = next(s for s in sections if s["id"] == span["section_id"])
+        fragment = section["text"][span["start"] : span["end"]]
+        tokens = count_tokens(fragment)
+        if tokens > 16:
+            children = chunk_sections([{**section, "text": fragment}], budget=max(16, tokens // 2), overlap=0)
+            for child in children:
+                for anchor in child["spans"]:
+                    anchor["start"] += span["start"]
+                    anchor["end"] += span["start"]
+    return children
+
+
 def _fit_source_chunks(chunks, sections, providers, schema_type, prompt_for, role=None):
     """Split on original source spans until complete wire requests fit.
 
@@ -357,7 +379,6 @@ def _fit_source_chunks(chunks, sections, providers, schema_type, prompt_for, rol
     a failed processing unit so coverage can never claim it was analyzed.
     """
     from app.providers.base import configured_provider
-    from app.services.chunking import chunk_sections, count_tokens
 
     schema = schema_type.model_json_schema()
     adapters = [configured_provider(c) for c in providers]
@@ -374,24 +395,7 @@ def _fit_source_chunks(chunks, sections, providers, schema_type, prompt_for, rol
         if not selected or all(p.fits(SYSTEM, prompt_for(selected), schema, role=role) for p in usable):
             fitted.append(chunk)
             continue
-        spans = chunk["spans"]
-        children = []
-        if len(spans) > 1:
-            middle = len(spans) // 2
-            children = [{"spans": spans[:middle]}, {"spans": spans[middle:]}]
-        elif spans:
-            span = spans[0]
-            section = next(s for s in sections if s["id"] == span["section_id"])
-            fragment = section["text"][span["start"] : span["end"]]
-            tokens = count_tokens(fragment)
-            if tokens > 16:
-                children = chunk_sections(
-                    [{**section, "text": fragment}], budget=max(16, tokens // 2), overlap=0
-                )
-                for child in children:
-                    for anchor in child["spans"]:
-                        anchor["start"] += span["start"]
-                        anchor["end"] += span["start"]
+        children = _split_source_chunk(chunk, sections)
         if len(children) > 1:
             if len(fitted) + len(pending) + len(children) > 120:
                 raise ProviderError("ANALYSIS_BUDGET_EXCEEDED")
@@ -428,13 +432,16 @@ def analyze(
     verification_budget = 200
     seen: dict[tuple, dict] = {}
     processed_ranges: dict[str, list[tuple[int, int]]] = {}
-    for index, chunk in enumerate(chunks):
+    index = 0
+    while index < len(chunks):
+        chunk = chunks[index]
         if on_progress:
             on_progress("GENERATING", index, len(chunks))
         selected = _mapped_passages([chunk], sections)
         if not selected:
             failed_chunks.append(index)
             warnings.append(f"Chunk {index + 1} has no mapped source spans.")
+            index += 1
             continue
         wire, aliases = (
             compact_passages(selected) if real_configs else (selected, {"sources": {}, "sections": {}})
@@ -446,10 +453,25 @@ def analyze(
             )
             model_calls.extend(calls)
             generation_call = calls[-1]
+            if generation_call.get("generation_strategy") == "bounded_compact_response":
+                warnings.append(
+                    "Provider output limits required reduced candidate output; extraction may be incomplete."
+                )
         except ProviderError as exc:
             model_calls.extend(exc.model_calls)
+            if (
+                exc.code in {"PROVIDER_OUTPUT_LIMIT", "PROVIDER_INVALID_OUTPUT"}
+                and chunk.get("recovery_depth", 0) < 2
+            ):
+                children = _split_source_chunk(chunk, sections)
+                if len(children) > 1 and len(chunks) + len(children) - 1 <= 120:
+                    for child in children:
+                        child["recovery_depth"] = chunk.get("recovery_depth", 0) + 1
+                    chunks[index : index + 1] = children
+                    continue
             failed_chunks.append(index)
             warnings.append(f"Chunk {index + 1}: {exc.code}.")
+            index += 1
             continue
         for item_index, candidate_model in enumerate(batch.findings):
             candidate = expand_citation(candidate_model.model_dump(), aliases)
@@ -525,6 +547,7 @@ def analyze(
             processed_ranges.setdefault(passage["section_id"], []).append(
                 (passage["start_offset"], passage["end_offset"])
             )
+        index += 1
     if len(failed_chunks) == len(chunks):
         raise ProviderError("ANALYSIS_GENERATION_FAILED", calls=model_calls)
     if on_progress:

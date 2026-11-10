@@ -419,3 +419,38 @@ New regression coverage: source-wide scans beyond 12 windows run once; invalid/g
 Benchmark conclusions are fixture-specific: 1/5/10/15 pages completed across all three mocked adapters; all expected quotes retained exact page/offset validation. At 50 pages all 25 source-index windows were audited; Gemini/OpenRouter returned partial results at the unchanged token cap, while Groq completed the zero-error synthetic fixture. Windows single-process peak memory is approximately 136?141 MiB, not qualification of Render's combined 512 MiB service or image-heavy 20 MiB input. Local elapsed times exclude real model/network inference; no model-quality claim is made. The JSON records exact case metrics and the markdown report explains scope.
 
 Migration c819ba204ae1 is additive and has NOT been applied to Neon. Apply python -m alembic upgrade head from backend in the approved migration workflow before running the updated API/worker. No new environment variables are required. Existing provider/storage/auth credentials and production values were not edited. No production data was changed, no live paid inference was called, and nothing was pushed or deployed. Dense contracts, provider quotas/outages, model omissions and long jobs under Render sleep/CPU limits remain practical limitations; use partial results and budget review rather than silently raising limits or replaying uncertain calls.
+
+
+## Provider failure recovery (11 November 2026)
+
+The configured model IDs `gemini-3.6-flash`, `openai/gpt-oss-20b`, and `openrouter/free` were found in their providers' model catalogs using non-generative metadata requests. Catalog presence does not verify inference access, quota, schema acceptance or generation quality. Gemini HTTP 503 is upstream unavailability; OpenRouter `length` is exhausted output allowance, potentially including reasoning. Groq's exact production HTTP 400 remains unknown because the previous logs discarded error details. Do not assume an invalid model or schema without the new sanitized diagnostics.
+
+Provider failure logs now retain only allowlisted error codes/types/parameter names, fixed validation categories, finish reasons, numeric reasoning usage and request-budget metadata. Raw provider prose, failed generations, prompts, source text and credentials are excluded. Groq GPT-OSS uses low reasoning effort. Identifiable compatible-provider schema rejections permit one changed, strict wire-schema normalization while local Pydantic constraints remain authoritative. `json_validate_failed` is classified as invalid generation, not a configuration error; it gets one corrective request. Unknown HTTP 400 errors are not blindly retried. Deterministic request rejection is skipped for that provider/task for the remainder of the operation.
+
+Truncated responses remain rejected. Bounded output growth stays within existing caps; candidate output at the cap can retry once with a concise one-finding strategy. OpenRouter can request low reasoning for this recovery. If generation still fails with output/JSON limits, source units can subdivide at most two recovery levels, retaining exact source spans and the existing 120-unit/call/token caps. Successful reduced extraction is explicitly partial. Only authorized fallback providers are used. Whole, complete JSON fences may be unwrapped; partial JSON is never repaired, concatenated or treated as evidence.
+
+Optional `ANALYSIS_TIMEOUT_SECONDS` defaults to 900 (range 30-3600). The worker stops new requests at its deadline; a watchdog persists FAILED, or PARTIAL_COMPLETION if findings were already saved, after a five-second grace. Owned job polling also detects expired leases/deadlines and does not replay uncertain requests. A fresh heartbeat is rechecked under the row lock. Saved checkpoints and usage reservations remain intact. Database/host outages can prevent terminal-state persistence until service recovery; this is not a guarantee of uninterrupted Render Free execution. Terminal states are logged explicitly. No migration is introduced by this patch; keep the existing checkpoint migration applied before running the worker.
+
+No Render/Vercel environment change is mandatory. Keep the combined API/worker start command `python -m app.serve`. The timeout setting is optional and does not raise AI usage caps. Enable fallback providers through user Settings; configured keys do not grant consent. Real-provider generation was NOT executed, and production reliability remains unverified. No production records, `.env`, secrets or existing migrations were changed; no push or deployment was performed.
+
+Execution evidence and final suite results are recorded below. The provider recovery-to-Summary integration fixture mocks HTTP and uses isolated SQLite; it is not live AI qualification.
+
+
+Executed verification for this patch:
+
+| Command / check | Actual result |
+|---|---|
+| `ENVIRONMENT=test DATABASE_URL=sqlite:// PYTHONPATH=backend backend/.venv/Scripts/python.exe -m pytest backend/tests -q --tb=short` | 257 passed, 1 skipped; 117.76 seconds; PostgreSQL integration opt-in disabled |
+| Focused `test_real_provider_failures.py test_provider_reliability.py` after the final analysis-only poll-recovery scope adjustment | 20 passed; 6.59 seconds |
+| frontend `npm test` | 43 passed across 12 files |
+| frontend `npm run lint` | passed |
+| frontend `npm run build` | TypeScript and Vite production build passed |
+| `backend/.venv/Scripts/python.exe scripts/test_e2e.py` | 19 passed, 1 skipped; temporary local services; live PostgreSQL/AI test intentionally skipped |
+| Ruff app + changed/new provider tests; changed frontend Prettier check; `git diff --check` | passed |
+| Real-provider generation, production Summary, Render memory/latency, production schema/migrations | NOT RUN; no paid inference or production mutation authorized |
+
+The new synthetic integration executes upload/extraction, explicit consent, queued analysis, worker, Gemini 503 exhaustion, OpenRouter length/invalid JSON, identified Groq schema rejection/recovery, semantic evidence validation, database persistence and the Summary endpoint. It asserts one supported obligation with the exact original quotation, safe diagnostics and discarded sensitive error prose. This fixture does not prove that the unknown production Groq 400 has the simulated schema cause. Additional tests cover complete-fence parsing versus truncated rejection, conditional schema normalization with local bounds intact, unknown 400 single attempt, Groq generated-schema failure, processing deadlines without fresh HTTP, watchdog terminal persistence, lease ownership/heartbeat race and retention of ambiguous saved findings without promotion.
+
+Production follow-up: deploy only through the user's authorized workflow, then inspect fixed-category provider diagnostics and terminal state logs. For Groq check `provider_error_code`, `provider_error_param` and `validation_issue`; do not copy raw error bodies or source content. Model catalog checks passed for all three exact configured IDs, but do not replace actual authorized inference verification. The supplied 3-of-13 progress log alone does not establish an indefinitely running job. Earlier read-only configured-database rows were not a confirmed match to that production run.
+
+Primary provider references: [Groq structured outputs](https://console.groq.com/docs/structured-outputs), [Groq GPT-OSS-20B](https://console.groq.com/docs/model/openai/gpt-oss-20b), [OpenRouter reasoning-token budgeting](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens). Reasoning tokens consume the output allowance; excluding their visible text does not make them free or eliminate that budget.

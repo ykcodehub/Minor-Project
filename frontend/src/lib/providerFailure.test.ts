@@ -23,6 +23,11 @@ describe("provider failure guidance", () => {
       ),
     ).toBeTruthy();
   });
+  it("explains terminal time limits", () => {
+    expect(providerFailure("ANALYSIS_DEADLINE_EXCEEDED")).toContain(
+      "checkpointed usage",
+    );
+  });
   it("does not reinterpret unrelated failures", () =>
     expect(providerFailure("Extraction failed")).toBeUndefined());
 });

@@ -215,6 +215,7 @@ class SourceWideIndex:
                     "PROVIDER_CONTENT_BLOCKED",
                     "PROVIDER_OPERATION_BUDGET_EXCEEDED",
                     "PROVIDER_CHECKPOINT_UNCERTAIN",
+                    "ANALYSIS_DEADLINE_EXCEEDED",
                 }:
                     break
         raise ProviderError(last.code if last else "PROVIDER_NOT_CONFIGURED", calls=calls)

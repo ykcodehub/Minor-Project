@@ -2014,5 +2014,9 @@
   "This provider audit is incomplete. A completed authorized audit and semantic verification are required for supported findings.": {
     "hi": "इस प्रदाता की समीक्षा अधूरी है। समर्थित निष्कर्षों के लिए पूरी अधिकृत समीक्षा और अर्थ-सत्यापन आवश्यक हैं।",
     "hinglish": "Is provider ka audit incomplete hai. Supported findings ke liye complete authorized audit aur semantic verification zaroori hain."
+  },
+  "Processing reached its time limit. Inspect preserved results and checkpointed usage before retrying.": {
+    "hi": "प्रक्रिया की समय सीमा पूरी हो गई। पुनः प्रयास से पहले सहेजे गए परिणाम और API उपयोग जाँचें।",
+    "hinglish": "Processing ki time limit poori ho gayi. Retry se pehle saved results aur recorded API usage dekhein."
   }
 }

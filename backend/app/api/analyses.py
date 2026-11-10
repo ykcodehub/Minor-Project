@@ -432,6 +432,30 @@ def report_history(analysis_id: str, db: Db, user: CurrentUser):
 @router.get("/jobs/{job_id}", response_model=JobResponse)
 def get_job(job_id: str, db: Db, user: CurrentUser):
     job = owned(db, Job, job_id, user)
+    if job.state == "PROCESSING" and job.kind == "analysis":
+        from datetime import datetime
+
+        from app.services.job_state import fail_processing
+
+        expired = job.lease_until is not None and job.lease_until.replace(tzinfo=now().tzinfo) < now()
+        deadline = False
+        try:
+            started = datetime.fromisoformat(job.result.get("processing_started_at", ""))
+            deadline = (now() - started.replace(tzinfo=now().tzinfo)).total_seconds() > job.result.get(
+                "analysis_timeout_seconds", settings().analysis_timeout_seconds
+            ) + 5
+        except (ValueError, TypeError):
+            pass
+        if expired or deadline:
+            fail_processing(
+                db,
+                job.id,
+                job.lease_token,
+                "ANALYSIS_DEADLINE_EXCEEDED"
+                if deadline
+                else "WORKER_LEASE_EXPIRED: Worker interrupted; review checkpointed usage before retrying.",
+            )
+            db.refresh(job)
     return {
         "id": job.id,
         "job_id": job.id,

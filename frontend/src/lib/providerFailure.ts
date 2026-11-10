@@ -1,5 +1,7 @@
 /** Static guidance only; never interprets provider output as document evidence. */
 export function providerFailure(error: string): string | undefined {
+  if (error.includes("ANALYSIS_DEADLINE_EXCEEDED"))
+    return "Processing reached its time limit. Inspect preserved results and checkpointed usage before retrying.";
   if (error.includes("PROVIDER_CHECKPOINT_UNCERTAIN"))
     return "An interrupted AI request has no saved response. Review possible usage before explicitly retrying it; completed responses will be reused.";
   if (error.includes("PROVIDER_CONTEXT_INCOMPLETE"))

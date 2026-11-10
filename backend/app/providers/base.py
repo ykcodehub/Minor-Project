@@ -16,6 +16,8 @@ from typing import Any
 import httpx
 from pydantic import BaseModel, ValidationError
 
+from app.providers.diagnostics import error_details, json_content, strict_wire_schema, validation_details
+
 
 class ProviderError(RuntimeError):
     def __init__(self, code: str, *, calls: list[dict] | None = None):
@@ -175,6 +177,10 @@ class ModelProvider:
         self, system: str, prompt: str, schema_type: type[BaseModel], role: str
     ) -> tuple[BaseModel, list[dict]]:
         calls: list[dict] = []
+        corrective = False
+        compact = False
+        schema_compat = False
+        disable_reasoning = False
         if not self.key or not self.model:
             raise ProviderError("PROVIDER_NOT_CONFIGURED")
         if len(system) + len(prompt) > 180000:
@@ -196,7 +202,29 @@ class ModelProvider:
             retryable = False
             retry_after = 0.0
             try:
-                url, headers, payload = self.request(system, prompt, schema_type.model_json_schema())
+                if self.budget is not None and time.monotonic() >= self.budget.get("deadline", float("inf")):
+                    raise ProviderError("ANALYSIS_DEADLINE_EXCEEDED")
+                instruction = ""
+                if corrective:
+                    instruction += "\nReturn exactly one complete JSON object matching the supplied schema. No markdown, prose, extra fields or invented values."
+                if compact and role == "candidate_generation":
+                    instruction += "\nReturn at most one atomic finding with a concise rationale and the shortest exact quote that preserves all material conditions. If no complete finding fits, return an empty findings array."
+                url, headers, payload = self.request(
+                    system, prompt + instruction, schema_type.model_json_schema()
+                )
+                if schema_compat and self.name != "gemini":
+                    payload["response_format"]["json_schema"]["schema"] = strict_wire_schema(
+                        schema_type.model_json_schema()
+                    )
+                if compact and self.name == "openrouter" and not disable_reasoning:
+                    payload["reasoning"] = {"effort": "low", "exclude": True}
+                if disable_reasoning:
+                    payload.pop("reasoning", None)
+                    payload.pop("reasoning_effort", None)
+                if compact:
+                    call["generation_strategy"] = "bounded_compact_response"
+                if schema_compat:
+                    call["schema_strategy"] = "compatible_strict_schema"
                 if self.on_attempt is not None:
                     self.on_attempt(
                         {"provider": self.name, "model": self.model, "role": role, "attempt": attempt + 1}
@@ -281,6 +309,35 @@ class ModelProvider:
                                 code = "PROVIDER_CONTEXT_LIMIT"
                         except (ValueError, AttributeError, TypeError):
                             pass
+                    call.update(error_details(response))
+                    if response.status_code == 400:
+                        if call.get("validation_issue") == "CONTEXT_LENGTH":
+                            code = "PROVIDER_CONTEXT_LIMIT"
+                        if (
+                            (
+                                call.get("validation_issue")
+                                in {"SCHEMA_UNSUPPORTED", "SCHEMA_CLOSED_OBJECT", "SCHEMA_REQUIRED_FIELDS"}
+                                or call.get("provider_error_code") == "invalid_json_schema"
+                            )
+                            and not schema_compat
+                            and self.name != "gemini"
+                            and strict_wire_schema(schema_type.model_json_schema())
+                            != payload["response_format"]["json_schema"]["schema"]
+                        ):
+                            schema_compat = True
+                            retryable = True
+                        elif (
+                            call.get("validation_issue") == "REASONING_UNSUPPORTED" and not disable_reasoning
+                        ):
+                            disable_reasoning = True
+                            retryable = True
+                    if response.status_code == 400 and (
+                        call.get("provider_error_code") == "json_validate_failed"
+                        or call.get("validation_issue") == "GENERATED_SCHEMA_MISMATCH"
+                    ):
+                        code = "PROVIDER_INVALID_OUTPUT"
+                        retryable = not corrective
+                        corrective = True
                     raise ProviderError(code)
                 raw = response.json()
                 if not isinstance(raw, dict):
@@ -288,6 +345,17 @@ class ModelProvider:
                 call.update(
                     requested_model=self.model, response_model=raw.get("model", raw.get("modelVersion"))
                 )
+                usage = raw.get("usageMetadata" if self.name == "gemini" else "usage", {})
+                for target, value in {
+                    "token_in": usage.get("promptTokenCount", usage.get("prompt_tokens")),
+                    "token_out": usage.get("candidatesTokenCount", usage.get("completion_tokens")),
+                    "reasoning_tokens": usage.get(
+                        "thoughtsTokenCount",
+                        usage.get("completion_tokens_details", {}).get("reasoning_tokens"),
+                    ),
+                }.items():
+                    if type(value) is int and 0 <= value <= 1000000000:
+                        call[target] = value
                 if self.name == "gemini":
                     candidates = raw.get("candidates") or []
                     reason = candidates[0].get("finishReason", "UNKNOWN") if candidates else "UNKNOWN"
@@ -315,7 +383,11 @@ class ModelProvider:
                     }:
                         raise ProviderError("PROVIDER_CONTENT_BLOCKED")
                     if reason == "MAX_TOKENS":
-                        retryable = output_budget < self.max_output_tokens
+                        retryable = output_budget < self.max_output_tokens or (
+                            role == "candidate_generation" and not compact
+                        )
+                        if output_budget >= self.max_output_tokens and role == "candidate_generation":
+                            compact = True
                         output_budget = min(output_budget * 2, 8192, self.max_output_tokens)
                         raise ProviderError("PROVIDER_OUTPUT_LIMIT")
                 if (
@@ -324,7 +396,11 @@ class ModelProvider:
                     and raw["choices"][0].get("finish_reason") == "length"
                 ):
                     call["finish_reason"] = "length"
-                    retryable = output_budget < self.max_output_tokens
+                    retryable = output_budget < self.max_output_tokens or (
+                        role == "candidate_generation" and not compact
+                    )
+                    if output_budget >= self.max_output_tokens and role == "candidate_generation":
+                        compact = True
                     output_budget = min(output_budget * 2, 8192, self.max_output_tokens)
                     raise ProviderError("PROVIDER_OUTPUT_LIMIT")
                 content, token_in, token_out = self.unpack(raw)
@@ -338,7 +414,7 @@ class ModelProvider:
                     call["estimated_cost"] = (
                         token_in * self.input_price_per_million + token_out * self.output_price_per_million
                     ) / 1_000_000
-                value = schema_type.model_validate_json(content)
+                value = schema_type.model_validate_json(json_content(content))
                 call["outcome"] = "SUCCESS"
                 call["latency_ms"] = round((time.monotonic() - started) * 1000)
                 if ticket is not None:
@@ -349,8 +425,10 @@ class ModelProvider:
                 code, retryable = "PROVIDER_TIMEOUT", True
             except httpx.HTTPError:
                 code, retryable = "PROVIDER_UNAVAILABLE", True
-            except (ValidationError, ValueError, KeyError, IndexError, TypeError, AttributeError):
-                code, retryable = "PROVIDER_INVALID_OUTPUT", True
+            except (ValidationError, ValueError, KeyError, IndexError, TypeError, AttributeError) as exc:
+                call.update(validation_details(exc))
+                code, retryable = "PROVIDER_INVALID_OUTPUT", not corrective
+                corrective = True
             except ProviderError as exc:
                 code = exc.code
             if ticket is not None:
@@ -376,6 +454,14 @@ class ModelProvider:
                     "payload_bytes",
                     "budget_phase",
                     "budget_basis",
+                    "provider_error_code",
+                    "provider_error_type",
+                    "provider_error_param",
+                    "validation_issue",
+                    "validation_types",
+                    "reasoning_tokens",
+                    "generation_strategy",
+                    "schema_strategy",
                 )
                 if k in call
             }
@@ -390,10 +476,18 @@ class ModelProvider:
 
     def unpack(self, raw: dict) -> tuple[str, int | None, int | None]:
         choice = raw["choices"][0]
-        if choice.get("finish_reason") != "stop" or choice["message"].get("refusal"):
+        if choice["message"].get("refusal") or choice.get("finish_reason") == "content_filter":
+            raise ProviderError("PROVIDER_CONTENT_BLOCKED")
+        if choice.get("finish_reason") != "stop":
             raise ProviderError("PROVIDER_INCOMPLETE_OUTPUT")
         usage = raw.get("usage", {})
-        return choice["message"]["content"], usage.get("prompt_tokens"), usage.get("completion_tokens")
+        content = choice["message"]["content"]
+        if isinstance(content, list) and all(
+            isinstance(p, dict) and p.get("type") == "text" and isinstance(p.get("text"), str)
+            for p in content
+        ):
+            content = "".join(p["text"] for p in content)
+        return content, usage.get("prompt_tokens"), usage.get("completion_tokens")
 
 
 class CompatibleProvider(ModelProvider):
@@ -412,6 +506,8 @@ class CompatibleProvider(ModelProvider):
                 "json_schema": {"name": "veriora_output", "strict": True, "schema": schema},
             },
         }
+        if self.name == "groq" and self.model in {"openai/gpt-oss-20b", "openai/gpt-oss-120b"}:
+            payload["reasoning_effort"] = "low"
         if self.name == "openrouter":
             # Prevent OpenRouter's internal model fallback and require schema capability.
             payload["provider"] = {"require_parameters": True, "allow_fallbacks": False}
@@ -503,6 +599,19 @@ def generate_with_fallback(
     last_code = "PROVIDER_NOT_CONFIGURED"
     for index, config in enumerate(list({c.get("name"): c for c in reversed(configs[:3])}.values())[::-1]):
         budget = config.get("budget")
+        if budget is not None and (config.get("name"), role) in budget.get("rejected_tasks", set()):
+            last_code = "PROVIDER_REQUEST_REJECTED"
+            calls.append(
+                {
+                    "provider": config["name"],
+                    "model": config.get("model"),
+                    "role": role,
+                    "outcome": last_code,
+                    "attempt": 0,
+                    "cached_rejection": True,
+                }
+            )
+            continue
         if budget is not None and config.get("name") in budget.get("unavailable", set()):
             last_code = "PROVIDER_UNAVAILABLE"
             calls.append(
@@ -524,6 +633,8 @@ def generate_with_fallback(
             return value, calls
         except ProviderError as exc:
             last_code = exc.code
+            if budget is not None and last_code == "PROVIDER_REQUEST_REJECTED":
+                budget.setdefault("rejected_tasks", set()).add((config.get("name"), role))
             if budget is not None and last_code in {
                 "PROVIDER_UNAVAILABLE",
                 "PROVIDER_RATE_LIMITED",
@@ -547,6 +658,7 @@ def generate_with_fallback(
                 "PROVIDER_OPERATION_BUDGET_EXCEEDED",
                 "PROVIDER_CHECKPOINT_UNCERTAIN",
                 "PROVIDER_JOB_INTERRUPTED",
+                "ANALYSIS_DEADLINE_EXCEEDED",
             }:
                 break
     raise ProviderError(last_code, calls=calls)

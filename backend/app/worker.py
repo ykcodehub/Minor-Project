@@ -279,10 +279,13 @@ def process(job_id, token):
         with SessionLocal() as policy_db:
             owner = policy_db.get(User, job.owner_id)
             providers = providers_for(owner, payload, SessionLocal)
+            for config in providers:
+                config["budget"]["deadline"] = time.monotonic() + settings().analysis_timeout_seconds
         from app.services.checkpoints import RequestCheckpoints
-        checkpoints=RequestCheckpoints(SessionLocal,job_id,token)
+
+        checkpoints = RequestCheckpoints(SessionLocal, job_id, token)
         for provider in providers:
-            provider["checkpoint"]=checkpoints
+            provider["checkpoint"] = checkpoints
             provider["on_attempt"] = lambda event: progress(
                 job_id, token, "AI_" + event["role"].upper(), **event
             )
@@ -365,9 +368,15 @@ def process(job_id, token):
                                 locator=section.data.get("locator", {}),
                             )
                         )
-            incomplete_verification = any(f.get("verification", {}).get("error_code") or any(c.get("match_status") == "INVALID" for c in f.get("citations", [])) for f in result["findings"])
+            incomplete_verification = any(
+                f.get("verification", {}).get("error_code")
+                or any(c.get("match_status") == "INVALID" for c in f.get("citations", []))
+                for f in result["findings"]
+            )
             job.state = (
-                "PARTIAL_COMPLETION" if failed or unreadable or incomplete_verification or result.get("warnings") else "COMPLETED"
+                "PARTIAL_COMPLETION"
+                if failed or unreadable or incomplete_verification or result.get("warnings")
+                else "COMPLETED"
             )
             job.stage, job.lease_token = "COMPLETED", None
             job.result = {"analysis_id": analysis.id, "findings_count": len(result["findings"])}
@@ -385,6 +394,39 @@ def run_once():
     stop = threading.Event()
     thread = threading.Thread(target=heartbeat, args=(job_id, token, stop), daemon=True)
     thread.start()
+    watchdog = None
+    with SessionLocal() as db:
+        running = db.get(Job, job_id)
+        if running and running.kind == "analysis":
+            running.result = {
+                **running.result,
+                "processing_started_at": now().isoformat(),
+                "analysis_timeout_seconds": settings().analysis_timeout_seconds,
+            }
+            db.commit()
+
+            def expire():
+                from app.services.job_state import fail_processing
+
+                try:
+                    with SessionLocal() as expired_db:
+                        if fail_processing(
+                            expired_db,
+                            job_id,
+                            token,
+                            "ANALYSIS_DEADLINE_EXCEEDED: Processing time limit reached. Completed responses are checkpointed; review partial results or retry safely.",
+                        ):
+                            logging.getLogger("veriora.worker").warning(
+                                "job=%s terminal_reason=ANALYSIS_DEADLINE_EXCEEDED", job_id
+                            )
+                except SQLAlchemyError as exc:
+                    logging.getLogger("veriora.worker").warning(
+                        "deadline persistence failed error_type=%s", type(exc).__name__
+                    )
+
+            watchdog = threading.Timer(settings().analysis_timeout_seconds + 5, expire)
+            watchdog.daemon = True
+            watchdog.start()
     try:
         process(job_id, token)
     except LeaseLost:
@@ -423,10 +465,19 @@ def run_once():
                     "job=%s FAILED error_type=%s", job_id, type(exc).__name__
                 )
     finally:
+        if watchdog is not None:
+            watchdog.cancel()
         stop.set()
         thread.join(timeout=2)
     worker_heartbeat()
-    logging.getLogger("veriora.worker").info("finished job=%s", job_id)
+    with SessionLocal() as db:
+        finished = db.get(Job, job_id)
+        logging.getLogger("veriora.worker").info(
+            "finished job=%s state=%s stage=%s",
+            job_id,
+            finished.state if finished else "DELETED",
+            finished.stage if finished else "DELETED",
+        )
     return True
 
 

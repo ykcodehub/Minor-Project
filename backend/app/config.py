@@ -67,6 +67,7 @@ class Settings(BaseSettings):
     openrouter_api_key: str = Field(default="", repr=False)
     openrouter_model: str = ""
     provider_limits: dict[str, dict[str, int]] = Field(default_factory=dict)
+    analysis_timeout_seconds: int = Field(default=900, ge=30, le=3600)
     max_ai_calls_per_operation: int = Field(default=100, ge=1, le=300)
     max_ai_tokens_per_operation: int = Field(default=500000, ge=1000, le=2000000)
     provider_pricing: dict[str, dict[str, float]] = Field(default_factory=dict)
