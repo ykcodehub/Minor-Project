@@ -151,6 +151,13 @@ def ready():
     try:
         with SessionLocal() as db:
             db.execute(text("SELECT 1"))
+        from app.runtime import worker_ready
+
+        if not worker_ready():
+            return JSONResponse(
+                {"status": "unavailable", "database": "connected", "worker": "starting_or_stalled"},
+                status_code=503,
+            )
         return {"status": "ready", "database": "connected"}
     except SQLAlchemyError:
         return JSONResponse({"status": "unavailable", "database": "unavailable"}, status_code=503)

@@ -1,10 +1,13 @@
 """Durable DB worker. Run separately with `python -m app.worker`."""
 
+import logging
+import signal
 import threading
 import time
 from datetime import timedelta
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, or_, select, update
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.config import settings
 from app.db import SessionLocal
@@ -24,6 +27,7 @@ from app.models import (
     now,
     uid,
 )
+from app.runtime import worker_heartbeat
 from app.services import storage
 from app.services.resources import LIMITATIONS, delete_source, flush_storage_deletions
 
@@ -34,16 +38,27 @@ class LeaseLost(Exception):
 
 def claim():
     with SessionLocal() as db:
-        # Fail interrupted AI jobs rather than silently repeating potentially billed model calls.
-        db.execute(
-            update(Job)
-            .where(Job.state == "PROCESSING", Job.lease_until < now())
-            .values(
-                state="FAILED",
-                error="Worker interrupted. Review provider usage before retrying; some calls may have completed.",
-                lease_token=None,
-            )
+        # Fail interrupted work rather than silently repeating potentially billed model calls.
+        stale_query = (
+            select(Job)
+            .where(Job.state == "PROCESSING", or_(Job.lease_until < now(), Job.lease_until.is_(None)))
+            .limit(100)
         )
+        if db.bind.dialect.name == "postgresql":
+            stale_query = stale_query.with_for_update(skip_locked=True)
+        for stale in db.scalars(stale_query).all():
+            stale.state, stale.stage, stale.lease_token, stale.lease_until = "FAILED", "FAILED", None, None
+            stale.error = (
+                "Worker interrupted. Review provider usage before retrying; some calls may have completed."
+            )
+            if stale.kind in {"ingest", "capture"} and stale.source_id:
+                source = db.get(Source, stale.source_id)
+                if source:
+                    source.status = "FAILED"
+            logging.getLogger("veriora.worker").warning(
+                "recovered stale job=%s kind=%s as FAILED", stale.id, stale.kind
+            )
+        db.flush()
         db.commit()
         query = select(Job).where(Job.state == "QUEUED").order_by(Job.created_at).limit(1)
         if db.bind.dialect.name == "postgresql":
@@ -80,17 +95,29 @@ def progress(job_id, token, stage, completed=0, total=0):
         db.commit()
         if not result.rowcount:
             raise LeaseLost()
+        worker_heartbeat()
+        logging.getLogger("veriora.worker").info(
+            "job=%s stage=%s completed=%s total=%s", job_id, stage, completed, total
+        )
 
 
 def heartbeat(job_id, token, stop):
     while not stop.wait(15):
-        with SessionLocal() as db:
-            db.execute(
-                update(Job)
-                .where(Job.id == job_id, Job.lease_token == token, Job.state == "PROCESSING")
-                .values(lease_until=now() + timedelta(minutes=2))
+        try:
+            with SessionLocal() as db:
+                changed = db.execute(
+                    update(Job)
+                    .where(Job.id == job_id, Job.lease_token == token, Job.state == "PROCESSING")
+                    .values(lease_until=now() + timedelta(minutes=2))
+                )
+                db.commit()
+                if not changed.rowcount:
+                    return
+                worker_heartbeat()
+        except SQLAlchemyError as exc:
+            logging.getLogger("veriora.worker").warning(
+                "lease heartbeat failed error_type=%s", type(exc).__name__
             )
-            db.commit()
 
 
 def ensure_active(db, job_id, token):
@@ -346,6 +373,7 @@ def run_once():
     if not claimed:
         return False
     job_id, token = claimed
+    logging.getLogger("veriora.worker").info("claimed job=%s", job_id)
     stop = threading.Event()
     thread = threading.Thread(target=heartbeat, args=(job_id, token, stop), daemon=True)
     thread.start()
@@ -376,9 +404,14 @@ def run_once():
                 for call in getattr(exc, "model_calls", []):
                     db.add(ModelCall(job_id=job_id, data=call))
                 db.commit()
+                logging.getLogger("veriora.worker").warning(
+                    "job=%s FAILED error_type=%s", job_id, type(exc).__name__
+                )
     finally:
         stop.set()
         thread.join(timeout=2)
+    worker_heartbeat()
+    logging.getLogger("veriora.worker").info("finished job=%s", job_id)
     return True
 
 
@@ -405,13 +438,31 @@ def cleanup():
 
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+    log = logging.getLogger("veriora.worker")
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    stop = threading.Event()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(sig, lambda *_: stop.set())
+    log.info("consumer started; concurrency=1; durable leases enabled")
     last_cleanup = 0.0
-    while True:
-        if time.monotonic() - last_cleanup > 60:
-            cleanup()
-            last_cleanup = time.monotonic()
-        if not run_once():
-            time.sleep(1)
+    backoff = 1
+    while not stop.is_set():
+        try:
+            if time.monotonic() - last_cleanup > 60:
+                cleanup()
+                last_cleanup = time.monotonic()
+            if not run_once():
+                worker_heartbeat()
+                stop.wait(2)
+            backoff = 1
+        except SQLAlchemyError as exc:
+            log.warning(
+                "queue database unavailable error_type=%s retry_seconds=%s", type(exc).__name__, backoff
+            )
+            stop.wait(backoff)
+            backoff = min(backoff * 2, 30)
+    log.info("consumer stopped; unfinished leases will be recovered without automatic AI replay")
 
 
 if __name__ == "__main__":

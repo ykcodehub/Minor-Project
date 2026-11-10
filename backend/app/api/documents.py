@@ -148,7 +148,7 @@ async def upload_source(
     if not data:
         raise HTTPException(422, "The file is empty.")
     if len(data) > settings().max_upload_bytes:
-        raise HTTPException(413, "The file exceeds the 20 MB upload limit.")
+        raise HTTPException(413, "The file exceeds the configured upload limit.")
     previous = existing_ingest(db, user, idempotency_key, data, name)
     if previous:
         return previous
