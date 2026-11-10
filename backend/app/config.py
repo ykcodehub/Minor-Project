@@ -9,6 +9,26 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
+POLICY_ERRORS = {
+    "S3_CONFIGURATION_REQUIRED": "Configure S3_BUCKET and the existing stable STORAGE_KEY for S3 storage.",
+    "S3_HTTPS_REQUIRED": "S3_ENDPOINT_URL must use HTTPS.",
+    "S3_PREFIX_INVALID": "S3_PREFIX must be relative and cannot contain traversal or backslashes.",
+    "PRODUCTION_STORAGE_REQUIRED": "Production requires STORAGE_BACKEND=s3 and TEST_MAIL_OUTBOX unset.",
+    "PUBLIC_ORIGINS_INVALID": "PUBLIC_URL and ALLOWED_ORIGINS must be public HTTPS origins without credentials, paths or queries.",
+    "PRODUCTION_ENDPOINT_INVALID": "DATABASE_URL and S3_ENDPOINT_URL cannot use missing or loopback hosts in production.",
+    "GOOGLE_REDIRECT_INVALID": "GOOGLE_REDIRECT_URI must use the exact /api/v1/auth/google/callback path and HTTPS except local development.",
+    "POSTGRES_DRIVER_REQUIRED": "DATABASE_URL must use PostgreSQL with psycopg; SQLite is restricted to isolated tests.",
+}
+
+
+class ConfigurationPolicyError(ValueError):
+    """Static deployment guidance only; never include configured values in this exception."""
+
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code + ": " + POLICY_ERRORS[code])
+
+
 def loopback_host(host):
     if not host:
         return True
@@ -77,17 +97,17 @@ class Settings(BaseSettings):
             from urllib.parse import urlsplit
 
             if not self.s3_bucket or not self.storage_key:
-                raise ValueError("S3 requires a private bucket and stable storage encryption key")
+                raise ConfigurationPolicyError("S3_CONFIGURATION_REQUIRED")
             if self.s3_endpoint_url and urlsplit(self.s3_endpoint_url).scheme != "https":
-                raise ValueError("Object storage endpoints must use HTTPS")
+                raise ConfigurationPolicyError("S3_HTTPS_REQUIRED")
             if ".." in self.s3_prefix or self.s3_prefix.startswith("/") or "\\" in self.s3_prefix:
-                raise ValueError("Invalid S3 prefix")
+                raise ConfigurationPolicyError("S3_PREFIX_INVALID")
         if self.environment == "production":
             from urllib.parse import urlsplit
 
             targets = [self.public_url, *[v.strip() for v in self.allowed_origins.split(",")]]
             if self.storage_backend != "s3" or self.test_mail_outbox:
-                raise ValueError("Production requires private S3 storage and no test mail transport")
+                raise ConfigurationPolicyError("PRODUCTION_STORAGE_REQUIRED")
             for value in targets:
                 target = urlsplit(value)
                 if (
@@ -100,14 +120,14 @@ class Settings(BaseSettings):
                     or target.fragment
                     or target.path not in {"", "/"}
                 ):
-                    raise ValueError("Production public URL and CORS origins must be explicit HTTPS origins")
+                    raise ConfigurationPolicyError("PUBLIC_ORIGINS_INVALID")
 
         if self.environment == "production":
             from urllib.parse import urlsplit
 
             for endpoint in filter(None, [self.database_url, self.s3_endpoint_url]):
                 if loopback_host(urlsplit(endpoint).hostname):
-                    raise ValueError("Production database and object storage cannot use loopback hosts")
+                    raise ConfigurationPolicyError("PRODUCTION_ENDPOINT_INVALID")
 
         if self.google_client_id or self.google_client_secret:
             from urllib.parse import urlsplit
@@ -128,13 +148,11 @@ class Settings(BaseSettings):
                     )
                 )
             ):
-                raise ValueError(
-                    "Google redirect must use the exact callback path and HTTPS except local development"
-                )
+                raise ConfigurationPolicyError("GOOGLE_REDIRECT_INVALID")
         if not self.database_url.startswith("postgresql+psycopg://") and not (
             self.environment == "test" and self.database_url.startswith("sqlite")
         ):
-            raise ValueError("Configure PostgreSQL with psycopg; SQLite is restricted to isolated tests.")
+            raise ConfigurationPolicyError("POSTGRES_DRIVER_REQUIRED")
         return self
 
     def providers(self):
@@ -161,8 +179,16 @@ def settings():
     try:
         value = Settings()
     except ValidationError as exc:
-        fields = sorted({str(e["loc"][0]) if e["loc"] else "database_policy" for e in exc.errors()})
-        raise RuntimeError("Invalid application configuration: " + ", ".join(fields)) from None
+        diagnostics = set()
+        for error in exc.errors(include_input=False, include_url=False):
+            policy = error.get("ctx", {}).get("error")
+            if isinstance(policy, ConfigurationPolicyError) and policy.code in POLICY_ERRORS:
+                diagnostics.add(policy.code + ": " + POLICY_ERRORS[policy.code])
+            else:
+                # Field names/types are safe; arbitrary exception text and input values are not.
+                field = str(error["loc"][0]) if error["loc"] else "database_policy"
+                diagnostics.add(field + ": " + error["type"])
+        raise RuntimeError("Invalid application configuration: " + "; ".join(sorted(diagnostics))) from None
     if value.environment == "production" and (
         not value.secure_cookies or not value.storage_key or not value.database_url.startswith("postgresql")
     ):

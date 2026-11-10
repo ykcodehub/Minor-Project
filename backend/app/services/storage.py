@@ -105,8 +105,14 @@ def write(data: bytes, source_id: str):
     _validate_object_key(key)
     encrypted = value.encrypt(data)
     if settings().storage_backend == "s3":
+        # R2 encrypts at rest automatically and rejects AWS's SSE-S3 request header.
+        # Application-layer encryption and conditional creation remain mandatory.
+        from urllib.parse import urlsplit
+
         from botocore.exceptions import BotoCoreError, ClientError
 
+        host = (urlsplit(settings().s3_endpoint_url).hostname or "").lower()
+        encryption = {} if host.endswith(".r2.cloudflarestorage.com") else {"ServerSideEncryption": "AES256"}
         try:
             s3_client().put_object(
                 Bucket=settings().s3_bucket,
@@ -114,7 +120,7 @@ def write(data: bytes, source_id: str):
                 Body=encrypted,
                 ContentType="application/octet-stream",
                 IfNoneMatch="*",
-                ServerSideEncryption="AES256",
+                **encryption,
             )
         except (BotoCoreError, ClientError):
             raise StorageError("Private object storage write failed.") from None
