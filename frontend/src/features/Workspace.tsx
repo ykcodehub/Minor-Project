@@ -1,3 +1,4 @@
+import { providerFailure } from "../lib/providerFailure";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +11,7 @@ import {
   MessageSquare,
   Search,
 } from "lucide-react";
+import { useProcessingPoll } from "../lib/useProcessingPoll";
 import { api, apiPage, download, post } from "../lib/api";
 import {
   active,
@@ -33,6 +35,7 @@ import {
   ErrorNotice,
   Loading,
   PageHeading,
+  ProcessingPaused,
   Status,
 } from "../components/ui";
 function display(value: unknown) {
@@ -40,6 +43,7 @@ function display(value: unknown) {
 }
 export default function Workspace() {
   const { id = "" } = useParams();
+  const polling = useProcessingPoll(id);
   const [params, setParams] = useSearchParams();
   const qc = useQueryClient();
   const { user } = useSession();
@@ -59,14 +63,20 @@ export default function Workspace() {
   const analysis = useQuery({
     queryKey: ["analysis", id],
     queryFn: () => api<Analysis>(`/analyses/${id}`),
-    refetchInterval: (q) => (active(q.state.data?.status) ? 1800 : false),
+    refetchInterval: (q) =>
+      !polling.paused && !q.state.error && active(q.state.data?.status)
+        ? 1800
+        : false,
   });
   const jobId = analysis.data?.job_id;
   const job = useQuery({
     queryKey: ["job", jobId],
     queryFn: () => api<Job>(`/jobs/${jobId}`),
     enabled: !!jobId,
-    refetchInterval: (q) => (active(q.state.data?.state) ? 1600 : false),
+    refetchInterval: (q) =>
+      !polling.paused && !q.state.error && active(q.state.data?.state)
+        ? 1600
+        : false,
   });
   const [answerCitation, setAnswerCitation] = useState<Citation>();
   const offset = pageOffset(params.get("offset"), 30);
@@ -92,7 +102,13 @@ export default function Workspace() {
     queryKey: ["findings", id, analysis.data?.status, findingQuery.toString()],
     queryFn: () => apiPage<Finding>(`/analyses/${id}/findings?${findingQuery}`),
     enabled: !!analysis.data,
-    refetchInterval: () => (active(analysis.data?.status) ? 2500 : false),
+    refetchInterval: (q) =>
+      !q.state.error &&
+      !polling.paused &&
+      !analysis.error &&
+      active(analysis.data?.status)
+        ? 2500
+        : false,
   });
   const selectedQuery = useQuery({
     queryKey: ["finding", id, selectedId],
@@ -189,6 +205,7 @@ export default function Workspace() {
     setError(undefined);
     try {
       await post(`/jobs/${jobId}/${action}`);
+      polling.resume();
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["analysis", id] }),
         qc.invalidateQueries({ queryKey: ["job", jobId] }),
@@ -281,6 +298,15 @@ export default function Workspace() {
       >
         {t("Findings you can inspect. Source evidence you can follow.")}
       </PageHeading>
+      {polling.paused && active(analysis.data?.status) && (
+        <ProcessingPaused
+          onResume={() => {
+            polling.resume();
+            void analysis.refetch();
+            void job.refetch();
+          }}
+        />
+      )}
       <div className="workspace-presentation">
         <Tabs
           label={t("Analysis presentation")}
@@ -325,6 +351,12 @@ export default function Workspace() {
               "You can safely leave this page. Processing continues on the server.",
             )}
           </p>
+          {typeof job.data?.progress?.provider === "string" && (
+            <p className="small-copy">
+              {t("Current AI provider")}: {display(job.data.progress.provider)}{" "}
+              / {display(job.data.progress.model)}
+            </p>
+          )}
           <details>
             <summary>{t("Processing details")}</summary>
             <div className="processing-stages">
@@ -374,6 +406,9 @@ export default function Workspace() {
                   "No complete analysis is available. Preserved sources remain inspectable.",
                 )}
             </p>
+            {providerFailure(job.data?.error || "") && (
+              <p>{t(providerFailure(job.data?.error || "")!)}</p>
+            )}
             <button
               className="button secondary small"
               disabled={busy}

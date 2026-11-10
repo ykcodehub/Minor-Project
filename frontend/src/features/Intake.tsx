@@ -11,6 +11,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { useProcessingPoll } from "../lib/useProcessingPoll";
 import { api, post } from "../lib/api";
 import { active, type Discovery, type Job } from "../lib/types";
 import { useSession } from "../app/session";
@@ -20,6 +21,7 @@ import {
   Loading,
   Notice,
   PageHeading,
+  ProcessingPaused,
 } from "../components/ui";
 type Created = { source_id: string; job_id: string };
 export default function Intake({
@@ -47,12 +49,15 @@ export default function Intake({
   const [created, setCreated] = useState<Created>();
   const [discoveryId, setDiscoveryId] = useState(params.get("job") || "");
   const [selected, setSelected] = useState<string[]>([]);
+  const polling = useProcessingPoll(discoveryId);
   const configured = user?.providers?.filter((p) => p.configured) || [];
   const discovery = useQuery({
     queryKey: ["discovery", discoveryId],
     queryFn: () => api<Discovery>(`/discovery/${discoveryId}`),
     enabled: !!discoveryId,
     refetchInterval: (query) =>
+      !polling.paused &&
+      !query.state.error &&
       active(query.state.data?.state || query.state.data?.status)
         ? 1800
         : false,
@@ -62,7 +67,9 @@ export default function Intake({
     queryFn: () => api<Job>(`/jobs/${discoveryId}`),
     enabled: !!discoveryId,
     refetchInterval: (query) =>
-      active(query.state.data?.state) ? 1500 : false,
+      !polling.paused && !query.state.error && active(query.state.data?.state)
+        ? 1500
+        : false,
   });
   function selectFile(next?: File) {
     setError(undefined);
@@ -105,19 +112,28 @@ export default function Intake({
   }
   async function analyze(sourceIds: string[]) {
     const me = await ensure();
+    const saved = me.authorized_providers;
     const destination =
-      provider ||
+      (saved != null
+        ? saved.includes(me.preferred_provider || "")
+          ? me.preferred_provider
+          : saved[0]
+        : provider) ||
       me.preferred_provider ||
       me.providers?.find((p) => p.configured)?.name;
     if (
       privacy === "confidential" ||
       !destination ||
-      !me.providers?.some((p) => p.name === destination && p.configured)
+      !(saved != null
+        ? me.providers?.some((p) => saved.includes(p.name) && p.configured)
+        : me.providers?.some((p) => p.name === destination && p.configured))
     ) {
       navigate(`/source/${sourceIds[0]}`);
       return;
     }
-    if (!consent)
+    if (saved != null && !saved.length)
+      throw Error(t("Authorize AI providers in Settings before analysis."));
+    if (saved == null && !consent)
       throw Error(t("Please authorize the selected provider before analysis."));
     setStage(t("QUEUING ANALYSIS"));
     const a = await post<{ analysis_id: string }>("/analyses", {
@@ -125,6 +141,7 @@ export default function Intake({
       provider: destination,
       consent: true,
       privacy_mode: privacy,
+      fallback_providers: saved?.filter((n) => n !== destination) || [],
     });
     navigate(`/analysis/${a.analysis_id}`);
   }
@@ -390,6 +407,15 @@ export default function Intake({
           {discoveryId && (
             <div className="panel discovery-panel">
               <h2>{t("Discovered policy candidates")}</h2>
+              {polling.paused && active(discoveryJob.data?.state) && (
+                <ProcessingPaused
+                  onResume={() => {
+                    polling.resume();
+                    void discovery.refetch();
+                    void discoveryJob.refetch();
+                  }}
+                />
+              )}
               <ErrorNotice error={discovery.error || discoveryJob.error} />
               {discoveryJob.data?.state === "FAILED" && (
                 <ErrorNotice
@@ -511,39 +537,56 @@ export default function Intake({
             </label>
             {privacy === "external" ? (
               <>
-                <label>
-                  {t("AI provider")}
-                  <select
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value)}
-                  >
-                    <option value="">
-                      {configured.length
-                        ? t("Choose configured provider")
-                        : t("No provider configured")}
-                    </option>
-                    {configured.map((p) => (
-                      <option key={p.name} value={p.name}>
-                        {p.name} · {p.model}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <p className="muted small-copy">
-                  {t(
-                    "Your document text will be sent to the selected provider for interpretation and verification. Provider retention and processing terms apply.",
-                  )}
-                </p>
-                <label className="check-label">
-                  <input
-                    type="checkbox"
-                    checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
-                  />
-                  {t(
-                    "I authorize this document to be processed by the selected AI provider.",
-                  )}
-                </label>
+                {user?.authorized_providers != null ? (
+                  <Notice>
+                    {t("Saved provider permissions apply automatically.")}{" "}
+                    {user.authorized_providers.join(", ") ||
+                      t("No providers authorized")}
+                    .{" "}
+                    <Link to="/settings">
+                      {t("Manage provider permissions")}
+                    </Link>
+                  </Notice>
+                ) : (
+                  <>
+                    <label>
+                      {t("AI provider")}
+                      <select
+                        value={provider}
+                        onChange={(e) => setProvider(e.target.value)}
+                      >
+                        <option value="">
+                          {configured.length
+                            ? t("Choose configured provider")
+                            : t("No provider configured")}
+                        </option>
+                        {configured.map((p) => (
+                          <option key={p.name} value={p.name}>
+                            {p.name} · {p.model}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <p className="muted small-copy">
+                      {t(
+                        "Your document text will be sent to the selected provider for interpretation and verification. Provider retention and processing terms apply.",
+                      )}
+                    </p>
+                    <label className="check-label">
+                      <input
+                        type="checkbox"
+                        checked={consent}
+                        onChange={(e) => setConsent(e.target.checked)}
+                      />
+                      {t(
+                        "I authorize this document to be processed by the selected AI provider.",
+                      )}
+                    </label>
+                    <Link to="/settings">
+                      {t("Save provider permissions once in Settings")}
+                    </Link>
+                  </>
+                )}
                 {!configured.length && (
                   <Notice warning>
                     {t(

@@ -14,6 +14,7 @@ export interface User {
   csrf_token: string;
   retention_days: number;
   preferred_provider?: string;
+  authorized_providers?: string[] | null;
   providers: Provider[];
   settings?: Record<string, unknown>;
 }

@@ -110,3 +110,57 @@ Anonymous GET /me401 and login401 for wrong password, unknown account or unverif
 Reusing an OAuth code/state must fail. API callers still receive400 for replay/missing/expired state. Browser HTML failures clear the transient cookie and redirect to a clean sign-in error URL, removing code/state from the address bar; refresh never automatically restarts OAuth. Logs contain only a safe reason code and request ID. A303 followed by later400s alone cannot distinguish expiry, a missing browser cookie and replay; use the new safe reason codes.
 
 No push/deploy/cloud configuration changes were performed. Real Google consent, real mailbox delivery and real iOS/Safari behavior require manual post-deployment acceptance. Tests emulate mobile Chromium and synthetic remote Google signing/exchange boundaries; this is not proof that production is fixed.
+
+
+## College demo: API and worker in one Render Free Web Service
+
+This latest small-demo option runs the existing durable PostgreSQL worker inside the same web-service instance. It does not create a paid Background Worker or require Redis/scheduler infrastructure. It supersedes the separate-worker requirement for this deployment profile only; separate services remain the recommended scaling option.
+
+**Render root directory:** backend. **Exact Start Command:**
+
+```text
+python -m app.serve
+```
+
+If the Render root remains the repository root, use `cd backend && python -m app.serve`. The Dockerfile default now uses app.serve too. Keep the existing dependency build command, production configuration, Neon URL, R2 bucket/prefix/credentials and stable STORAGE_KEY. No new mandatory environment variable is needed. Render supplies PORT; the launcher validates it and uses it for the API. Set the Render health-check path to `/api/v1/ready` so initial worker startup/consumer stalls are visible; `/api/v1/health` remains API liveness only. Do not add --reload or increase Uvicorn workers for this profile.
+
+The supervisor launches exactly one Uvicorn process and one `python -m app.worker` process with inherited environment and unbuffered shared service logs. If either exits unexpectedly, the companion is stopped and the supervisor exits nonzero so the platform can restart the service. Linux SIGTERM/SIGINT requests stop both child process groups, with25 seconds total graceful shutdown and forced termination if needed. Windows development tests terminate owned interpreter trees. No deployment or production settings were changed by preparing this code.
+
+The worker handles one job at a time, polls an idle queue every2 seconds, emits job/stage/failure metadata without document text, and retries transient SQLAlchemy errors with bounded backoff. It preserves database leases, heartbeat tokens, cancellation and existing explicit retry limits. Expired/missing processing leases become FAILED, including their extraction source status. AI work is never silently replayed after interruption; inspect provider usage and explicitly retry from the UI. Queued work remains durable and is claimed after the service wakes. A force-killed active job may remain PROCESSING until its last2-minute lease expires and the next claim pass recovers it.
+
+Combined-service readiness uses a tiny ephemeral process-health file outside document storage; this is not persisted document data. A missing/stale worker heartbeat makes readiness503. Neon readiness still performs SELECT1. Original documents/reports continue to use private encrypted R2 storage in production, without a filesystem fallback. No schema/migration change is needed.
+
+Source/analysis/discovery automatic polling pauses after10 minutes or an API error. The interface offers Refresh status and never labels a merely delayed job FAILED or cancels it automatically. Existing intake waiting already has a finite limit. Retry remains available only through the server's allowed states/attempt budget; the user does not need to re-upload preserved valid originals after a recoverable failure.
+
+### Free-tier limits and demo preparation
+
+Render Free can sleep after idle traffic, restart services, or terminate processes under memory pressure. Background CPU work does not provide an always-on guarantee. This implementation makes interruptions recoverable/visible; it cannot promise uninterrupted processing or an SLA. One API + one serial worker reduces concurrency but still shares the instance memory/CPU. Actual Render memory/load qualification has not been performed.
+
+Use small authored demo files, keep the demo browser active, and confirm /ready plus worker logs before presenting. Optionally set MAX_UPLOAD_BYTES=5242880, MAX_PAGES=40 and MAX_DOCUMENT_TOKENS=20000 to reduce worst-case resource use. These are optional operator limits, not silently changed defaults. Choose a configured provider/model with sufficient permitted quota; rate limits, unavailable credentials, network failures and exhausted free AI quotas still cause clear failures. This profile creates no new paid service; it cannot make third-party AI free or unlimited.
+
+Ensure applied migrations already match the application. Review retention: starting the worker also resumes the existing expiry/deletion-outbox maintenance policy, so expired retained documents may be removed by normal lifecycle rules. Never reset the database to clear a queued demo. Live deployment and real AI/R2 verification require your manual approval/execution; isolated tests do not certify production availability.
+
+
+Existing queued uploads that outlived the browser's original wait may finish extraction as READY without an analysis job: open the preserved source and explicitly select a provider/consent and Analyze. The worker does not invent consent or trigger billable AI solely because a file exists. URL discovery likewise still requires policy selection. If Render uses Docker, remove a conflicting old Uvicorn-only start override or set it to python -m app.serve so the new CMD is honored.
+
+Render's published Free limits also block standard outbound SMTP ports25/465/587. If the existing email transport uses those ports, live mail delivery is a separate hosting limitation; the queue fix does not bypass verification or silently substitute an email service. See https://render.com/docs/free .
+
+## Persistent provider permissions and bounded orchestration
+
+Registered users authorize providers once in Settings, choose a preferred primary, and save. Only checked providers may receive source text for analysis, context/semantic verification, chat and explicit explanation translation. Uncheck all and save to revoke all outbound AI access; revocations are rechecked before every HTTP attempt, including retries. Already transmitted content cannot be recalled. Legacy users with NULL permissions retain explicit per-analysis consent until saving permissions; no existing user is automatically opted in. Guest consent remains scoped to the individual analysis.
+
+The preferred configured authorized provider runs first for extraction. Request size, failed availability and full-source context suitability determine which authorized configured model handles subsequent tasks. The app uses each provider's configured model ID; it does not invent model aliases or substitute arbitrary models. Fallback is bounded to three unique providers and at most three HTTP attempts per provider request. Exhausted unavailable/rate-limited providers are skipped for later tasks in the same operation. Safety blocks and exhausted operation budgets stop orchestration. Real job progress shows provider/model/task/attempt; model-call metadata retains transitions and failures.
+
+HTTP 413 is PROVIDER_CONTEXT_LIMIT, not an outage. Wire-request budgeting includes serialized system/prompt/schema/metadata, estimated tokenizer allowance, output reserve and payload bytes. Source-aware re-chunking preserves original section offsets/pages. Semantic checks prefer models that can review the complete source. When that does not fit, up to 12 source windows can be audited for material exceptions/references before final verification; every returned excerpt is deterministically source-validated. Failed windows, unresolved context, excessive source size or exhausted budgets remain partial/ambiguous. This is model-assisted review, not independent proof or exhaustive legal certification.
+
+Summary includes every supported category, source-linked overview facts, actual retained/verified/review counts and failure reasons. Unsupported/ambiguous findings remain inspectable in Detailed Analysis. Unestablished topics are review gaps, never proof that a provision is absent. No numerical risk score or invented narrative is generated; every document-specific overview statement comes from a supported finding.
+
+An additive migration adds nullable users.authorized_providers. Apply `python -m alembic upgrade head` from backend through your approved migration step **before** starting the new backend/worker. Current head: b730a1410f91. No production migration was executed during development. PostgreSQL SQL was compiled offline and the upgrade/data-preservation/schema check was executed in a temporary SQLite database.
+
+No existing Render/Vercel secret values need to change. Rebuild both frontend and backend after migration. Optional backend variables (never VITE_*):
+
+- `PROVIDER_LIMITS`: JSON object keyed by provider or `provider/model-id`; supported positive integer fields are `request_tokens`, `context_tokens`, `max_output_tokens`, `max_payload_bytes`. Model-specific entries override provider entries. Calibrate to actual plan/model request limits; advertised context windows do not establish free-tier quotas.
+- Defaults: Groq 6,000 estimated total request/output tokens and 2,048 output tokens; Gemini 24,000 total and up to 8,192 output; OpenRouter 12,000 total and 4,096 output. These conservative application budgets are not claims about provider entitlements.
+- `MAX_AI_CALLS_PER_OPERATION=100`, `MAX_AI_TOKENS_PER_OPERATION=500000`: shared bounds across retries, fallback and verification for one analysis/chat/translation operation. Token accounting reserves estimated worst-case output, not a guaranteed dollar charge. Lower bounds to constrain usage. Provider rate limits and paid billing still apply.
+
+Full live Gemini/Groq/OpenRouter availability, quotas and answer quality require a separately authorized real-provider smoke test. Automated integration coverage uses synthetic HTTP; no production records or live AI requests were used.

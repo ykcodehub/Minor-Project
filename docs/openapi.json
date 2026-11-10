@@ -1909,6 +1909,26 @@
     "schemas": {
       "AccountInput": {
         "properties": {
+          "authorized_providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "gemini",
+                    "groq",
+                    "openrouter"
+                  ]
+                },
+                "type": "array",
+                "maxItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorized Providers"
+          },
           "language": {
             "anyOf": [
               {
@@ -1979,11 +1999,18 @@
             "title": "Source Ids"
           },
           "provider": {
-            "type": "string",
-            "enum": [
-              "gemini",
-              "groq",
-              "openrouter"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "gemini",
+                  "groq",
+                  "openrouter"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ],
             "title": "Provider"
           },
@@ -2018,8 +2045,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "source_ids",
-          "provider"
+          "source_ids"
         ],
         "title": "AnalysisInput"
       },
@@ -2595,6 +2621,20 @@
           "preferred_provider": {
             "type": "string",
             "title": "Preferred Provider"
+          },
+          "authorized_providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorized Providers"
           },
           "verified": {
             "type": "boolean",

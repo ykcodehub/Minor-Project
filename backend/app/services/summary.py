@@ -1,10 +1,11 @@
 """Versioned conservative attention rules, not a legal or company-risk score."""
 
 import re
+from collections import Counter
 
 from app.services.verification import verify_quote
 
-RULE_VERSION = "attention-1.0"
+RULE_VERSION = "attention-1.1"
 HIGH = re.compile(
     r"\b(?:unlimited liability|irrevocable (?:license|licence)|waive (?:all |any )?(?:rights?|claims?)|sell your personal (?:data|information))\b",
     re.IGNORECASE,
@@ -12,7 +13,20 @@ HIGH = re.compile(
 
 
 def summarize(findings, sections, coverage, state):
-    groups = {k: [] for k in ("benefits", "obligations", "restrictions", "potential_risks", "exceptions")}
+    groups = {
+        k: []
+        for k in (
+            "benefits",
+            "obligations",
+            "restrictions",
+            "potential_risks",
+            "exceptions",
+            "privacy_consent",
+            "termination",
+            "disputes",
+            "other_clauses",
+        )
+    }
     mapping = {
         "RIGHT": "benefits",
         "PERMISSION": "benefits",
@@ -21,6 +35,12 @@ def summarize(findings, sections, coverage, state):
         "RESTRICTION": "restrictions",
         "RISK_NOTE": "potential_risks",
         "EXCEPTION": "exceptions",
+        "PRIVACY": "privacy_consent",
+        "CONSENT": "privacy_consent",
+        "TERMINATION": "termination",
+        "DISPUTE": "disputes",
+        "CLAUSE": "other_clauses",
+        "OTHER": "other_clauses",
     }
     valid = []
     for f in findings:
@@ -89,6 +109,16 @@ def summarize(findings, sections, coverage, state):
         level, rule = "Not Determinable", "Supported categories do not justify a rule-based assessment."
     return {
         "level": level,
+        "counts": {
+            "retained": len(findings),
+            "verified": len(valid),
+            "excluded": len(findings) - len(valid),
+            **dict(Counter(f.get("support_status", "AMBIGUOUS") for f in findings)),
+        },
+        "processing_state": state,
+        "overview_findings": valid[:3],
+        "unestablished_topics": [key for key, values in groups.items() if not values],
+        "group_totals": {key: len(values) for key, values in groups.items()},
         "rule": rule,
         "rule_version": RULE_VERSION,
         "groups": {k: v[:8] for k, v in groups.items()},

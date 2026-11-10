@@ -1846,5 +1846,145 @@
   "Google sign-in could not be completed. Start a fresh sign-in in this browser. Avoid in-app browsers if cookies are blocked.": {
     "hi": "Google साइन-इन पूरा नहीं हो सका। इसी ब्राउज़र में दोबारा शुरू करें। कुकी ब्लॉक होने पर ऐप के अंदर वाले ब्राउज़र से बचें।",
     "hinglish": "Google sign-in complete nahi hua. Isi browser mein fresh sign-in karein. Cookies blocked hon to in-app browser avoid karein."
+  },
+  "Status checks paused after 10 minutes. The server may still be processing or waking from sleep. Refresh status to check again; no job has been cancelled.": {
+    "hi": "10 मिनट बाद स्थिति जाँच रोक दी गई है। सर्वर अभी प्रक्रिया में या स्लीप से शुरू हो सकता है। फिर से जाँचें; कोई काम रद्द नहीं किया गया है।",
+    "hinglish": "10 minute baad status checks pause hain. Server processing ya sleep se wake ho raha ho sakta hai. Status refresh karein; koi job cancel nahi hui."
+  },
+  "Refresh status": {
+    "hi": "स्थिति फिर जाँचें",
+    "hinglish": "Status refresh karein"
+  },
+  "The provider blocked generation. Repeated retries are unlikely to help. Inspect the source; no verified result was produced.": {
+    "hi": "प्रदाता ने उत्तर बनाना रोक दिया। बार-बार प्रयास से मदद की संभावना कम है। स्रोत जाँचें; कोई सत्यापित परिणाम नहीं बना।",
+    "hinglish": "Provider ne generation block ki. Baar-baar retry se madad ki sambhavna kam hai. Source check karein; verified result nahi bana."
+  },
+  "The provider reached its output limit after bounded recovery. Try analyzing a smaller document; incomplete output was not accepted.": {
+    "hi": "सीमित पुनः प्रयास के बाद प्रदाता की आउटपुट सीमा आ गई। छोटा दस्तावेज़ आज़माएँ; अधूरा उत्तर स्वीकार नहीं किया गया।",
+    "hinglish": "Limited recovery ke baad output limit aa gayi. Chhota document try karein; incomplete output accept nahi hua."
+  },
+  "The selected provider needs a configuration check. Ask the administrator to verify credentials, model access and structured-output support before retrying.": {
+    "hi": "चुने गए प्रदाता की कॉन्फ़िगरेशन जाँच आवश्यक है। पुनः प्रयास से पहले व्यवस्थापक से क्रेडेंशियल, मॉडल पहुँच और संरचित आउटपुट समर्थन जाँचने को कहें।",
+    "hinglish": "Selected provider ki configuration check chahiye. Retry se pehle admin se credentials, model access aur structured-output support check karayein."
+  },
+  "The selected provider is rate-limited. Wait for quota to recover before retrying.": {
+    "hi": "चुने गए प्रदाता की अनुरोध सीमा आ गई है। पुनः प्रयास से पहले कोटा उपलब्ध होने की प्रतीक्षा करें।",
+    "hinglish": "Selected provider rate-limited hai. Quota recover hone par retry karein."
+  },
+  "The selected provider is temporarily unavailable. Retry later using the same authorized provider. Automatic retries are limited.": {
+    "hi": "चुना गया प्रदाता अस्थायी रूप से अनुपलब्ध है। बाद में उसी अधिकृत प्रदाता से प्रयास करें। स्वचालित प्रयास सीमित हैं।",
+    "hinglish": "Selected provider abhi unavailable hai. Baad mein same authorized provider se retry karein. Automatic retries limited hain."
+  },
+  "The provider did not return valid, complete structured output. No verified result was produced. You may retry later.": {
+    "hi": "प्रदाता ने मान्य, पूरा संरचित उत्तर नहीं दिया। कोई सत्यापित परिणाम नहीं बना। आप बाद में प्रयास कर सकते हैं।",
+    "hinglish": "Provider ne valid complete structured output nahi diya. Verified result nahi bana. Baad mein retry kar sakte hain."
+  },
+  "Authorized AI providers": {
+    "hi": "अधिकृत AI प्रदाता",
+    "hinglish": "Authorized AI providers"
+  },
+  "Selected providers may receive document text for analysis, verification and chat. Their processing and retention terms apply. Permissions persist until revoked.": {
+    "hi": "चुने गए प्रदाता विश्लेषण, सत्यापन और चैट के लिए दस्तावेज़ का पाठ प्राप्त कर सकते हैं। उनकी प्रसंस्करण और संग्रहण शर्तें लागू हैं। अनुमति रद्द होने तक बनी रहती है।",
+    "hinglish": "Selected providers ko analysis, verification aur chat ke liye document text mil sakta hai. Unki processing aur retention terms lagu hain. Permission revoke hone tak saved rahegi."
+  },
+  "The preferred provider runs first when authorized. Other checked providers may handle fallback and verification. Uncheck all and save to revoke all AI access.": {
+    "hi": "अनुमति होने पर पसंदीदा प्रदाता पहले चलता है। अन्य चुने गए प्रदाता वैकल्पिक विश्लेषण और सत्यापन कर सकते हैं। सभी AI अनुमतियाँ रद्द करने के लिए सभी विकल्प हटाकर सहेजें।",
+    "hinglish": "Authorized preferred provider pehle chalega. Baaki checked providers fallback aur verification kar sakte hain. Sab AI access revoke karne ke liye sab uncheck karke save karein."
+  },
+  "Saved provider permissions apply automatically.": {
+    "hi": "सहेजी गई प्रदाता अनुमतियाँ स्वतः लागू होती हैं।",
+    "hinglish": "Saved provider permissions automatically lagu hain."
+  },
+  "No providers authorized": {
+    "hi": "कोई प्रदाता अधिकृत नहीं है",
+    "hinglish": "Koi provider authorized nahi hai"
+  },
+  "Manage provider permissions": {
+    "hi": "प्रदाता अनुमतियाँ प्रबंधित करें",
+    "hinglish": "Provider permissions manage karein"
+  },
+  "Save provider permissions once in Settings": {
+    "hi": "सेटिंग्स में प्रदाता अनुमतियाँ एक बार सहेजें",
+    "hinglish": "Settings mein provider permissions ek baar save karein"
+  },
+  "Authorize AI providers in Settings before analysis.": {
+    "hi": "विश्लेषण से पहले सेटिंग्स में AI प्रदाताओं को अनुमति दें।",
+    "hinglish": "Analysis se pehle Settings mein AI providers authorize karein."
+  },
+  "Document overview": {
+    "hi": "दस्तावेज़ का अवलोकन",
+    "hinglish": "Document ka overview"
+  },
+  "verified findings": {
+    "hi": "सत्यापित निष्कर्ष",
+    "hinglish": "verified findings"
+  },
+  "retained candidates": {
+    "hi": "संग्रहीत संभावित निष्कर्ष",
+    "hinglish": "saved candidates"
+  },
+  "Verification or source coverage is incomplete. Review detailed findings before relying on this result.": {
+    "hi": "सत्यापन या स्रोत कवरेज अधूरा है। इस परिणाम पर निर्भर होने से पहले विस्तृत निष्कर्ष देखें।",
+    "hinglish": "Verification ya source coverage incomplete hai. Result par bharosa karne se pehle detailed findings dekhein."
+  },
+  "findings require review and are preserved in Detailed Analysis.": {
+    "hi": "निष्कर्षों की समीक्षा आवश्यक है और वे विस्तृत विश्लेषण में सुरक्षित हैं।",
+    "hinglish": "findings ko review chahiye; ye Detailed Analysis mein saved hain."
+  },
+  "Processing failure reasons": {
+    "hi": "प्रसंस्करण विफलता के कारण",
+    "hinglish": "Processing failure ke reasons"
+  },
+  "Privacy & consent": {
+    "hi": "गोपनीयता और सहमति",
+    "hinglish": "Privacy aur consent"
+  },
+  "Termination & cancellation": {
+    "hi": "समाप्ति और निरस्तीकरण",
+    "hinglish": "Termination aur cancellation"
+  },
+  "Disputes": {
+    "hi": "विवाद",
+    "hinglish": "Disputes"
+  },
+  "Other verified clauses": {
+    "hi": "अन्य सत्यापित शर्तें",
+    "hinglish": "Doosre verified clauses"
+  },
+  "Provisions not established by verified findings": {
+    "hi": "सत्यापित निष्कर्षों से स्थापित नहीं हुए प्रावधान",
+    "hinglish": "Verified findings se establish nahi hue provisions"
+  },
+  "An unlisted or unverified provision is not proven absent. Missing referenced documents and incomplete extraction can limit review.": {
+    "hi": "असूचीबद्ध या असत्यापित प्रावधान का अनुपस्थित होना सिद्ध नहीं है। संदर्भित दस्तावेज़ों की कमी और अधूरा निष्कर्षण समीक्षा को सीमित कर सकते हैं।",
+    "hinglish": "Unlisted ya unverified provision absent prove nahi hota. Missing referenced documents aur incomplete extraction review ko limit kar sakte hain."
+  },
+  "Conclusion": {
+    "hi": "निष्कर्ष",
+    "hinglish": "Nishkarsh"
+  },
+  "Review the cited verified terms together with their qualifications. Unverified findings remain available in Detailed Analysis.": {
+    "hi": "उद्धृत सत्यापित शर्तों की उनके अपवादों सहित समीक्षा करें। असत्यापित निष्कर्ष विस्तृत विश्लेषण में उपलब्ध हैं।",
+    "hinglish": "Cited verified terms ko unki qualifications ke saath review karein. Unverified findings Detailed Analysis mein available hain."
+  },
+  "No interpretation has passed evidence verification. No document risk conclusion can be established.": {
+    "hi": "किसी व्याख्या ने साक्ष्य सत्यापन पूरा नहीं किया है। दस्तावेज़ के जोखिम का निष्कर्ष स्थापित नहीं किया जा सकता।",
+    "hinglish": "Koi interpretation evidence verification pass nahi kar payi. Document risk ka conclusion establish nahi ho sakta."
+  },
+  "AI permission was revoked. Review authorized providers in Settings before retrying.": {
+    "hi": "AI अनुमति रद्द कर दी गई थी। पुनः प्रयास से पहले सेटिंग्स में अधिकृत प्रदाताओं की समीक्षा करें।",
+    "hinglish": "AI permission revoke ho gayi. Retry se pehle Settings mein authorized providers check karein."
+  },
+  "The operation reached its bounded AI budget. Review partial findings before starting another analysis.": {
+    "hi": "प्रक्रिया की निर्धारित AI सीमा पूरी हो गई। नया विश्लेषण शुरू करने से पहले आंशिक निष्कर्ष देखें।",
+    "hinglish": "Operation ka bounded AI budget khatam hua. Naya analysis shuru karne se pehle partial findings dekhein."
+  },
+  "The provider rejected the request size or token budget. Authorized alternatives were considered; inspect coverage and try a smaller source.": {
+    "hi": "प्रदाता ने अनुरोध का आकार या टोकन सीमा अस्वीकार की। अधिकृत विकल्पों पर विचार हुआ; कवरेज जाँचें और छोटा स्रोत आज़माएँ।",
+    "hinglish": "Provider ne request size ya token budget reject kiya. Authorized alternatives consider hue; coverage check karein aur chhota source try karein."
+  },
+  "Current AI provider": {
+    "hi": "वर्तमान AI प्रदाता",
+    "hinglish": "Current AI provider"
   }
 }

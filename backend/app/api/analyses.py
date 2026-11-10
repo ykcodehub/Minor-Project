@@ -39,16 +39,6 @@ from app.services.resources import LIMITATIONS, audit, owned, quota, source_dict
 router = APIRouter()
 
 
-def allowed_providers(names):
-    values = {p["name"]: p for p in settings().providers()}
-    providers = [values[name] for name in dict.fromkeys(names) if name in values]
-    if not providers or any(not p["key"] or not p["model"] for p in providers):
-        raise HTTPException(
-            503, "The selected AI provider is not configured. You can still inspect your source."
-        )
-    return providers
-
-
 def analysis_sources(db, analysis):
     return db.scalars(
         select(Source).join(AnalysisSource).where(AnalysisSource.analysis_id == analysis.id)
@@ -73,6 +63,16 @@ def create_analysis(
     user: CurrentUser,
     idempotency_key: str | None = Header(default=None, max_length=160),
 ):
+    from app.providers.base import ProviderError
+    from app.services.provider_policy import names_for, providers_for
+
+    if user.authorized_providers is not None:
+        names = names_for(user, data.model_dump())
+        if not names:
+            raise HTTPException(403, "Authorize AI providers in Settings before analysis.")
+        data = data.model_copy(
+            update={"provider": names[0], "fallback_providers": names[1:], "consent": True}
+        )
     if idempotency_key:
         previous = db.scalar(
             select(Job).where(Job.owner_id == user.id, Job.idempotency_key == idempotency_key)
@@ -89,7 +89,10 @@ def create_analysis(
         )
     if not user.is_guest and not user.verified_at:
         raise HTTPException(403, "Verify your email before using external AI.")
-    allowed_providers([data.provider, *data.fallback_providers])
+    try:
+        providers_for(user, data.model_dump())
+    except ProviderError as exc:
+        raise HTTPException(503, exc.code) from None
     quota(db, user)
     sources = [owned(db, Source, sid, user) for sid in dict.fromkeys(data.source_ids)]
     if any(source.status not in ("READY", "PARTIAL") for source in sources):
@@ -205,7 +208,12 @@ def ask_question(analysis_id: str, data: QuestionInput, db: Db, user: CurrentUse
     job = db.get(Job, analysis.job_id)
     if job.state not in ("COMPLETED", "PARTIAL_COMPLETION"):
         raise HTTPException(409, "Wait for analysis results before asking questions.")
-    providers = allowed_providers([job.payload["provider"], *job.payload.get("fallback_providers", [])])
+    from app.services.provider_policy import providers_for
+
+    try:
+        providers = providers_for(user, job.payload)
+    except ProviderError as exc:
+        raise HTTPException(403 if exc.code == "PROVIDER_PERMISSION_REVOKED" else 503, exc.code) from None
     sources = analysis_sources(db, analysis)
     sections = [
         s.data for s in db.scalars(select(Section).where(Section.source_id.in_([s.id for s in sources])))
@@ -459,7 +467,13 @@ def retry_job(job_id: str, db: Db, user: CurrentUser):
     if job.attempts >= 3:
         raise HTTPException(409, "Retry limit reached. Create a new analysis after resolving the error.")
     if job.kind == "analysis":
-        allowed_providers([job.payload["provider"], *job.payload.get("fallback_providers", [])])
+        from app.providers.base import ProviderError
+        from app.services.provider_policy import providers_for
+
+        try:
+            providers_for(user, job.payload)
+        except ProviderError as exc:
+            raise HTTPException(403 if exc.code == "PROVIDER_PERMISSION_REVOKED" else 503, exc.code) from None
     job.state, job.stage, job.error = "QUEUED", "RECEIVED", None
     job.lease_token = None
     job.lease_until = None
@@ -489,6 +503,13 @@ def analysis_summary(analysis_id: str, db: Db, user: CurrentUser, language: Lang
         )
     ]
     summary = summarize(findings, sections, analysis.coverage, job.state)
+    summary["failure_codes"] = sorted(
+        {
+            ("PROVIDER_CONTEXT_LIMIT" if c.data.get("http_status") == 413 else c.data.get("outcome"))
+            for c in db.scalars(select(ModelCall).where(ModelCall.job_id == job.id))
+            if c.data.get("outcome") and c.data.get("outcome") != "SUCCESS"
+        }
+    )
     translations = {}
     if language != "en":
         saved = db.scalar(
@@ -548,7 +569,12 @@ def translate_analysis(analysis_id: str, db: Db, user: CurrentUser, language: La
     )
     if saved:
         return {"ready": True}
-    providers = allowed_providers([job.payload["provider"], *job.payload.get("fallback_providers", [])])
+    from app.services.provider_policy import providers_for
+
+    try:
+        providers = providers_for(user, job.payload)
+    except ProviderError as exc:
+        raise HTTPException(403 if exc.code == "PROVIDER_PERMISSION_REVOKED" else 503, exc.code) from None
     try:
         translated, calls = localize(findings, language, providers)
     except ProviderError as exc:

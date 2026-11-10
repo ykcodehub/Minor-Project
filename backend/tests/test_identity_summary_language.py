@@ -353,7 +353,7 @@ def test_translation_cache_persistence_ownership_and_quote_integrity(client, mon
             expires_at=now() + timedelta(days=1),
             status="READY",
         )
-        job = Job(owner_id=user["id"], kind="analysis", payload={"provider": "gemini"}, state="COMPLETED")
+        job = Job(owner_id=user["id"], kind="analysis", payload={"provider": "gemini", "consent": True}, state="COMPLETED")
         db.add_all([source, job])
         db.flush()
         record = Analysis(

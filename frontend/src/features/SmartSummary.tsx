@@ -1,3 +1,4 @@
+import { providerFailure } from "../lib/providerFailure";
 import { useState } from "react";
 import type { Finding, Language } from "../lib/types";
 import { useLanguage } from "../app/language";
@@ -21,6 +22,12 @@ export interface SummaryData {
     rule_version: string;
     disclaimer: string;
     groups: Record<string, Finding[]>;
+    counts?: Record<string, number>;
+    processing_state?: string;
+    overview_findings?: Finding[];
+    unestablished_topics?: string[];
+    group_totals?: Record<string, number>;
+    failure_codes?: string[];
   };
   translations: Record<
     string,
@@ -107,12 +114,28 @@ export default function SmartSummary({
       : tone === "unknown"
         ? CircleHelp
         : AlertTriangle;
+  const groupLabel = (key: string) =>
+    copyText[key as keyof typeof copyText] ||
+    t(
+      (
+        {
+          privacy_consent: "Privacy & consent",
+          termination: "Termination & cancellation",
+          disputes: "Disputes",
+          other_clauses: "Other verified clauses",
+        } as Record<string, string>
+      )[key] || key,
+    );
   const groups = [
     "potential_risks",
     "restrictions",
     "obligations",
     "benefits",
     "exceptions",
+    "privacy_consent",
+    "termination",
+    "disputes",
+    "other_clauses",
   ];
   const icons = {
     benefits: Sparkles,
@@ -120,12 +143,18 @@ export default function SmartSummary({
     restrictions: Ban,
     potential_risks: FileWarning,
     exceptions: Scale,
+    privacy_consent: ShieldCheck,
+    termination: FileWarning,
+    disputes: Scale,
+    other_clauses: ListChecks,
   };
-  const total = new Set(
-    Object.values(data.summary.groups)
-      .flat()
-      .map((f) => f.finding_id),
-  ).size;
+  const total =
+    data.summary.counts?.verified ??
+    new Set(
+      Object.values(data.summary.groups)
+        .flat()
+        .map((f) => f.finding_id),
+    ).size;
   return (
     <section
       className="smart-summary"
@@ -171,76 +200,128 @@ export default function SmartSummary({
           </div>
         </div>
       )}
+      <section className="panel" aria-label={t("Document overview")}>
+        <h3>{t("Document overview")}</h3>
+        <p>
+          {data.summary.counts?.verified ?? total} {t("verified findings")} /{" "}
+          {data.summary.counts?.retained ?? total} {t("retained candidates")}
+        </p>
+        {data.summary.overview_findings?.map((f) => (
+          <p key={f.finding_id}>
+            <button className="text-link" onClick={() => onSelect(f)}>
+              {(data.translations[f.finding_id] || f).statement}
+              <ArrowRight size={14} />
+            </button>
+          </p>
+        ))}
+        {data.summary.processing_state &&
+          data.summary.processing_state !== "COMPLETED" && (
+            <p role="status">
+              {t(
+                "Verification or source coverage is incomplete. Review detailed findings before relying on this result.",
+              )}{" "}
+              {data.summary.processing_state}
+            </p>
+          )}
+        {!!data.summary.counts?.excluded && (
+          <p>
+            {data.summary.counts.excluded}{" "}
+            {t(
+              "findings require review and are preserved in Detailed Analysis.",
+            )}
+          </p>
+        )}
+        {!!data.summary.failure_codes?.length && (
+          <details>
+            <summary>{t("Processing failure reasons")}</summary>
+            <ul>
+              {data.summary.failure_codes.map((code) => (
+                <li key={code}>
+                  {code}
+                  {providerFailure(code)
+                    ? `: ${t(providerFailure(code)!)}`
+                    : ""}
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </section>
       <div className="summary-layout">
         <div className="summary-grid">
-          {groups.map((key) => {
-            const findings = data.summary.groups[key] || [];
-            const Icon = icons[key as keyof typeof icons];
-            return (
-              <section
-                className={`summary-topic topic-${key} ${findings.length === 0 ? "topic-empty" : ""}`}
-                key={key}
-              >
-                <header>
-                  <div className="topic-icon">
-                    <Icon size={19} />
-                  </div>
-                  <h3>{copyText[key as keyof typeof copyText]}</h3>
-                  <span className="topic-count">{findings.length}</span>
-                </header>
-                {!findings.length ? (
-                  <p className="summary-empty">{copyText.empty}</p>
-                ) : (
-                  findings
-                    .slice(0, expanded[key] ? findings.length : 2)
-                    .map((f) => {
-                      const text = data.translations[f.finding_id] || f;
-                      return (
-                        <article className="summary-clause" key={f.finding_id}>
-                          <h4>{text.statement}</h4>
-                          <details className="clause-context">
-                            <summary>{t("Source & context")}</summary>
-                            <p>{text.rationale}</p>
-                            {text.qualifications.length > 0 && (
-                              <p className="summary-exception">
-                                <Info size={14} />
-                                <span>{text.qualifications.join(" ")}</span>
-                              </p>
-                            )}
-                            <blockquote lang="und">
-                              {f.citations[0]?.quote}
-                            </blockquote>
-                          </details>
-                          <button
-                            className="text-link"
-                            onClick={() => onSelect(f)}
+          {groups
+            .filter((key) => (data.summary.groups[key] || []).length > 0)
+            .map((key) => {
+              const findings = data.summary.groups[key] || [];
+              const Icon = icons[key as keyof typeof icons];
+              return (
+                <section
+                  className={`summary-topic topic-${key} ${findings.length === 0 ? "topic-empty" : ""}`}
+                  key={key}
+                >
+                  <header>
+                    <div className="topic-icon">
+                      <Icon size={19} />
+                    </div>
+                    <h3>{groupLabel(key)}</h3>
+                    <span className="topic-count">{findings.length}</span>
+                  </header>
+                  {!findings.length ? (
+                    <p className="summary-empty">{copyText.empty}</p>
+                  ) : (
+                    findings
+                      .slice(0, expanded[key] ? findings.length : 2)
+                      .map((f) => {
+                        const text = data.translations[f.finding_id] || f;
+                        return (
+                          <article
+                            className="summary-clause"
+                            key={f.finding_id}
                           >
-                            {copyText.open}
-                            <span className="citation-locator">
-                              {f.citations[0]?.page
-                                ? `${t("Page")} ${f.citations[0].page}`
-                                : t("Source section")}
-                            </span>
-                            <ArrowRight size={15} />
-                          </button>
-                        </article>
-                      );
-                    })
-                )}
-                {findings.length > 2 && (
-                  <button
-                    className="text-link summary-more"
-                    onClick={() =>
-                      setExpanded({ ...expanded, [key]: !expanded[key] })
-                    }
-                  >
-                    {t(expanded[key] ? "Show less" : "Show more")} (
-                    {findings.length})
-                  </button>
-                )}
-              </section>
-            );
-          })}
+                            <h4>{text.statement}</h4>
+                            <details className="clause-context">
+                              <summary>{t("Source & context")}</summary>
+                              <p>{text.rationale}</p>
+                              {text.qualifications.length > 0 && (
+                                <p className="summary-exception">
+                                  <Info size={14} />
+                                  <span>{text.qualifications.join(" ")}</span>
+                                </p>
+                              )}
+                              <blockquote lang="und">
+                                {f.citations[0]?.quote}
+                              </blockquote>
+                            </details>
+                            <button
+                              className="text-link"
+                              onClick={() => onSelect(f)}
+                            >
+                              {copyText.open}
+                              <span className="citation-locator">
+                                {f.citations[0]?.page
+                                  ? `${t("Page")} ${f.citations[0].page}`
+                                  : t("Source section")}
+                              </span>
+                              <ArrowRight size={15} />
+                            </button>
+                          </article>
+                        );
+                      })
+                  )}
+                  {findings.length > 2 && (
+                    <button
+                      className="text-link summary-more"
+                      onClick={() =>
+                        setExpanded({ ...expanded, [key]: !expanded[key] })
+                      }
+                    >
+                      {t(expanded[key] ? "Show less" : "Show more")} (
+                      {findings.length})
+                    </button>
+                  )}
+                </section>
+              );
+            })}
         </div>
         <aside className="summary-method">
           <details>
@@ -256,6 +337,27 @@ export default function SmartSummary({
             <p>{t(data.summary.rule)}</p>
             <p className="small-copy muted">{data.summary.rule_version}</p>
           </details>
+          <details>
+            <summary>
+              {t("Provisions not established by verified findings")}
+            </summary>
+            <p>
+              {t(
+                "An unlisted or unverified provision is not proven absent. Missing referenced documents and incomplete extraction can limit review.",
+              )}
+            </p>
+            <p>
+              {data.summary.unestablished_topics?.map(groupLabel).join(", ")}
+            </p>
+          </details>
+          <p>
+            <strong>{t("Conclusion")}</strong>:{" "}
+            {t(
+              total
+                ? "Review the cited verified terms together with their qualifications. Unverified findings remain available in Detailed Analysis."
+                : "No interpretation has passed evidence verification. No document risk conclusion can be established.",
+            )}
+          </p>
           <p className="small-copy muted">{t(data.summary.disclaimer)}</p>
         </aside>
       </div>

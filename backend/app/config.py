@@ -66,6 +66,9 @@ class Settings(BaseSettings):
     groq_model: str = ""
     openrouter_api_key: str = Field(default="", repr=False)
     openrouter_model: str = ""
+    provider_limits: dict[str, dict[str, int]] = Field(default_factory=dict)
+    max_ai_calls_per_operation: int = Field(default=100, ge=1, le=300)
+    max_ai_tokens_per_operation: int = Field(default=500000, ge=1000, le=2000000)
     provider_pricing: dict[str, dict[str, float]] = Field(default_factory=dict)
     test_mail_outbox: Path | None = Field(default=None, repr=False)
     smtp_host: str = ""
@@ -78,6 +81,16 @@ class Settings(BaseSettings):
     google_redirect_uri: str = "http://localhost:5173/api/v1/auth/google/callback"
     oauth_proxy_hosts: str = ""
     public_url: str = "http://localhost:5173"
+
+    @field_validator("provider_limits")
+    @classmethod
+    def valid_provider_limits(cls, value):
+        allowed = {"context_tokens", "request_tokens", "max_output_tokens", "max_payload_bytes"}
+        if any(
+            key not in allowed or number <= 0 for limits in value.values() for key, number in limits.items()
+        ):
+            raise ValueError("Provider limits must contain only positive supported budget fields.")
+        return value
 
     @field_validator("database_url", mode="before")
     @classmethod
@@ -168,6 +181,8 @@ class Settings(BaseSettings):
                 "name": n,
                 "key": getattr(self, n + "_api_key"),
                 "model": getattr(self, n + "_model"),
+                **self.provider_limits.get(n, {}),
+                **self.provider_limits.get(n + "/" + getattr(self, n + "_model"), {}),
                 **{
                     k: v
                     for k, v in self.provider_pricing.get(n, {}).items()

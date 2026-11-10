@@ -17,6 +17,7 @@ export default function Settings() {
   const { user, loading, refresh, clear } = useSession();
   const [days, setDays] = useState(30);
   const [provider, setProvider] = useState("gemini");
+  const [authorized, setAuthorized] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>();
   const [saved, setSaved] = useState(false);
@@ -26,6 +27,7 @@ export default function Settings() {
     if (user) {
       setDays(user.retention_days);
       setProvider(user.preferred_provider || "gemini");
+      setAuthorized(user.authorized_providers || []);
     }
   }, [user]);
   async function save(e: React.FormEvent) {
@@ -39,6 +41,7 @@ export default function Settings() {
         body: JSON.stringify({
           retention_days: days,
           preferred_provider: provider,
+          authorized_providers: authorized,
         }),
       });
       await refresh();
@@ -154,11 +157,35 @@ export default function Settings() {
                 ))}
               </select>
             </label>
-            <Notice>
-              {t(
-                "Each analysis still requires consent. Provider fallback is never silently authorized by this preference.",
-              )}
-            </Notice>
+            <fieldset>
+              <legend>{t("Authorized AI providers")}</legend>
+              <p className="muted">
+                {t(
+                  "Selected providers may receive document text for analysis, verification and chat. Their processing and retention terms apply. Permissions persist until revoked.",
+                )}
+              </p>
+              {user.providers.map((p) => (
+                <label className="check-label" key={p.name}>
+                  <input
+                    type="checkbox"
+                    checked={authorized.includes(p.name)}
+                    onChange={(e) =>
+                      setAuthorized(
+                        e.target.checked
+                          ? [...authorized, p.name]
+                          : authorized.filter((n) => n !== p.name),
+                      )
+                    }
+                  />
+                  {p.name} {p.model}
+                </label>
+              ))}
+              <p className="muted">
+                {t(
+                  "The preferred provider runs first when authorized. Other checked providers may handle fallback and verification. Uncheck all and save to revoke all AI access.",
+                )}
+              </p>
+            </fieldset>
             <div className="actions">
               <button className="button" disabled={busy || user.guest}>
                 <Save size={17} />

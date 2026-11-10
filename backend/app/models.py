@@ -28,6 +28,7 @@ class User(Base):
     retention_days: Mapped[int] = mapped_column(Integer, default=30)
     language: Mapped[str] = mapped_column(String(10), default="en", server_default="en")
     preferred_provider: Mapped[str] = mapped_column(String(30), default="gemini")
+    authorized_providers: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
 
 
 class Session(Base):

@@ -1,0 +1,26 @@
+import { describe, expect, it } from "vitest";
+import { providerFailure } from "./providerFailure";
+describe("provider failure guidance", () => {
+  it.each([
+    "CONTEXT_LIMIT",
+    "PERMISSION_REVOKED",
+    "OPERATION_BUDGET_EXCEEDED",
+    "UNAVAILABLE",
+    "TIMEOUT",
+    "CONTENT_BLOCKED",
+    "OUTPUT_LIMIT",
+    "AUTH_FAILED",
+    "MODEL_UNAVAILABLE",
+    "RATE_LIMITED",
+    "INVALID_OUTPUT",
+    "INCOMPLETE_OUTPUT",
+  ])("explains %s", (code) => {
+    expect(
+      providerFailure(
+        `AI provider failed: ANALYSIS_GENERATION_FAILED. PROVIDER_${code}`,
+      ),
+    ).toBeTruthy();
+  });
+  it("does not reinterpret unrelated failures", () =>
+    expect(providerFailure("Extraction failed")).toBeUndefined());
+});

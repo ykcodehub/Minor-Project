@@ -45,6 +45,7 @@ def profile(user, csrf):
         "csrf_token": csrf,
         "retention_days": user.retention_days,
         "preferred_provider": user.preferred_provider,
+        "authorized_providers": user.authorized_providers,
         "verified": user.verified_at is not None,
         "language": user.language,
         "providers": [
@@ -248,6 +249,9 @@ def reset_password(data: TokenRequest, request: Request, db: Db):
 def update_account(data: AccountInput, request: Request, db: Db, user: CurrentUser):
     if user.is_guest:
         raise HTTPException(403, "Create an account to save settings.")
+    if data.authorized_providers is not None:
+        user.authorized_providers = list(dict.fromkeys(data.authorized_providers))
+        audit(db, user.id, "providers.permissions_updated", user.id)
     user.retention_days = data.retention_days
     user.preferred_provider = data.preferred_provider
     if data.language is not None:

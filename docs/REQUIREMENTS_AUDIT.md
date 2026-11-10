@@ -197,3 +197,18 @@ Hardcoding review found no credential-pattern matches in scanned application/mai
 ## Latest authentication / mobile deployment regression
 
 FR-AUTH-01/05..08 remain implemented with isolated signup/login/reset/OIDC acceptance. First-party Vercel proxy configuration is prepared to eliminate the Vercel/Render third-party-cookie dependency; optional None cookies require Secure and keep Origin/CSRF checks. Auth now requires confirmed session restoration before dashboard navigation, redirects anonymous private pages to sign-in, and handles logout/expired sessions without retaining private caches. HTML OAuth errors clear transient cookies and remove callback parameters; API replay remains400. Incorrect trusted HTTPS ingress fails closed instead of redirecting endlessly. Final verification:197 backend tests passed,1 skipped;23 frontend tests passed;15 browser scenarios passed,1 skipped; lint/build passed. Actual production mobile consent/mail/session acceptance remains PARTIAL pending manual deployment and live verification. See VERIFICATION.md/DEPLOYMENT.md; no new database migrations or .env changes.
+
+
+## College-demo combined service execution
+
+OPS-COMBINED-01 is implemented/tested locally: app.serve supervises one API plus one serial worker within a single web service, with child exit/shutdown handling and combined readiness. OPS-RECOVERY-01 marks expired job leases and associated extraction sources FAILED, preserving explicit AI retries. UI-POLL-01 bounds source/analysis/discovery polling with honest status refresh. Actual multi-format extraction, mocked-network/AI verification and evidence persistence pass. Final suite:207 backend tests passed,1 skipped;24 frontend tests passed;16 browser scenarios passed,1 skipped; lint/build passed. Deployment/live provider/R2/Render-resource qualification remains PARTIAL. Separate paid worker is not required for this demo profile; Free-tier availability is not guaranteed. See latest VERIFICATION.md and DEPLOYMENT.md.
+
+## Provider orchestration and Summary amendment
+
+| Requirement | Implementation | Verification / limits |
+|---|---|---|
+| Saved primary and authorized providers | User.authorized_providers, api/auth.py, services/provider_policy.py, Settings.tsx; migration b730a1410f91 | Permission persistence, queued/in-flight revocation and original consent boundaries tested with local fixtures; no live Neon migration |
+| Authorized task orchestration and operation bounds | providers/base.py, services/analysis.py, worker.py | Synthetic Gemini/Groq/OpenRouter, 413 fallback, operation budgets and source-window audits; live provider availability not asserted |
+| Provider-aware context handling | Full wire-payload preflight, exact-source rechunking, bounded window audits | Page/offset preservation and incomplete-audit downgrade regression tests |
+| Grounded complete-category Summary | services/summary.py, /analyses/{id}/summary, SmartSummary.tsx | All category families mapped; partial counts/error reasons/citation navigation covered; no inferred absence claims |
+| Frontend permissions and status | Settings, Intake, SourcePage, Workspace | Browser fixtures cover saved permissions without repeated consent and truthful partial Summary |

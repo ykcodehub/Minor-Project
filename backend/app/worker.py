@@ -81,14 +81,14 @@ def claim():
         return (job.id, token) if changed.rowcount else None
 
 
-def progress(job_id, token, stage, completed=0, total=0):
+def progress(job_id, token, stage, completed=0, total=0, **details):
     with SessionLocal() as db:
         result = db.execute(
             update(Job)
             .where(Job.id == job_id, Job.lease_token == token, Job.state == "PROCESSING")
             .values(
                 stage=stage,
-                progress={"completed": completed, "total": total},
+                progress={"completed": completed, "total": total, **details},
                 lease_until=now() + timedelta(minutes=2),
             )
         )
@@ -274,11 +274,15 @@ def process(job_id, token):
                 for s in db.scalars(select(Source).where(Source.id.in_(source_ids)))
                 for w in s.details.get("coverage", {}).get("warnings", [])
             ]
-        provider_map = {p["name"]: p for p in settings().providers()}
-        providers = [
-            provider_map[n]
-            for n in dict.fromkeys([payload["provider"], *payload.get("fallback_providers", [])])
-        ]
+        from app.services.provider_policy import providers_for
+
+        with SessionLocal() as policy_db:
+            owner = policy_db.get(User, job.owner_id)
+            providers = providers_for(owner, payload, SessionLocal)
+        for provider in providers:
+            provider["on_attempt"] = lambda event: progress(
+                job_id, token, "AI_" + event["role"].upper(), **event
+            )
         result = analyze(
             chunks,
             sections,
@@ -358,8 +362,9 @@ def process(job_id, token):
                                 locator=section.data.get("locator", {}),
                             )
                         )
+            incomplete_verification = any(f.get("verification", {}).get("error_code") or any(c.get("match_status") == "INVALID" for c in f.get("citations", [])) for f in result["findings"])
             job.state = (
-                "PARTIAL_COMPLETION" if failed or unreadable or result.get("warnings") else "COMPLETED"
+                "PARTIAL_COMPLETION" if failed or unreadable or incomplete_verification or result.get("warnings") else "COMPLETED"
             )
             job.stage, job.lease_token = "COMPLETED", None
             job.result = {"analysis_id": analysis.id, "findings_count": len(result["findings"])}
@@ -392,7 +397,14 @@ def run_once():
             else "Processing failed. Check configuration and retry."
         )
         if isinstance(exc, ProviderError):
-            safe = "AI provider failed: " + exc.code + ". No successful verification is claimed."
+            codes = sorted({c.get("outcome", "") for c in exc.model_calls if c.get("outcome") != "SUCCESS"})
+            safe = (
+                "AI provider failed: "
+                + exc.code
+                + ". "
+                + ", ".join(codes)
+                + ". No successful verification is claimed."
+            )
         with SessionLocal() as db:
             job = db.get(Job, job_id)
             if job and job.lease_token == token:

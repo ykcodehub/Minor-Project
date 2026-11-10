@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
+import { useProcessingPoll } from "../lib/useProcessingPoll";
 import { api, post } from "../lib/api";
 import type { Source } from "../lib/types";
 import { useSession } from "../app/session";
@@ -13,12 +14,14 @@ import {
   Loading,
   Notice,
   PageHeading,
+  ProcessingPaused,
   Status,
 } from "../components/ui";
 export default function SourcePage() {
   const { t } = useLanguage();
 
   const { id = "" } = useParams();
+  const polling = useProcessingPoll(id);
   const { user } = useSession();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -30,6 +33,8 @@ export default function SourcePage() {
     queryKey: ["source", id],
     queryFn: () => api<Source>(`/sources/${id}`),
     refetchInterval: (q) =>
+      !polling.paused &&
+      !q.state.error &&
       ["QUEUED", "PROCESSING"].includes(q.state.data?.status || "")
         ? 2000
         : false,
@@ -40,8 +45,11 @@ export default function SourcePage() {
     try {
       const result = await post<{ analysis_id: string }>("/analyses", {
         source_ids: [id],
-        provider,
-        consent,
+        provider:
+          user?.authorized_providers != null
+            ? user.preferred_provider
+            : provider,
+        consent: user?.authorized_providers != null || consent,
         privacy_mode: "external",
       });
       navigate(`/analysis/${result.analysis_id}`);
@@ -73,6 +81,14 @@ export default function SourcePage() {
       >
         {t("Preserved original source, separate from AI interpretation.")}
       </PageHeading>
+      {polling.paused && ["QUEUED", "PROCESSING"].includes(source.status) && (
+        <ProcessingPaused
+          onResume={() => {
+            polling.resume();
+            void query.refetch();
+          }}
+        />
+      )}
       <ErrorNotice error={error} />
       <ErrorNotice error={source.processing_error} />
       {["FAILED", "CANCELLED"].includes(source.job_state || "") &&
@@ -91,6 +107,7 @@ export default function SourcePage() {
                 setError(undefined);
                 try {
                   await post(`/jobs/${source.job_id}/retry`);
+                  polling.resume();
                   await qc.invalidateQueries({ queryKey: ["source", id] });
                 } catch (e) {
                   setError(e);
@@ -140,36 +157,54 @@ export default function SourcePage() {
                 "External interpretation requires a configured provider and your consent.",
               )}
             </p>
-            <label>
-              {t("AI provider")}
-              <select
-                value={provider}
-                onChange={(e) => setProvider(e.target.value)}
-              >
-                <option value="">{t("Choose configured provider")}</option>
-                {user?.providers
-                  ?.filter((p) => p.configured)
-                  .map((p) => (
-                    <option key={p.name} value={p.name}>
-                      {p.name} · {p.model}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <label className="check-label">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-              />
-              {t(
-                "I authorize sending this document text to the selected provider. Its processing and retention terms apply.",
-              )}
-            </label>
+            {user?.authorized_providers != null ? (
+              <Notice>
+                {t("Saved provider permissions apply automatically.")}{" "}
+                {user.authorized_providers.join(", ") ||
+                  t("No providers authorized")}
+                . <Link to="/settings">{t("Manage provider permissions")}</Link>
+              </Notice>
+            ) : (
+              <>
+                <label>
+                  {t("AI provider")}
+                  <select
+                    value={provider}
+                    onChange={(e) => setProvider(e.target.value)}
+                  >
+                    <option value="">{t("Choose configured provider")}</option>
+                    {user?.providers
+                      ?.filter((p) => p.configured)
+                      .map((p) => (
+                        <option key={p.name} value={p.name}>
+                          {p.name} · {p.model}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label className="check-label">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                  />
+                  {t(
+                    "I authorize sending this document text to the selected provider. Its processing and retention terms apply.",
+                  )}
+                </label>
+                <Link to="/settings">
+                  {t("Save provider permissions once in Settings")}
+                </Link>
+              </>
+            )}
             <button
               className="button"
               disabled={
-                !provider || !consent || busy || !source.sections?.length
+                (user?.authorized_providers != null
+                  ? !user.authorized_providers.length
+                  : !provider || !consent) ||
+                busy ||
+                !source.sections?.length
               }
               onClick={() => void analyze()}
             >

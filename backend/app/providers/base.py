@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import json
+import logging
 import random
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from typing import Any
 
 import httpx
@@ -54,8 +59,14 @@ class ModelProvider:
     name: str
     model: str
     key: str = field(repr=False)
+    on_attempt: Callable[[dict], None] | None = field(default=None, repr=False)
+    authorize: Callable[[], bool] | None = field(default=None, repr=False)
+    budget: dict | None = field(default=None, repr=False)
+    request_tokens: int = 24000
+    max_output_tokens: int = 8192
+    max_payload_bytes: int = 256000
     timeout: float = 40.0
-    retries: int = 1
+    retries: int = 2
     input_price_per_million: float | None = None
     output_price_per_million: float | None = None
 
@@ -124,6 +135,7 @@ class ModelProvider:
             raise ProviderError("PROVIDER_NOT_CONFIGURED")
         if len(system) + len(prompt) > 180000:
             raise ProviderError("PROVIDER_INPUT_BUDGET_EXCEEDED")
+        output_budget = min(4096, self.max_output_tokens)
         for attempt in range(min(max(self.retries, 0), 2) + 1):
             started = time.monotonic()
             call = {
@@ -131,33 +143,106 @@ class ModelProvider:
                 "model": self.model,
                 "role": role,
                 "attempt": attempt + 1,
-                "prompt_version": "evidence-v2.1.0",
+                "prompt_version": "evidence-v2.2.0",
                 "token_in": None,
                 "token_out": None,
                 "estimated_cost": None,
             }
             retryable = False
+            retry_after = 0.0
             try:
                 url, headers, payload = self.request(system, prompt, schema_type.model_json_schema())
+                if self.on_attempt is not None:
+                    self.on_attempt(
+                        {"provider": self.name, "model": self.model, "role": role, "attempt": attempt + 1}
+                    )
+                if self.authorize is not None and not self.authorize():
+                    raise ProviderError("PROVIDER_PERMISSION_REVOKED")
+                if self.name == "gemini":
+                    payload["generationConfig"]["maxOutputTokens"] = output_budget
+                encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+                output_tokens = payload.get(
+                    "max_tokens", payload.get("generationConfig", {}).get("maxOutputTokens", 0)
+                )
+                estimated = int(self.count_tokens(encoded) * 1.2) + output_tokens + 256
+                call.update(estimated_request_tokens=estimated, payload_bytes=len(encoded.encode("utf-8")))
+                if estimated > self.request_tokens or call["payload_bytes"] > self.max_payload_bytes:
+                    raise ProviderError("PROVIDER_CONTEXT_LIMIT")
+                if self.budget is not None:
+                    if (
+                        self.budget["calls"] >= self.budget["max_calls"]
+                        or self.budget["tokens"] + estimated > self.budget["max_tokens"]
+                    ):
+                        raise ProviderError("PROVIDER_OPERATION_BUDGET_EXCEEDED")
+                    self.budget["calls"] += 1
+                    self.budget["tokens"] += estimated
                 # Fixed provider URLs only. Ignore ambient proxies and never follow redirects.
                 with httpx.Client(timeout=self.timeout, follow_redirects=False, trust_env=False) as client:
                     response = client.post(url, headers=headers, json=payload)
+                call["http_status"] = response.status_code
                 if response.status_code != 200:
+                    header = response.headers.get("Retry-After", "")
+                    try:
+                        retry_after = max(0.0, float(header))
+                    except ValueError:
+                        try:
+                            retry_after = max(
+                                0.0,
+                                (parsedate_to_datetime(header) - datetime.now(UTC)).total_seconds(),
+                            )
+                        except (ValueError, TypeError, OverflowError):
+                            retry_after = 0.0
+                    # Never retry earlier than requested; long waits require an explicit later retry.
+                    if not 0 <= retry_after <= 30:
+                        retry_after = 31.0
                     retryable = response.status_code in {408, 429, 500, 502, 503, 504}
-                    call["http_status"] = response.status_code
+                    call["retry_after_over_budget"] = retry_after > 30
                     code = {
                         400: "PROVIDER_REQUEST_REJECTED",
                         401: "PROVIDER_AUTH_FAILED",
                         403: "PROVIDER_AUTH_FAILED",
                         404: "PROVIDER_MODEL_UNAVAILABLE",
+                        413: "PROVIDER_CONTEXT_LIMIT",
                         422: "PROVIDER_REQUEST_REJECTED",
                         429: "PROVIDER_RATE_LIMITED",
                     }.get(response.status_code, "PROVIDER_UNAVAILABLE")
                     raise ProviderError(code)
                 raw = response.json()
+                if not isinstance(raw, dict):
+                    raise TypeError("Invalid response object")
                 call.update(
                     requested_model=self.model, response_model=raw.get("model", raw.get("modelVersion"))
                 )
+                if self.name == "gemini":
+                    candidates = raw.get("candidates") or []
+                    reason = candidates[0].get("finishReason", "UNKNOWN") if candidates else "UNKNOWN"
+                    allowed = {
+                        "STOP",
+                        "MAX_TOKENS",
+                        "SAFETY",
+                        "RECITATION",
+                        "LANGUAGE",
+                        "OTHER",
+                        "BLOCKLIST",
+                        "PROHIBITED_CONTENT",
+                        "SPII",
+                        "MALFORMED_FUNCTION_CALL",
+                        "UNEXPECTED_TOOL_CALL",
+                        "NO_IMAGE",
+                    }
+                    call["finish_reason"] = reason if reason in allowed else "UNKNOWN"
+                    if raw.get("promptFeedback", {}).get("blockReason") or reason in {
+                        "SAFETY",
+                        "RECITATION",
+                        "BLOCKLIST",
+                        "PROHIBITED_CONTENT",
+                        "SPII",
+                    }:
+                        raise ProviderError("PROVIDER_CONTENT_BLOCKED")
+                    if reason == "MAX_TOKENS":
+                        retryable = output_budget < self.max_output_tokens
+                        output_budget = min(8192, self.max_output_tokens)
+                        raise ProviderError("PROVIDER_OUTPUT_LIMIT")
                 content, token_in, token_out = self.unpack(raw)
                 call.update(token_in=token_in, token_out=token_out)
                 if (
@@ -178,15 +263,34 @@ class ModelProvider:
                 code, retryable = "PROVIDER_TIMEOUT", True
             except httpx.HTTPError:
                 code, retryable = "PROVIDER_UNAVAILABLE", True
-            except (ValidationError, ValueError, KeyError, IndexError, TypeError):
+            except (ValidationError, ValueError, KeyError, IndexError, TypeError, AttributeError):
                 code, retryable = "PROVIDER_INVALID_OUTPUT", True
             except ProviderError as exc:
                 code = exc.code
             call.update(outcome=code, latency_ms=round((time.monotonic() - started) * 1000))
             calls.append(call)
+            # Strict whitelist: no raw response, request, exception text, credentials or source text.
+            diagnostic = {
+                k: call[k]
+                for k in (
+                    "provider",
+                    "model",
+                    "role",
+                    "attempt",
+                    "http_status",
+                    "finish_reason",
+                    "outcome",
+                    "latency_ms",
+                )
+                if k in call
+            }
+            diagnostic["model"] = re.sub(r"[^A-Za-z0-9/._:-]", "", self.model)[:120]
+            logging.getLogger("veriora.provider").warning("provider_failure %s", json.dumps(diagnostic))
+            if retry_after > 30:
+                raise ProviderError(code, calls=calls) from None
             if not retryable or attempt >= min(max(self.retries, 0), 2):
                 raise ProviderError(code, calls=calls) from None
-            time.sleep(min(2**attempt, 4) + random.uniform(0, 0.2))
+            time.sleep(max(retry_after, min(2 ** (attempt + 1), 8) + random.uniform(0, 1)))
         raise ProviderError("PROVIDER_UNAVAILABLE", calls=calls)
 
     def unpack(self, raw: dict) -> tuple[str, int | None, int | None]:
@@ -207,7 +311,7 @@ class CompatibleProvider(ModelProvider):
             "model": self.model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
             "temperature": 0,
-            "max_tokens": 4096,
+            "max_tokens": min(4096, self.max_output_tokens),
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {"name": "veriora_output", "strict": True, "schema": schema},
@@ -231,7 +335,7 @@ class GeminiProvider(ModelProvider):
                 "contents": [{"role": "user", "parts": [{"text": prompt}]}],
                 "generationConfig": {
                     "temperature": 0,
-                    "maxOutputTokens": 4096,
+                    "maxOutputTokens": min(4096, self.max_output_tokens),
                     "responseMimeType": "application/json",
                     "responseJsonSchema": gemini_schema(schema),
                 },
@@ -258,8 +362,28 @@ def configured_provider(config: dict) -> ModelProvider:
         name=name,
         model=config.get("model", ""),
         key=config.get("key", ""),
+        on_attempt=config.get("on_attempt"),
+        authorize=config.get("authorize"),
+        budget=config.get("budget"),
+        request_tokens=max(
+            1024,
+            min(
+                int(config.get("request_tokens", {"groq": 6000, "gemini": 24000, "openrouter": 12000}[name])),
+                int(config.get("context_tokens", 24000)),
+            ),
+        ),
+        max_output_tokens=max(
+            256,
+            min(
+                int(
+                    config.get("max_output_tokens", {"groq": 2048, "gemini": 8192, "openrouter": 4096}[name])
+                ),
+                8192,
+            ),
+        ),
+        max_payload_bytes=max(4096, min(int(config.get("max_payload_bytes", 256000)), 1000000)),
         timeout=min(float(config.get("timeout", 40)), 60),
-        retries=int(config.get("retries", 1)),
+        retries=int(config.get("retries", 2)),
         input_price_per_million=config.get("input_price_per_million"),
         output_price_per_million=config.get("output_price_per_million"),
     )
@@ -273,7 +397,21 @@ def generate_with_fallback(
         raise ProviderError("PROVIDER_NOT_CONFIGURED")
     calls: list[dict] = []
     last_code = "PROVIDER_NOT_CONFIGURED"
-    for index, config in enumerate(configs[:3]):
+    for index, config in enumerate(list({c.get("name"): c for c in reversed(configs[:3])}.values())[::-1]):
+        budget = config.get("budget")
+        if budget is not None and config.get("name") in budget.get("unavailable", set()):
+            last_code = "PROVIDER_UNAVAILABLE"
+            calls.append(
+                {
+                    "provider": config["name"],
+                    "model": config.get("model"),
+                    "role": role,
+                    "attempt": 0,
+                    "outcome": "PROVIDER_SKIPPED_UNAVAILABLE",
+                    "fallback": index > 0,
+                }
+            )
+            continue
         try:
             value, new_calls = configured_provider(config).generate(system, prompt, schema_type, role)
             for call in new_calls:
@@ -282,7 +420,33 @@ def generate_with_fallback(
             return value, calls
         except ProviderError as exc:
             last_code = exc.code
+            if budget is not None and last_code in {
+                "PROVIDER_UNAVAILABLE",
+                "PROVIDER_RATE_LIMITED",
+                "PROVIDER_TIMEOUT",
+                "PROVIDER_AUTH_FAILED",
+                "PROVIDER_MODEL_UNAVAILABLE",
+            }:
+                budget.setdefault("unavailable", set()).add(config.get("name"))
             for call in exc.model_calls:
                 call["fallback"] = index > 0
             calls.extend(exc.model_calls)
+            logging.getLogger("veriora.provider").info(
+                "provider_transition role=%s failed_provider=%s code=%s remaining_authorized=%s",
+                role,
+                config.get("name"),
+                last_code,
+                max(0, len(configs[:3]) - index - 1),
+            )
+            if last_code in {"PROVIDER_CONTENT_BLOCKED", "PROVIDER_OPERATION_BUDGET_EXCEEDED"}:
+                break
     raise ProviderError(last_code, calls=calls)
+
+
+def input_budget(config: dict, schema_type: type[BaseModel]) -> int:
+    """Conservative text allowance after complete wire-schema/output overhead."""
+    provider = configured_provider(config)
+    _, _, payload = provider.request("", "", schema_type.model_json_schema())
+    output = payload.get("max_tokens", payload.get("generationConfig", {}).get("maxOutputTokens", 4096))
+    overhead = provider.count_tokens(json.dumps(payload, ensure_ascii=False))
+    return max(64, int((provider.request_tokens - output - 512) / 1.2) - overhead)

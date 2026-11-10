@@ -47,7 +47,7 @@ class URLInput(DiscoveryInput):
 
 class AnalysisInput(Strict):
     source_ids: list[str] = Field(min_length=1, max_length=10)
-    provider: Literal["gemini", "groq", "openrouter"]
+    provider: Literal["gemini", "groq", "openrouter"] | None = None
     consent: bool = False
     privacy_mode: Literal["external", "confidential"] = "confidential"
     fallback_providers: list[Literal["gemini", "groq", "openrouter"]] = Field(
@@ -61,6 +61,9 @@ class QuestionInput(Strict):
 
 
 class AccountInput(Strict):
+    authorized_providers: list[Literal["gemini", "groq", "openrouter"]] | None = Field(
+        default=None, max_length=3
+    )
     language: Language | None = None
     retention_days: int = Field(ge=1, le=30)
     preferred_provider: Literal["gemini", "groq", "openrouter"]
@@ -155,6 +158,7 @@ class ProfileResponse(BaseModel):
     csrf_token: str
     retention_days: int
     preferred_provider: str
+    authorized_providers: list[str] | None = None
     verified: bool
     providers: list[ProviderResponse]
 

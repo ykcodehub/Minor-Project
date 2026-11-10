@@ -143,3 +143,19 @@ export function ConfirmDialog({
     </dialog>
   );
 }
+
+export function ProcessingPaused({ onResume }: { onResume: () => void }) {
+  const { t } = useLanguage();
+  return (
+    <Notice warning>
+      <span>
+        {t(
+          "Status checks paused after 10 minutes. The server may still be processing or waking from sleep. Refresh status to check again; no job has been cancelled.",
+        )}
+      </span>
+      <button className="button secondary small" onClick={onResume}>
+        {t("Refresh status")}
+      </button>
+    </Notice>
+  );
+}

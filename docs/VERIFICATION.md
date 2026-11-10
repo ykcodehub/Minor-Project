@@ -297,3 +297,70 @@ Desktop and Pixel7-emulated Chromium navigate to a synthetic Google boundary usi
 Email-first signup, verification link/password completion, login, recovery/reset, persistent preferences and account deletion run against real isolated application endpoints and captured synthetic mail. These tests do not prove actual SMTP inbox delivery. The None/Secure session test checks HTTPS cookie flags, protected access, rejection over HTTP, CSRF enforcement, logout revocation and anonymous401; it does not claim mobile browsers permit third-party cookies. Frontend regressions also cover blocked session restoration, anonymous route rejection, expired-session logout and invalid-password401.
 
 The skipped browser scenario requires an explicitly authorized verified synthetic account and live AI opt-in; it was not run. Real production Google sign-in, real SMTP inbox delivery and actual iOS/Safari acceptance remain unverified until manual deployment and user consent. The latest exact settings are in docs/DEPLOYMENT.md under Authentication deployment fix. No claim is made that production is fixed.
+
+
+## Single Render Free service: supervised API + worker (latest)
+
+Implemented app/serve.py with one Uvicorn process and one python -m app.worker consumer. It validates existing config, uses PORT, inherits Neon/R2/provider/security environment, supervises exits, forwards Linux process-group shutdown and bounds graceful exit. Windows development tests terminate only owned child trees. Docker defaults to this launcher. No paid worker, Redis, scheduler, new runtime dependency or schema migration was introduced. Actual Render deployment was not changed.
+
+app/runtime.py provides tiny ephemeral process health outside document storage. Combined /ready requires a recent worker heartbeat plus database SELECT1; liveness remains separate. Worker logging records opaque job IDs/stages/error classes, never document bodies or credentials. Routine outbound HTTP URL logging is suppressed. The serial worker polls every2s, retries database errors with1..30s bounded backoff and preserves lease tokens, heartbeat/cancellation and explicit retry caps.
+
+Recovery now marks expired or missing PROCESSING leases FAILED and also fixes their extraction Source.status, stage and lease metadata. Old lease holders cannot persist results. Interrupted AI is never automatically replayed/rebilled; explicit user retry is required. Queued jobs survive in PostgreSQL and resume after wake; an active force-killed job can remain processing until its last2-minute lease expires. Unknown stored objects are never swept. Starting the worker resumes existing normal retention/deletion-outbox maintenance; no production worker or cleanup was run by these tests.
+
+Source, analysis and URL-discovery views now pause automatic polling after10 minutes, stop polling on errors, explain that a server may still be processing/waking, and offer Refresh status. They do not invent failed/completed state or silently cancel a job. Failed-source retry resets polling. Intake already used bounded waits. Configured upload-limit error text no longer incorrectly hardcodes20MB when operators choose smaller demo limits.
+
+### Actual final checks
+
+- Backend full regression: python -m pytest tests -q => **207 passed,1 skipped**,95.46s. Native PostgreSQL write opt-in remains disabled. Ruff app/tests passed.
+- Focused new supervisor/format checks => **10 passed**,12.58s.
+- Frontend ESLint passed; Vitest => **24 passed**,9 files; TypeScript/Vite production build passed.
+- Isolated browser E2E => **16 passed,1 skipped**,54.9s, including real clock-driven10-minute poll pause/resume plus prior authentication/mobile/workspace regressions. Live account/AI scenario remains skipped.
+- Real local supervisor smoke starts actual Uvicorn and app.worker children against disposable SQLite/encrypted objects. Combined readiness becomes200, an HTTP-created text upload is automatically consumed, source becomes READY and job COMPLETED with attempts1. Both children are stopped and the port is confirmed closed.
+- Process tests cover unexpected worker exit stopping the API, orderly supervisor stop, missing/stale/corrupt heartbeat, stale extraction/source recovery and old-token rejection with explicit retry preserved.
+- PDF and DOCX are generated with actual PyMuPDF/python-docx; TXT/HTML and pasted text are authored fixtures. Actual extraction/chunking/DB transitions execute, followed by a synthetic AI boundary producing exact citations; findings and relational evidence persistence are checked. URL discovery/capture uses synthetic public-network responses, then the same real worker/analysis persistence path. No live AI charge or external website capture was initiated.
+
+Modified/new files: app/serve.py, runtime.py, worker.py, main.py, api/documents.py, backend/Dockerfile; tests/test_combined_service.py and test_processing_formats.py; frontend lib/useProcessingPoll.ts + test, shared ui.tsx, SourcePage/Workspace/Intake, language catalogs, e2e/processing-status.spec.ts; README/HOW_TO_RUN/DEPLOYMENT and requirement audit. .env, production data and existing migrations were not edited. No push/deploy was performed.
+
+### Limits and manual demo acceptance
+
+Render Start Command from backend root: **python -m app.serve**. No new mandatory env variables; keep current production values. Set health path /api/v1/ready. The launcher sets its own internal heartbeat/unbuffered markers. Optional small-demo upload/page/token caps are documented in DEPLOYMENT.md.
+
+This removes the missing queue consumer, not Render Free's sleep/restart/memory/CPU limits or third-party quotas. No promise of uninterrupted execution, live provider accuracy/availability, real R2 credentials or Render memory qualification is made. The combined supervisor and persistence paths were tested locally; actual Linux/Render lifecycle and real AI/Neon/R2 demo acceptance remain to be checked after manual deployment. Source uploads that timed out before submission of an AI job may need an explicit Analyze action after extraction completes, preserving provider consent. Render Free's SMTP-port restrictions remain a separate email limitation.
+
+Final follow-up after configured-limit wording/poll-error guard:2 targeted upload validation tests passed (63 deselected), final backend lint passed, final frontend lint/TypeScript/Vite build passed. Generated incremental TypeScript metadata was removed after build; meaningful tests remain.
+
+## Gemini reliability regression ? 2026-11-10
+
+Implementation: provider failure logs whitelist provider/model/role/attempt/HTTP status/finish reason/outcome/latency. The existing ModelCall JSON records persist these diagnostics; no migration is needed. Worker job errors retain granular outcome codes alongside ANALYSIS_GENERATION_FAILED. The analysis failure panel provides English/Hindi/Hinglish guidance and preserves the explicit retry endpoint and its original provider consent.
+
+Requests use at most three attempts, timeout 40 seconds per attempt, exponential backoff with jitter, and Retry-After seconds or HTTP dates. Retry-After over 30 seconds terminates the request rather than retrying early or occupying the worker indefinitely. Gemini MAX_TOKENS permits one 8,192-token recovery attempt, subject to the shared attempt cap; safety blocks are not retried. Partial/invalid JSON never bypasses Pydantic or source verification. This can increase token usage on truncation; it cannot guarantee upstream availability.
+
+Synthetic tests: backend/tests/test_provider_reliability.py covers 503 recovery, Retry-After, MAX_TOKENS recovery/exhaustion, safety/prompt blocking, timeout/invalid-output exhaustion, diagnostic redaction and worker/API persistence plus retry consent. Frontend providerFailure.test.ts covers failure guidance. No production jobs or live AI requests were used. Execution results follow after verification.
+
+Execution results: full isolated backend suite `ENVIRONMENT=test DATABASE_URL=sqlite:// python -m pytest tests -q --tb=short` (from backend): **217 passed, 1 skipped**. Provider-focused suite: **10 passed**. Changed backend files pass Ruff. Frontend `npm test`: **34 passed**; `npm run lint` and `npm run build` (TypeScript plus Vite) passed. `backend/.venv/Scripts/python.exe scripts/test_e2e.py`: **16 passed, 1 skipped**, using isolated local data; live PostgreSQL/AI browser scenario deliberately skipped. The first backend collection lacked the existing boto3 dependency; installing it in the local virtual environment resolved collection. An initial new-test transport fixture defect was corrected before the successful full run. Existing provider-consent and evidence-integrity regression tests remain passing. Production availability and real Gemini finish reasons after deployment have not been verified. No credentials, production records or migrations were modified; no push or deployment occurred.
+
+## Persistent provider permissions, orchestration and Summary ? 2026-11-10
+
+Implemented provider permissions in PostgreSQL user JSON plus the existing preferred-provider field. NULL retains legacy per-analysis consent; [] revokes all providers. Settings writes are session/CSRF protected and audited. API analysis, worker requests, retries, chat and explanation translations share provider_policy.py; every HTTP attempt rechecks current permissions. Registered users save permissions once; guest consent remains scoped to a job. Revocation prevents subsequent sends, not recall of previously transmitted content.
+
+Provider/model budgets include full serialized payload/schema/system/context, a conservative tokenizer margin, output reserve and UTF-8 payload bytes. HTTP 413 is PROVIDER_CONTEXT_LIMIT and is not retried with the identical payload. Candidate passages are re-chunked with exact original offsets/pages. Semantic review can choose another authorized model with sufficient full-source context. Otherwise a bounded source-wide window audit validates returned source excerpts before final semantic review; failed/unresolved/over-budget context remains ambiguous or partial. MAX_AI_CALLS_PER_OPERATION and MAX_AI_TOKENS_PER_OPERATION bound retries, fallback and supporting tasks. This is not a guaranteed dollar-price or provider-quota entitlement. Source-wide audits are limited to 12 windows per candidate. Large sources and unavailable providers can still yield partial results. Prompt version evidence-v2.2.0; summary rule version attention-1.1.
+
+Summary includes all supported categories, original-quote navigation, supported overview statements, retained/verified/excluded counts and real failure codes. Historical saved HTTP 413 calls are classified correctly at read time without rewriting their records. Unsupported candidates remain available in Detailed Analysis. Unestablished provisions are review gaps, not claims of absence. Summary GET does not call AI.
+
+Final executed checks:
+
+| Command / scope | Actual result |
+|---|---|
+| backend: ENVIRONMENT=test DATABASE_URL=sqlite:// python -m pytest tests -q --tb=short | 233 passed, 1 skipped (PostgreSQL integration opt-in not enabled), 129.57s |
+| backend/tests/test_provider_orchestration.py focused suite | 16 passed; includes the actual HTTP API/worker/persistence/Summary path with synthetic provider HTTP |
+| frontend: npm test | 40 passed across 12 files |
+| frontend: npm run lint | passed |
+| frontend: npm run build | TypeScript and Vite production build passed |
+| Ruff: app, new orchestration/reliability tests and new migration | passed |
+| backend/.venv/Scripts/python.exe scripts/test_e2e.py | 18 passed, 1 skipped; live PostgreSQL/AI browser scenario deliberately not enabled |
+| Isolated Alembic upgrade from 0f439d83280f to head, preserving a synthetic existing user | passed; NULL permissions; schema matches models |
+| PostgreSQL alembic upgrade 0f439d83280f:head --sql using a placeholder offline URL | compiled additive ALTER TABLE successfully; no database connection |
+
+Intermediate failures were fixed: the API schema snapshot was refreshed for the additive fields, manually constructed legacy test jobs now include their explicit consent, the existing full-source prompt field was preserved, and Summary text assertions were updated for actionable failure guidance. Original multilingual quotation/navigation tests are preserved alongside new tests. No migration or data changes were applied to Neon, no .env values were modified, no real provider calls were made, and nothing was pushed/deployed. Production provider/model availability, actual plan limits, paid billing and linguistic/model quality require an authorized live smoke test.
+
+Deployment: apply python -m alembic upgrade head from backend through the approved migration workflow before starting the new API/worker; then rebuild backend/frontend. Existing secrets and start commands remain valid. Optional PROVIDER_LIMITS, MAX_AI_CALLS_PER_OPERATION and MAX_AI_TOKENS_PER_OPERATION are documented in README and backend/.env.example; no new Vercel secrets are needed.
