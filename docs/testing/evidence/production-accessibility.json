@@ -1,0 +1,23 @@
+{
+  "violations": [],
+  "passes": [
+    "aria-allowed-attr",
+    "aria-conditional-attr",
+    "aria-hidden-body",
+    "aria-hidden-focus",
+    "aria-prohibited-attr",
+    "aria-valid-attr-value",
+    "aria-valid-attr",
+    "button-name",
+    "bypass",
+    "color-contrast",
+    "document-title",
+    "html-has-lang",
+    "html-lang-valid",
+    "link-name",
+    "meta-viewport",
+    "nested-interactive",
+    "summary-name",
+    "target-size"
+  ]
+}

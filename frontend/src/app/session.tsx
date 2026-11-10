@@ -5,12 +5,14 @@ import type { User } from "../lib/types";
 const Session = createContext<{
   user: User | null | undefined;
   loading: boolean;
-  refresh: () => Promise<unknown>;
+  refresh: () => Promise<User | null>;
+  clear: () => Promise<void>;
   ensure: () => Promise<User>;
 }>({
   user: null,
   loading: false,
-  refresh: async () => {},
+  refresh: async () => null,
+  clear: async () => {},
   ensure: async () => {
     throw Error("Session unavailable");
   },
@@ -50,6 +52,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     qc.setQueryData(["me"], next);
     return next;
   }
+  async function clear() {
+    await qc.cancelQueries();
+    qc.removeQueries({ predicate: (q) => q.queryKey[0] !== "me" });
+    setCsrf("");
+    qc.setQueryData(["me"], null);
+  }
   async function ensure() {
     const current = qc.getQueryData<User | null>(["me"]);
     if (current) return current;
@@ -66,6 +74,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         user: query.data,
         loading: query.isPending,
         refresh,
+        clear,
         ensure,
       }}
     >

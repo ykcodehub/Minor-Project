@@ -53,11 +53,21 @@ def create_session(db, user, response: Response):
         token,
         httponly=True,
         secure=settings().secure_cookies,
-        samesite="lax",
+        samesite=settings().session_cookie_samesite,
         max_age=int(duration.total_seconds()),
         path="/",
     )
     return record
+
+
+def clear_session(response):
+    response.delete_cookie(
+        "veriora_session",
+        path="/",
+        httponly=True,
+        secure=settings().secure_cookies,
+        samesite=settings().session_cookie_samesite,
+    )
 
 
 def password_valid(encoded, password):

@@ -1838,5 +1838,13 @@
   "Ask about this document": {
     "hi": "इस दस्तावेज़ के बारे में पूछें",
     "hinglish": "Is document ke baare mein poochhein"
+  },
+  "Your session could not be restored. Check browser cookie settings or use the configured application URL.": {
+    "hi": "आपका सत्र बहाल नहीं हो सका। ब्राउज़र की कुकी सेटिंग जाँचें या निर्धारित ऐप URL खोलें।",
+    "hinglish": "Session restore nahi hua. Browser cookie settings check karein ya configured app URL use karein."
+  },
+  "Google sign-in could not be completed. Start a fresh sign-in in this browser. Avoid in-app browsers if cookies are blocked.": {
+    "hi": "Google साइन-इन पूरा नहीं हो सका। इसी ब्राउज़र में दोबारा शुरू करें। कुकी ब्लॉक होने पर ऐप के अंदर वाले ब्राउज़र से बचें।",
+    "hinglish": "Google sign-in complete nahi hua. Isi browser mein fresh sign-in karein. Cookies blocked hon to in-app browser avoid karein."
   }
 }

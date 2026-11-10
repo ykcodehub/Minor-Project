@@ -22,6 +22,7 @@ function Controls() {
       <span>{session.user?.id || "signed out"}</span>
       <button onClick={() => void session.ensure()}>Ensure guest</button>
       <button onClick={() => void session.refresh()}>Refresh session</button>
+      <button onClick={() => void session.clear()}>Clear session</button>
     </>
   );
 }
@@ -59,4 +60,24 @@ it("clears previous private data before switching the active account", async () 
   fireEvent.click(screen.getByText("Refresh session"));
   await screen.findByText("second-user");
   expect(client.getQueryData(["sources"])).toBeUndefined();
+});
+
+it("clears client identity and private queries without another authenticated request", async () => {
+  vi.mocked(api).mockResolvedValue(profile);
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  client.setQueryData(["sources"], [{ id: "private-document" }]);
+  render(
+    <QueryClientProvider client={client}>
+      <SessionProvider>
+        <Controls />
+      </SessionProvider>
+    </QueryClientProvider>,
+  );
+  await screen.findByText("first-user");
+  fireEvent.click(screen.getByText("Clear session"));
+  await screen.findByText("signed out");
+  expect(client.getQueryData(["sources"])).toBeUndefined();
+  expect(vi.mocked(api)).toHaveBeenCalledTimes(1);
 });

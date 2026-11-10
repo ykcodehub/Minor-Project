@@ -1,0 +1,427 @@
+[
+  {
+    "id": "PROD-HTTP-01",
+    "scenario": "Backend liveness",
+    "url": "https://veriora-api.onrender.com/api/v1/health",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:30.594288+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 200,
+    "duration_ms": 440.56,
+    "content_type": "application/json",
+    "bytes": 33,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "f3ca5f5b-58eb-4016-8f4f-d51aea931208"
+    },
+    "status": "PASS",
+    "actual": "HTTP 200; application/json; 440.56 ms",
+    "public_fields": {
+      "status": "ok",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "id": "PROD-HTTP-02",
+    "scenario": "Backend database readiness (SELECT 1 only)",
+    "url": "https://veriora-api.onrender.com/api/v1/ready",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:31.036826+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 200,
+    "duration_ms": 782.65,
+    "content_type": "application/json",
+    "bytes": 41,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "b2b1aedc-f265-4bec-9211-1ce0c816e70a"
+    },
+    "status": "PASS",
+    "actual": "HTTP 200; application/json; 782.65 ms",
+    "public_fields": {
+      "status": "ready",
+      "database": "connected"
+    }
+  },
+  {
+    "id": "PROD-HTTP-03",
+    "scenario": "Public frontend HTML",
+    "url": "https://veriora.vercel.app/",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:31.821657+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 200,
+    "duration_ms": 109.44,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 616,
+    "headers": {
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "cache-control": "public, max-age=0, must-revalidate",
+      "access-control-allow-origin": "*"
+    },
+    "status": "PASS",
+    "actual": "HTTP 200; text/html; charset=utf-8; 109.44 ms"
+  },
+  {
+    "id": "PROD-HTTP-04",
+    "scenario": "Vercel same-origin API liveness rewrite",
+    "url": "https://veriora.vercel.app/api/v1/health",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:31.933277+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 404,
+    "duration_ms": 43.7,
+    "content_type": "text/plain; charset=utf-8",
+    "bytes": 79,
+    "headers": {
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "cache-control": "public, max-age=0, must-revalidate"
+    },
+    "status": "FAIL",
+    "actual": "HTTP 404; text/plain; charset=utf-8; 43.7 ms"
+  },
+  {
+    "id": "PROD-HTTP-05",
+    "scenario": "Anonymous current-user endpoint rejects access",
+    "url": "https://veriora-api.onrender.com/api/v1/me",
+    "expected": 401,
+    "method": "GET",
+    "date": "2026-11-10T01:15:31.978628+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 401,
+    "duration_ms": 111.96,
+    "content_type": "application/json",
+    "bytes": 124,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "66323ef7-4a4d-450c-8c33-be5067909dca"
+    },
+    "status": "PASS",
+    "actual": "HTTP 401; application/json; 111.96 ms",
+    "public_fields": {
+      "code": "HTTP_401"
+    }
+  },
+  {
+    "id": "PROD-HTTP-06",
+    "scenario": "Anonymous source listing rejects access",
+    "url": "https://veriora-api.onrender.com/api/v1/sources",
+    "expected": 401,
+    "method": "GET",
+    "date": "2026-11-10T01:15:32.092250+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 401,
+    "duration_ms": 114.0,
+    "content_type": "application/json",
+    "bytes": 124,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "2e1d2df0-17dc-4c27-b9de-a1e25a3ee53a"
+    },
+    "status": "PASS",
+    "actual": "HTTP 401; application/json; 114.0 ms",
+    "public_fields": {
+      "code": "HTTP_401"
+    }
+  },
+  {
+    "id": "PROD-HTTP-07",
+    "scenario": "Anonymous dashboard rejects access",
+    "url": "https://veriora-api.onrender.com/api/v1/dashboard",
+    "expected": 401,
+    "method": "GET",
+    "date": "2026-11-10T01:15:32.209496+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 401,
+    "duration_ms": 112.33,
+    "content_type": "application/json",
+    "bytes": 124,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "e0b12eea-6f2a-4091-b758-fb40df759732"
+    },
+    "status": "PASS",
+    "actual": "HTTP 401; application/json; 112.33 ms",
+    "public_fields": {
+      "code": "HTTP_401"
+    }
+  },
+  {
+    "id": "PROD-HTTP-08",
+    "scenario": "Anonymous document download rejects access",
+    "url": "https://veriora-api.onrender.com/api/v1/sources/qa-nonexistent/original",
+    "expected": 401,
+    "method": "GET",
+    "date": "2026-11-10T01:15:32.323391+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 401,
+    "duration_ms": 143.55,
+    "content_type": "application/json",
+    "bytes": 124,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "5bf38d70-ab11-4259-9586-35eb9a35b013"
+    },
+    "status": "PASS",
+    "actual": "HTTP 401; application/json; 143.55 ms",
+    "public_fields": {
+      "code": "HTTP_401"
+    }
+  },
+  {
+    "id": "PROD-HTTP-09",
+    "scenario": "Public authentication options return safe configuration",
+    "url": "https://veriora-api.onrender.com/api/v1/auth/options",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:32.468842+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 200,
+    "duration_ms": 108.97,
+    "content_type": "application/json",
+    "bytes": 107,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "ae972b9e-3294-4984-90b4-98afa3d79586"
+    },
+    "status": "PASS",
+    "actual": "HTTP 200; application/json; 108.97 ms",
+    "auth_options": {
+      "google_enabled": true,
+      "email_enabled": true,
+      "google_login_https": true
+    },
+    "public_fields": {}
+  },
+  {
+    "id": "PROD-HTTP-10",
+    "scenario": "Public OpenAPI schema",
+    "url": "https://veriora-api.onrender.com/openapi.json",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:32.579448+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 200,
+    "duration_ms": 605.39,
+    "content_type": "application/json",
+    "bytes": 37598,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "1e2bdb5c-4ec9-4dc2-96ba-77cb09a46da6"
+    },
+    "status": "PASS",
+    "actual": "HTTP 200; application/json; 605.39 ms",
+    "operations": [
+      "GET /api/v1/me",
+      "DELETE /api/v1/me",
+      "PATCH /api/v1/me",
+      "POST /api/v1/auth/guest",
+      "POST /api/v1/auth/register",
+      "POST /api/v1/auth/login",
+      "POST /api/v1/auth/logout",
+      "POST /api/v1/auth/recover",
+      "POST /api/v1/auth/verify",
+      "POST /api/v1/auth/reset",
+      "GET /api/v1/me/export",
+      "GET /api/v1/auth/options",
+      "GET /api/v1/auth/google/login",
+      "POST /api/v1/auth/google/start",
+      "POST /api/v1/auth/google/link",
+      "GET /api/v1/auth/google/callback",
+      "PATCH /api/v1/me/language",
+      "POST /api/v1/auth/registration/start",
+      "POST /api/v1/auth/registration/verify",
+      "POST /api/v1/auth/registration/complete",
+      "GET /api/v1/sources",
+      "POST /api/v1/sources/text",
+      "POST /api/v1/sources/upload",
+      "GET /api/v1/sources/{source_id}",
+      "PATCH /api/v1/sources/{source_id}",
+      "DELETE /api/v1/sources/{source_id}",
+      "GET /api/v1/sources/{source_id}/sections/{section_id}",
+      "GET /api/v1/sources/{source_id}/original",
+      "POST /api/v1/discovery",
+      "GET /api/v1/discovery/{job_id}",
+      "POST /api/v1/sources/url",
+      "POST /api/v1/analyses",
+      "GET /api/v1/analyses/{analysis_id}",
+      "GET /api/v1/analyses/{analysis_id}/findings",
+      "GET /api/v1/analyses/{analysis_id}/findings/{finding_id}",
+      "POST /api/v1/analyses/{analysis_id}/questions",
+      "GET /api/v1/analyses/{analysis_id}/questions",
+      "GET /api/v1/analyses/{analysis_id}/exports",
+      "GET /api/v1/exports/{report_id}",
+      "GET /api/v1/analyses/{analysis_id}/reports",
+      "GET /api/v1/jobs/{job_id}",
+      "POST /api/v1/jobs/{job_id}/cancel",
+      "POST /api/v1/jobs/{job_id}/retry",
+      "GET /api/v1/analyses/{analysis_id}/summary",
+      "POST /api/v1/analyses/{analysis_id}/translations",
+      "POST /api/v1/comparisons",
+      "GET /api/v1/dashboard",
+      "GET /api/v1/health",
+      "GET /api/v1/ready"
+    ],
+    "public_fields": {}
+  },
+  {
+    "id": "PROD-HTTP-11",
+    "scenario": "Untrusted Origin is not reflected in CORS",
+    "url": "https://veriora-api.onrender.com/api/v1/health",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:33.188287+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": "https://qa-untrusted.invalid",
+    "http_status": 200,
+    "duration_ms": 107.56,
+    "content_type": "application/json",
+    "bytes": 33,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "access-control-allow-credentials": "true",
+      "x-request-id": "acd75e62-2ab3-487b-86e4-a5c324e3cf86"
+    },
+    "status": "PASS",
+    "actual": "HTTP 200; application/json; 107.56 ms",
+    "public_fields": {
+      "status": "ok",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "id": "PROD-HTTP-12",
+    "scenario": "Trusted frontend Origin is allowed by CORS",
+    "url": "https://veriora-api.onrender.com/api/v1/health",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:33.297549+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": "https://veriora.vercel.app",
+    "http_status": 200,
+    "duration_ms": 111.19,
+    "content_type": "application/json",
+    "bytes": 33,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "access-control-allow-credentials": "true",
+      "x-request-id": "3987233a-6fb9-4531-a377-bbfb0acdd434"
+    },
+    "status": "FAIL",
+    "actual": "HTTP 200; application/json; 111.19 ms; CORS Origin expectation failed",
+    "public_fields": {
+      "status": "ok",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "id": "PROD-HTTP-13",
+    "scenario": "Sign-in SPA deep link",
+    "url": "https://veriora.vercel.app/sign-in",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:33.410795+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 404,
+    "duration_ms": 33.08,
+    "content_type": "text/plain; charset=utf-8",
+    "bytes": 79,
+    "headers": {
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "cache-control": "public, max-age=0, must-revalidate"
+    },
+    "status": "FAIL",
+    "actual": "HTTP 404; text/plain; charset=utf-8; 33.08 ms"
+  },
+  {
+    "id": "PROD-HTTP-14",
+    "scenario": "Library SPA deep link",
+    "url": "https://veriora.vercel.app/library",
+    "expected": 200,
+    "method": "GET",
+    "date": "2026-11-10T01:15:33.445909+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 404,
+    "duration_ms": 37.75,
+    "content_type": "text/plain; charset=utf-8",
+    "bytes": 79,
+    "headers": {
+      "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+      "cache-control": "public, max-age=0, must-revalidate"
+    },
+    "status": "FAIL",
+    "actual": "HTTP 404; text/plain; charset=utf-8; 37.75 ms"
+  },
+  {
+    "id": "PROD-HTTP-15",
+    "scenario": "Anonymous analysis retrieval rejects access",
+    "url": "https://veriora-api.onrender.com/api/v1/analyses/qa-nonexistent",
+    "expected": 401,
+    "method": "GET",
+    "date": "2026-11-10T01:15:33.485317+00:00",
+    "input": "Anonymous, no cookies; no form submissions",
+    "origin": null,
+    "http_status": 401,
+    "duration_ms": 210.41,
+    "content_type": "application/json",
+    "bytes": 124,
+    "headers": {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer",
+      "cache-control": "no-store",
+      "x-request-id": "73190ed1-ecb8-40d0-92c7-3a7f8d3910f0"
+    },
+    "status": "PASS",
+    "actual": "HTTP 401; application/json; 210.41 ms",
+    "public_fields": {
+      "code": "HTTP_401"
+    }
+  }
+]

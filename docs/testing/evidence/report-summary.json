@@ -1,0 +1,14 @@
+{
+  "total": 357,
+  "executed": 270,
+  "PASS": 255,
+  "FAIL": 15,
+  "BLOCKED": 71,
+  "NOT RUN": 10,
+  "NOT IMPLEMENTED": 6,
+  "pass_percentage_executed": 94.44444444444444,
+  "backend_statement_coverage": 82.87037037037037,
+  "backend_branch_coverage": 69.50207468879668,
+  "grouped_observations": 5,
+  "created_utc": "2026-11-10T01:32:55+00:00"
+}

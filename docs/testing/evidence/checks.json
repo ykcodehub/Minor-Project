@@ -1,0 +1,23 @@
+[
+  {
+    "id": "backend-lint",
+    "cwd": "backend",
+    "command": "-m ruff check app tests",
+    "exit_code": 0,
+    "duration_ms": 245.13
+  },
+  {
+    "id": "frontend-lint",
+    "cwd": "frontend",
+    "command": "npm run lint",
+    "exit_code": 0,
+    "duration_ms": 9845.28
+  },
+  {
+    "id": "typescript",
+    "cwd": "frontend",
+    "command": "npx tsc --noEmit --noUnusedLocals --noUnusedParameters",
+    "exit_code": 0,
+    "duration_ms": 10760.0
+  }
+]

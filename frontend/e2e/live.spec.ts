@@ -22,7 +22,7 @@ test("live PostgreSQL and configured AI: PDF → evidence → question → repor
     .getByLabel("Password", { exact: true })
     .fill(process.env.VERIORA_LIVE_PASSWORD!);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL("/library");
+  await expect(page).toHaveURL("/dashboard");
   await page.goto("/analyze");
   await page
     .getByLabel("Choose document file")

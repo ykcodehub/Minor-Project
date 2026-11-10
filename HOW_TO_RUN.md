@@ -64,3 +64,6 @@ Follow [deployment](docs/DEPLOYMENT.md) for Vercel frontend, separate API/worker
 
 
 Development proxy note: VITE_API_TARGET may be set in a frontend mode environment file or the process environment; process values take precedence. Restart Vite after changes. Preserve existing .env files. This cleanup pass performs no PostgreSQL changes; database cleanup remains a manual operator responsibility.
+
+
+Authentication: email login now confirms /me before opening dashboard; logout/account deletion clear private caches and open sign-in. Browser OAuth failures redirect to a clean error page; do not reuse callback URLs. For Vercel/Render mobile sessions, use the first-party /api proxy and exact Google callback settings in docs/DEPLOYMENT.md. Direct cross-site None cookies require Secure and remain subject to browser privacy restrictions.

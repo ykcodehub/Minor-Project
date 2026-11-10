@@ -24,6 +24,7 @@ from app.security import (
     DUMMY_PASSWORD_HASH,
     CurrentUser,
     Db,
+    clear_session,
     create_session,
     digest,
     hasher,
@@ -151,7 +152,7 @@ def login(data: Credentials, request: Request, response: Response, db: Db):
 def logout(request: Request, response: Response, db: Db, user: CurrentUser):
     db.delete(request.state.session)
     db.commit()
-    response.delete_cookie("veriora_session", path="/")
+    clear_session(response)
 
 
 @router.post("/auth/recover")
@@ -280,7 +281,7 @@ def delete_account(response: Response, db: Db, user: CurrentUser):
     db.delete(user)
     db.commit()
     flush_storage_deletions(db)
-    response.delete_cookie("veriora_session", path="/")
+    clear_session(response)
 
 
 @router.get("/auth/options")
@@ -294,6 +295,22 @@ def auth_options():
 
 
 OAUTH_COOKIE_PATH = "/api/v1/auth/google"
+
+
+def clear_google_cookie(response):
+    response.delete_cookie(
+        "veriora_oauth",
+        path=OAUTH_COOKIE_PATH,
+        httponly=True,
+        secure=settings().secure_cookies,
+        samesite="lax",
+    )
+
+
+def google_state_error(code, message):
+    failure = HTTPException(400, message)
+    failure.public_code = code
+    return failure
 
 
 def google_login_url():
@@ -325,6 +342,21 @@ def begin_google(db, request, link_user=None, navigation=False):
             raise HTTPException(
                 409, "Open the configured application URL and sign in there before linking Google."
             )
+        # A trusted ingress reporting HTTP for an HTTPS callback would redirect to itself
+        # forever. Fail closed; only the hosting proxy's trusted forwarding setup can fix it.
+        target = urlsplit(cfg.google_redirect_uri)
+        ingress = {target.hostname, *[h.strip() for h in cfg.oauth_proxy_hosts.split(",") if h.strip()]}
+        if (
+            cfg.environment == "production"
+            and request.url.hostname in ingress
+            and request.url.scheme != target.scheme
+        ):
+            failure = HTTPException(
+                503,
+                "OAuth HTTPS proxy configuration is invalid. Configure trusted forwarding headers and HTTPS.",
+            )
+            failure.public_code = "OAUTH_HTTPS_PROXY_REQUIRED"
+            raise failure
         # Never set a cookie on an alias that cannot receive the configured callback.
         if navigation:
             return RedirectResponse(google_login_url(), status_code=303)
@@ -408,7 +440,9 @@ def google_callback(request: Request, db: Db, state: str = "", code: str = "", e
         ):
             raise ValueError()
     except (ValueError, TypeError):
-        raise HTTPException(400, "Google sign-in expired or was not initiated in this browser.") from None
+        raise google_state_error(
+            "OAUTH_BROWSER_STATE_MISSING", "Google sign-in expired or was not initiated in this browser."
+        ) from None
     attempt = db.scalar(select(OAuthAttempt).where(OAuthAttempt.id == digest(state)).with_for_update())
     if (
         not attempt
@@ -416,12 +450,14 @@ def google_callback(request: Request, db: Db, state: str = "", code: str = "", e
         or not secrets.compare_digest(attempt.nonce_hash, digest(nonce))
         or not secrets.compare_digest(attempt.verifier_hash, digest(verifier))
     ):
-        raise HTTPException(400, "Google sign-in state is invalid or expired.")
+        raise google_state_error("OAUTH_STATE_INVALID", "Google sign-in state is invalid or expired.")
     link_user_id = attempt.link_user_id
     db.delete(attempt)
     db.commit()  # Consume once even if code exchange fails.
     if error:
-        raise HTTPException(400, "Google sign-in was cancelled or could not be authorized. Start again.")
+        raise google_state_error(
+            "OAUTH_CANCELLED", "Google sign-in was cancelled or could not be authorized. Start again."
+        )
     try:
         claims = google_claims(code, verifier, nonce)
     except GoogleVerificationError as exc:
@@ -445,7 +481,11 @@ def google_callback(request: Request, db: Db, state: str = "", code: str = "", e
         user = db.get(User, ident.user_id)
     else:
         if db.scalar(select(User).where(User.email == claims["email"])):
-            return RedirectResponse(settings().public_url + "/sign-in?oauth=link_required", status_code=303)
+            response = RedirectResponse(
+                settings().public_url + "/sign-in?oauth=link_required", status_code=303
+            )
+            clear_google_cookie(response)
+            return response
         user = User(email=claims["email"], verified_at=now())
         db.add(user)
         db.flush()
@@ -456,7 +496,7 @@ def google_callback(request: Request, db: Db, state: str = "", code: str = "", e
         db.execute(delete(Session).where(Session.id == digest(prior)))
     response = RedirectResponse(settings().public_url + "/dashboard", status_code=303)
     create_session(db, user, response)
-    response.delete_cookie("veriora_oauth", path=OAUTH_COOKIE_PATH)
+    clear_google_cookie(response)
     audit(db, user.id, "account.google_linked" if link_user_id else "account.google_login", user.id)
     db.commit()
     return response

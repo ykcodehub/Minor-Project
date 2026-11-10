@@ -243,3 +243,57 @@ Provide actual app/backend domains and hosting; qualify the container and privat
 The first browser run failed the new branding assertion because DOM textContent includes the decorative V fallback even when hidden. The assertion was corrected to accept the intended fallback while still rejecting a trailing dot; no application behavior or security assertion was relaxed. Full browser rerun passed. It covers keyboard tab/focus, reduced motion, dot-free branding, missing-logo fallback, mobile width, upload/source/delete/logout, verified registration/reset, language persistence, canonical OAuth/dashboard/replay with synthetic Google boundary, Summary default/re-entry, original quotations/citations, unsupported-chat abstention and exports. Desktop Summary screenshot was visually reviewed. The final unused CSS removal affects no rendered selector.
 
 The browser live-AI/PostgreSQL test remains skipped because it requires an explicitly supplied verified synthetic account and opt-in. No fresh live model/Google/SMTP claims are made by this run. Existing production hosting/S3/OAuth/SMTP/restore/load/security review gates remain open, as documented in DEPLOYMENT.md. README, four specifications and requirements audit reflect this cleanup.
+
+
+## Render / Neon / R2 startup diagnostics (10 November 2026)
+
+The latest request specifies normal production with Neon and Cloudflare R2; it supersedes the earlier temporary no-R2 deployment-testing request. No filesystem bypass or testing mode was implemented. All existing production validation predicates remain active.
+
+Confirmed defect: settings() replaced all model-level validation reasons with the generic database_policy name. Policy failures now use a static ConfigurationPolicyError code and variable-name guidance; the public RuntimeError serializes only these approved diagnostics, or field name/type for other Pydantic failures. Input values, raw exceptions and credential-bearing URLs are never serialized. Exception context is suppressed. Examples include PRODUCTION_STORAGE_REQUIRED, S3_CONFIGURATION_REQUIRED, PUBLIC_ORIGINS_INVALID and GOOGLE_REDIRECT_INVALID.
+
+Local settings were safely classified as development/filesystem with no R2 bucket/endpoint and a non-HTTPS public URL. This is not Render's environment and does not prove which remote variable caused its historical error. Synthetic Neon PostgreSQL + R2 + HTTPS production configuration passes validation, actual application import and health HTTP200. Database connections were explicitly prohibited during that startup smoke test. A second subprocess with filesystem storage failed as expected, emitted PRODUCTION_STORAGE_REQUIRED and excluded a synthetic credential canary from its actual traceback. No live Neon/R2 operations were performed.
+
+A separate confirmed R2 compatibility defect was corrected: uploads previously always included AWS's unsupported SSE-S3 header. The header is omitted only for official R2 endpoint hosts; existing Fernet encryption, SHA-256 integrity, HTTPS validation and IfNoneMatch conditional creation remain. AWS-style S3 retains its AES256 request header. Cloudflare documents automatic R2 encryption at rest and lack of this request-header support: https://developers.cloudflare.com/r2/api/s3/api/ and https://developers.cloudflare.com/r2/reference/data-security/ . Mocked R2 encrypted roundtrip and existing AWS-header tests pass; remote credentials/permissions remain unverified.
+
+Executed: focused deployment/security tests **23 passed**; full backend suite **192 passed,1 skipped** in76.02s; Ruff app/tests passed after correcting a scoped import-order issue. The skipped PostgreSQL opt-in write test remained disabled. Added tests/test_render_configuration.py; changed app/config.py, services/storage.py, placeholder-only .env.example and deployment/verification documentation. No frontend change required. .env, PostgreSQL records/schema and migrations were not modified. No push, deployment or infrastructure action was performed. Exact required Render variables and manual start/health configuration are documented in DEPLOYMENT.md.
+
+
+## Authentication end-to-end and mobile OAuth fix (latest execution)
+
+### Findings and expected errors
+
+The inspected session implementation unconditionally issued SameSite=Lax cookies. Direct browser API traffic between veriora.vercel.app and veriora-api.onrender.com is cross-site, so those cookies are not sent on credentialed subresource requests. SameSite=None; Secure is necessary for that direct design, but browser privacy controls can still reject third-party cookies, especially mobile/Safari/embedded browsers. The prepared first-party Vercel /api proxy is the recommended deployment path; it retains Lax cookies and avoids this third-party dependency.
+
+Read-only production checks during this task: backend /api/v1/health200; anonymous /api/v1/me401; auth/options200 with Google/email configured and authorization-entry host veriora-api.onrender.com. Vercel /sign-in and /api/v1/health both404. No Google entry/callback, password attempt, account, document or production data mutation was performed by these probes.
+
+POST login401 is expected for unknown email, wrong password, unverified account or a Google-only account without a password. Its initial credential decision does not depend on a prior session cookie. GET me401 is expected before sign-in/after expiry. These logs alone do not establish an account/password bug. Callback303 alone can also represent account-link-required routing; later400 may be the required rejection of reused/expired state. The exact historical callback failure cannot be reconstructed from status codes alone.
+
+### Changes and preserved protections
+
+- config.py introduces explicit SESSION_COOKIE_SAMESITE=lax|none. None without Secure fails configuration validation. Default Lax and all production storage/database/HTTPS checks remain.
+- security.py issues and clears host-only HttpOnly session cookies with consistent configured flags. No cookie Domain broadening or browser-accessible auth token was added.
+- auth.py adds safe state error codes; clears transient OAuth cookies on terminal browser errors, success and link-required outcomes; preserves durable single-use state, nonce, PKCE, signature/audience and strict expiry. Trusted ingress reporting an incorrect scheme fails503 OAUTH_HTTPS_PROXY_REQUIRED instead of a self-redirect loop. No arbitrary forwarding-header trust was introduced.
+- main.py redirects HTML callback failures to a clean sign-in error URL, without code/state. JSON/API replay and missing/expired state remain400. Logging includes only an application-owned reason and request ID, never callback parameters or identity tokens.
+- session.tsx, Auth.tsx and App.tsx confirm a restored /me before email-login dashboard navigation, display cookie/session failure if a200 login has no browser session, protect private routes and clear previous identity/private caches. Logout handles an already-expired401 locally;403/other failures are not disguised as success. Logout and account deletion now deliberately land on sign-in consistently.
+- frontend/vercel.json is generated for the provided Render backend with /api rewrite before SPA fallback and reviewed security headers. It is a prepared local file, not an active production deployment. VITE_API_BASE_URL must be /api/v1 when using it.
+- Settings.tsx and the protected-route/auth lifecycle were verified together. A browser regression initially exposed a post-deletion navigation race; the final flow consistently clears identity and opens sign-in. Tests retain account deletion and cleanup assertions.
+
+Modified/created files for this task: backend/app/config.py, security.py, api/auth.py, main.py, tests/test_auth_deployment.py, tests/test_oauth_flow.py, backend/.env.example; frontend/src/app/session.tsx/session.test.tsx/App.tsx, features/Auth.tsx/Settings.tsx, language catalogs; frontend/vercel.json; e2e/auth-session.spec.ts, oauth.spec.ts, core.spec.ts and live.spec.ts. README/HOW_TO_RUN/DEPLOYMENT and requirement audit describe the configuration and acceptance scope. No migrations or .env files were edited; no production records were changed. No push/deploy was performed.
+
+### Executed final verification
+
+| Check | Actual result |
+|---|---|
+| backend: python -m pytest tests -q | **197 passed,1 skipped**,72.74s. PostgreSQL opt-in write test disabled. |
+| backend: python -m ruff check app tests | Passed after import ordering was corrected in backend context. |
+| Focused auth/OAuth/render tests after ingress guard | **30 passed**,14.13s. |
+| frontend: npm run lint | Passed. |
+| frontend: npm test | **23 passed**,8 files. |
+| frontend: npm run build | TypeScript and Vite production bundle passed. |
+| frontend: npm run test:e2e | **15 passed,1 skipped**,50.4s. |
+
+Desktop and Pixel7-emulated Chromium navigate to a synthetic Google boundary using real browser cookies, then submit a signed-token fixture through the real nonce/signature/claim verifier. Both reach the authenticated dashboard, survive reload, reject restored-cookie replay with400 for API requests, and redirect duplicate HTML callbacks to a clean error page without auto-restarting Google. Missing browser state never establishes a session. Real Google consent is not mocked away in production; the test fixture refuses non-isolated configuration.
+
+Email-first signup, verification link/password completion, login, recovery/reset, persistent preferences and account deletion run against real isolated application endpoints and captured synthetic mail. These tests do not prove actual SMTP inbox delivery. The None/Secure session test checks HTTPS cookie flags, protected access, rejection over HTTP, CSRF enforcement, logout revocation and anonymous401; it does not claim mobile browsers permit third-party cookies. Frontend regressions also cover blocked session restoration, anonymous route rejection, expired-session logout and invalid-password401.
+
+The skipped browser scenario requires an explicitly authorized verified synthetic account and live AI opt-in; it was not run. Real production Google sign-in, real SMTP inbox delivery and actual iOS/Safari acceptance remain unverified until manual deployment and user consent. The latest exact settings are in docs/DEPLOYMENT.md under Authentication deployment fix. No claim is made that production is fixed.

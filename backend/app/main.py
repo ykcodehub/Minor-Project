@@ -18,7 +18,7 @@ import uuid
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api import analyses, auth, comparisons, dashboard, documents
@@ -71,6 +71,18 @@ async def request_context(request: Request, call_next):
 
 @app.exception_handler(HTTPException)
 async def http_error(request: Request, exc: HTTPException):
+    if request.url.path == "/api/v1/auth/google/callback":
+        reason = getattr(exc, "public_code", "OAUTH_CALLBACK_REJECTED")
+        # Only application-owned reason codes and the request ID enter logs.
+        logging.getLogger("uvicorn.error").warning(
+            "OAuth callback rejected reason=%s request_id=%s", reason, request.state.request_id
+        )
+        if "text/html" in request.headers.get("accept", ""):
+            response = RedirectResponse(settings().public_url + "/sign-in?oauth=failed", status_code=303)
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Referrer-Policy"] = "no-referrer"
+            auth.clear_google_cookie(response)
+            return response
     return JSONResponse(
         {
             "code": getattr(exc, "public_code", f"HTTP_{exc.status_code}"),

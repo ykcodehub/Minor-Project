@@ -116,8 +116,14 @@ export default function Auth() {
         );
       } else {
         await post<User>("/auth/login", { email, password });
-        await refresh();
-        navigate("/library");
+        const session = await refresh();
+        if (!session)
+          throw Error(
+            t(
+              "Your session could not be restored. Check browser cookie settings or use the configured application URL.",
+            ),
+          );
+        navigate("/dashboard", { replace: true });
       }
     } catch (e) {
       setError(e);
@@ -170,6 +176,13 @@ export default function Auth() {
             ? t("Save your documents and revisit your evidence.")
             : t("Use your account to access your saved documents.")}
         </p>
+        {params.get("oauth") === "failed" && (
+          <Notice warning>
+            {t(
+              "Google sign-in could not be completed. Start a fresh sign-in in this browser. Avoid in-app browsers if cookies are blocked.",
+            )}
+          </Notice>
+        )}
         {params.get("oauth") === "link_required" && (
           <Notice warning>
             {t(
@@ -295,7 +308,7 @@ export default function Auth() {
               />
             </label>
           )}
-          <ErrorNotice error={error} />
+          <ErrorNotice error={error || options.error} />
           {message && <Notice>{message}</Notice>}
           <button className="button" disabled={busy}>
             {busy

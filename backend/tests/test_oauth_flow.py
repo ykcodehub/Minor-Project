@@ -190,3 +190,16 @@ def test_production_proxy_host_is_explicit_not_forwarded_header_trust(google, mo
         follow_redirects=False,
     )
     assert response.headers["location"] == "https://app.example.com/api/v1/auth/google/login"
+
+
+def test_http_production_ingress_fails_closed_instead_of_redirect_loop(google, monkeypatch):
+    cfg = settings()
+    monkeypatch.setattr(cfg, "environment", "production")
+    monkeypatch.setattr(cfg, "google_redirect_uri", "https://app.example.com/api/v1/auth/google/callback")
+    monkeypatch.setattr(cfg, "oauth_proxy_hosts", "api.example.com")
+    response = google.get("http://api.example.com/api/v1/auth/google/login", follow_redirects=False)
+    assert response.status_code == 503
+    assert response.json()["code"] == "OAUTH_HTTPS_PROXY_REQUIRED"
+    assert "location" not in response.headers and "set-cookie" not in response.headers
+    with SessionLocal() as db:
+        assert not db.scalar(select(OAuthAttempt))

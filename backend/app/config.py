@@ -10,6 +10,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
 
 POLICY_ERRORS = {
+    "SESSION_COOKIE_SECURITY_REQUIRED": "SESSION_COOKIE_SAMESITE=none requires SECURE_COOKIES=true.",
     "S3_CONFIGURATION_REQUIRED": "Configure S3_BUCKET and the existing stable STORAGE_KEY for S3 storage.",
     "S3_HTTPS_REQUIRED": "S3_ENDPOINT_URL must use HTTPS.",
     "S3_PREFIX_INVALID": "S3_PREFIX must be relative and cannot contain traversal or backslashes.",
@@ -53,6 +54,7 @@ class Settings(BaseSettings):
     s3_prefix: str = "veriora/"
 
     secure_cookies: bool = False
+    session_cookie_samesite: Literal["lax", "none"] = "lax"
     allowed_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     environment: str = "development"
     max_upload_bytes: int = 20 * 1024 * 1024
@@ -93,6 +95,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def database_policy(self):
+        if self.session_cookie_samesite == "none" and not self.secure_cookies:
+            raise ConfigurationPolicyError("SESSION_COOKIE_SECURITY_REQUIRED")
         if self.storage_backend == "s3":
             from urllib.parse import urlsplit
 

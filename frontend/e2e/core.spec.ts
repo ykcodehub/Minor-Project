@@ -123,7 +123,7 @@ test("registered account session, persistent settings and deletion", async ({
     .getByLabel("Password", { exact: true })
     .fill("Synthetic-password-2026!");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL("/library");
+  await expect(page).toHaveURL("/dashboard");
   await page.getByRole("link", { name: "Account", exact: true }).click();
   await page.getByLabel("Document retention").selectOption("7");
   await page.getByRole("button", { name: "Save preferences" }).click();
@@ -196,13 +196,13 @@ test("registered account session, persistent settings and deletion", async ({
     .getByLabel("Password", { exact: true })
     .fill("Replacement-browser-password-2026!");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL("/library");
+  await expect(page).toHaveURL("/dashboard");
   await page.goto("/settings");
   await page.getByLabel("Type DELETE to confirm").fill("DELETE");
   await page
     .getByRole("button", { name: "Delete my account and data" })
     .click();
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/sign-in");
   await expect(
     page
       .getByRole("banner")

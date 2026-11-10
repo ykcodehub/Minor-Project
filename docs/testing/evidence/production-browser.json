@@ -1,0 +1,223 @@
+{
+  "records": [
+    {
+      "id": "PROD-UI-01",
+      "scenario": "Public landing renders the Veriora application",
+      "date": "2026-11-10T01:35:13.008Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "HTTP200; title=Veriora — Understand. Inspect. Verify.; heading=Understand every clause.Verify every claim.",
+      "duration_ms": 4484
+    },
+    {
+      "id": "PROD-UI-02",
+      "scenario": "Public landing has no horizontal overflow at 375px",
+      "date": "2026-11-10T01:35:17.493Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "scrollWidth=375; viewport=375; Chromium only",
+      "duration_ms": 181
+    },
+    {
+      "id": "PROD-UI-03",
+      "scenario": "Public landing automated WCAG accessibility scan",
+      "date": "2026-11-10T01:35:17.675Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "No violations in 18 passed axe rules; not a full manual accessibility certification",
+      "duration_ms": 1341
+    },
+    {
+      "id": "PROD-UI-04",
+      "scenario": "Sign-in email/password and Google controls direct navigation",
+      "date": "2026-11-10T01:35:19.018Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "GET /sign-in returned HTTP 404",
+      "duration_ms": 603
+    },
+    {
+      "id": "PROD-UI-05",
+      "scenario": "Email-first registration page direct navigation",
+      "date": "2026-11-10T01:35:19.623Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "GET /register returned HTTP 404",
+      "duration_ms": 718
+    },
+    {
+      "id": "PROD-UI-06",
+      "scenario": "Password recovery page direct navigation",
+      "date": "2026-11-10T01:35:20.344Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "GET /forgot-password returned HTTP 404",
+      "duration_ms": 577
+    },
+    {
+      "id": "PROD-UI-07",
+      "scenario": "Upload workspace direct navigation",
+      "date": "2026-11-10T01:35:20.923Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "GET /analyze returned HTTP 404",
+      "duration_ms": 598
+    },
+    {
+      "id": "PROD-UI-08",
+      "scenario": "Library route direct navigation",
+      "date": "2026-11-10T01:35:21.525Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "GET /library returned HTTP 404",
+      "duration_ms": 628
+    },
+    {
+      "id": "PROD-UI-09",
+      "scenario": "Dashboard route direct navigation",
+      "date": "2026-11-10T01:35:22.156Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "GET /dashboard returned HTTP 404",
+      "duration_ms": 632
+    },
+    {
+      "id": "PROD-UI-10",
+      "scenario": "Browser frontend-to-backend CORS integration",
+      "date": "2026-11-10T01:35:22.791Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "Browser fetch completed HTTP200",
+      "duration_ms": 506
+    },
+    {
+      "id": "PROD-UI-12",
+      "scenario": "Client-side navigation renders sign-in without submission",
+      "date": "2026-11-10T01:35:23.301Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "Client-side sign-in renders email/password; no credentials entered or form submitted",
+      "duration_ms": 1131
+    },
+    {
+      "id": "PROD-UI-13",
+      "scenario": "Configured Google option is usable in the sign-in UI",
+      "date": "2026-11-10T01:35:24.434Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "Google button enabled; no click, state creation or consent attempted",
+      "duration_ms": 146
+    },
+    {
+      "id": "PROD-UI-14",
+      "scenario": "Global Hindi/Hinglish navigation updates and persists anonymously",
+      "date": "2026-11-10T01:35:24.582Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "Hindi/Hinglish UI updated and Hinglish survived reload in local browser storage; no authenticated preference write tested",
+      "duration_ms": 3573
+    },
+    {
+      "id": "PROD-UI-15",
+      "scenario": "Dot-free branding and current-year footer",
+      "date": "2026-11-10T01:35:28.157Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "Dot-free wordmark and current-year footer observed",
+      "duration_ms": 23
+    },
+    {
+      "id": "PROD-UI-16",
+      "scenario": "Frontend uses the deployed /api/v1 API prefix",
+      "date": "2026-11-10T01:35:28.181Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "PASS",
+      "actual": "No observed unprefixed profile/auth-options requests",
+      "duration_ms": 1
+    },
+    {
+      "id": "PROD-UI-11",
+      "scenario": "Observed anonymous frontend API calls have no network failures",
+      "date": "2026-11-10T01:35:28.183Z",
+      "environment": "Production Chromium; fresh anonymous context; mutation/OAuth requests blocked",
+      "status": "FAIL",
+      "actual": "[{\"type\":\"requestfailed\",\"origin\":\"https://veriora-api.onrender.com\",\"path\":\"/api/v1/health\",\"error\":\"net::ERR_ABORTED\"}]",
+      "duration_ms": 1
+    }
+  ],
+  "blocked": [],
+  "failures": [
+    {
+      "type": "http",
+      "status": 401,
+      "origin": "https://veriora-api.onrender.com",
+      "path": "/api/v1/me"
+    },
+    {
+      "type": "http",
+      "status": 404,
+      "origin": "https://veriora.vercel.app",
+      "path": "/sign-in"
+    },
+    {
+      "type": "http",
+      "status": 404,
+      "origin": "https://veriora.vercel.app",
+      "path": "/register"
+    },
+    {
+      "type": "http",
+      "status": 404,
+      "origin": "https://veriora.vercel.app",
+      "path": "/forgot-password"
+    },
+    {
+      "type": "http",
+      "status": 404,
+      "origin": "https://veriora.vercel.app",
+      "path": "/analyze"
+    },
+    {
+      "type": "http",
+      "status": 404,
+      "origin": "https://veriora.vercel.app",
+      "path": "/library"
+    },
+    {
+      "type": "http",
+      "status": 404,
+      "origin": "https://veriora.vercel.app",
+      "path": "/dashboard"
+    },
+    {
+      "type": "http",
+      "status": 401,
+      "origin": "https://veriora-api.onrender.com",
+      "path": "/api/v1/me"
+    },
+    {
+      "type": "requestfailed",
+      "origin": "https://veriora-api.onrender.com",
+      "path": "/api/v1/health",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "type": "http",
+      "status": 401,
+      "origin": "https://veriora-api.onrender.com",
+      "path": "/api/v1/me"
+    },
+    {
+      "type": "http",
+      "status": 401,
+      "origin": "https://veriora-api.onrender.com",
+      "path": "/api/v1/me"
+    },
+    {
+      "type": "http",
+      "status": 401,
+      "origin": "https://veriora-api.onrender.com",
+      "path": "/api/v1/me"
+    }
+  ]
+}

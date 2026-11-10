@@ -71,3 +71,42 @@ Use the backend root directory, install the runtime lock and package as document
 A startup failure now logs a static policy code with relevant variable names, never configured values. PRODUCTION_STORAGE_REQUIRED identifies filesystem storage or test-mail capture; S3_CONFIGURATION_REQUIRED identifies missing bucket/key; PUBLIC_ORIGINS_INVALID identifies public/CORS defaults or invalid origin forms; GOOGLE_REDIRECT_INVALID identifies an invalid callback; S3_HTTPS_REQUIRED/S3_PREFIX_INVALID/PRODUCTION_ENDPOINT_INVALID/POSTGRES_DRIVER_REQUIRED identify their named settings. Correct the indicated Render environment values and redeploy manually. The old generic database_policy message could not identify which rule failed and was not evidence of a Neon connectivity failure.
 
 The R2 adapter omits the unsupported AWS SSE-S3 upload header for official R2 endpoint hosts only. Existing application-layer encryption, integrity hashing, TLS and conditional no-overwrite PUT are preserved. AWS/other S3 endpoints retain the AES256 header. R2 automatically encrypts objects at rest. References: [R2 compatibility](https://developers.cloudflare.com/r2/api/s3/api/), [R2 encryption](https://developers.cloudflare.com/r2/reference/data-security/). Remote credentials, bucket permission and real Render/R2 operation still require validation in your environment.
+
+
+## Authentication deployment fix: first-party proxy (latest)
+
+The prepared frontend/vercel.json routes /api/* to https://veriora-api.onrender.com/api/* before the SPA fallback. The backend remains reachable at its published API base; the browser should use the same-origin proxy for reliable mobile sessions.
+
+### Required manual configuration
+
+Vercel project root: frontend. Set VITE_API_BASE_URL=/api/v1 (replace a direct Render URL), then rebuild/redeploy manually with the prepared vercel.json. This also fixes direct /sign-in, verification/reset and dashboard links. Its CSP intentionally allows same-origin API connections; leaving a direct API URL while adopting that CSP will block requests.
+
+Render API/worker retain the existing Neon/R2/secrets configuration. Set these public/security settings:
+
+```text
+ENVIRONMENT=production
+SECURE_COOKIES=true
+SESSION_COOKIE_SAMESITE=lax
+PUBLIC_URL=https://veriora.vercel.app
+ALLOWED_ORIGINS=https://veriora.vercel.app
+GOOGLE_REDIRECT_URI=https://veriora.vercel.app/api/v1/auth/google/callback
+OAUTH_PROXY_HOSTS=veriora-api.onrender.com
+```
+
+Google Cloud Web OAuth client: add the exact authorized redirect URI https://veriora.vercel.app/api/v1/auth/google/callback and the frontend origin https://veriora.vercel.app where an authorized JavaScript origin is requested. Retain other deliberately supported URIs as needed; the configured callback above must match exactly. Keep client secret server-side. Verify consent-screen/test-user permissions separately. Do not paste callback URLs/codes/tokens into diagnostics.
+
+Both OAuth start and callback must pass through the Vercel /api rewrite so host-only cookies belong to the frontend origin. Google button uses full browser navigation, never fetch for the authorization entry. State, nonce, PKCE, signature, audience, strict expiry and single-use database state stay enabled. OAuth transient cookie remains HttpOnly/Secure/SameSite=Lax on its auth path, suitable for Google's top-level GET callback. Session cookies remain host-only, HttpOnly and Secure; no Domain can share cookies between unrelated vercel.app and onrender.com hosts.
+
+If OAUTH_HTTPS_PROXY_REQUIRED appears, fix the host's trusted HTTPS forwarding setup rather than trusting arbitrary X-Forwarded-* input or relaxing HTTPS. A wrong trusted-ingress scheme now fails503 instead of redirecting endlessly. Configure trusted proxy addresses at hosting level if required; do not indiscriminately enable wildcard forwarding trust.
+
+### Direct cross-site API alternative and its limits
+
+SESSION_COOKIE_SAMESITE=none is available only with SECURE_COOKIES=true. Retain exact Origin allowlisting, credentials:include and CSRF tokens. Update CSP connect-src deliberately if choosing a direct API architecture. This option does not overcome Safari/mobile/embedded-browser third-party-cookie restrictions. The first-party proxy above is the recommended configuration. Do not spoof a browser user agent to bypass Google restrictions; open Safari/Chrome directly when in-app consent is blocked.
+
+### Expected errors and callback handling
+
+Anonymous GET /me401 and login401 for wrong password, unknown account or unverified/no-password email account are expected. They do not prove cookies failed. A successful login200 followed by /me401 is a session-persistence problem: the UI now stops with a cookie/session error instead of navigating as if authenticated. Email login lands on dashboard only after /me confirms the session. Protected pages wait for session loading and redirect anonymous users to sign-in. Logout/account deletion clear private client caches and land on sign-in; an already-expired logout401 still clears local identity.
+
+Reusing an OAuth code/state must fail. API callers still receive400 for replay/missing/expired state. Browser HTML failures clear the transient cookie and redirect to a clean sign-in error URL, removing code/state from the address bar; refresh never automatically restarts OAuth. Logs contain only a safe reason code and request ID. A303 followed by later400s alone cannot distinguish expiry, a missing browser cookie and replay; use the new safe reason codes.
+
+No push/deploy/cloud configuration changes were performed. Real Google consent, real mailbox delivery and real iOS/Safari behavior require manual post-deployment acceptance. Tests emulate mobile Chromium and synthetic remote Google signing/exchange boundaries; this is not proof that production is fixed.

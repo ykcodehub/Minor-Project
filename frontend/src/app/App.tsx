@@ -1,10 +1,17 @@
-import { lazy, Suspense, useState } from "react";
-import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { lazy, Suspense, useState, type ReactNode } from "react";
+import {
+  Link,
+  NavLink,
+  Route,
+  Routes,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import { ArrowUpRight, LogOut, Settings2, Globe2 } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import { useLanguage } from "./language";
 import { useSession } from "./session";
-import { post } from "../lib/api";
+import { post, ApiError } from "../lib/api";
 import { ErrorNotice, Loading } from "../components/ui";
 const Landing = lazy(() => import("../features/Landing"));
 const Intake = lazy(() => import("../features/Intake"));
@@ -15,10 +22,15 @@ const Settings = lazy(() => import("../features/Settings"));
 const Workspace = lazy(() => import("../features/Workspace"));
 const Compare = lazy(() => import("../features/Compare"));
 const SourcePage = lazy(() => import("../features/SourcePage"));
+function Protected({ children }: { children: ReactNode }) {
+  const { user, loading } = useSession();
+  if (loading) return <Loading />;
+  return user ? children : <Navigate to="/sign-in" replace />;
+}
 export default function App() {
   const { language, setLanguage, t } = useLanguage();
   const [languageOpen, setLanguageOpen] = useState(false);
-  const { user, refresh } = useSession();
+  const { user, clear } = useSession();
   const navigate = useNavigate();
   const [authError, setAuthError] = useState<unknown>();
   const [signingOut, setSigningOut] = useState(false);
@@ -26,9 +38,14 @@ export default function App() {
     setSigningOut(true);
     setAuthError(undefined);
     try {
-      await post("/auth/logout");
-      await refresh();
-      navigate("/");
+      try {
+        await post("/auth/logout");
+      } catch (error) {
+        if (!(error instanceof ApiError && error.status === 401)) throw error;
+        // An already-expired server session still needs local identity/cache cleanup.
+      }
+      navigate("/sign-in", { replace: true });
+      await clear();
     } catch (error) {
       setAuthError(error);
     } finally {
@@ -141,12 +158,54 @@ export default function App() {
             <Route path="/verify-email" element={<Auth key="verify" />} />
             <Route path="/forgot-password" element={<Auth key="recover" />} />
             <Route path="/reset-password" element={<Auth key="reset" />} />
-            <Route path="/compare" element={<Compare />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/analysis/:id" element={<Workspace />} />
-            <Route path="/source/:id" element={<SourcePage />} />
+            <Route
+              path="/compare"
+              element={
+                <Protected>
+                  <Compare />
+                </Protected>
+              }
+            />
+            <Route
+              path="/library"
+              element={
+                <Protected>
+                  <Library />
+                </Protected>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <Protected>
+                  <Dashboard />
+                </Protected>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <Protected>
+                  <Settings />
+                </Protected>
+              }
+            />
+            <Route
+              path="/analysis/:id"
+              element={
+                <Protected>
+                  <Workspace />
+                </Protected>
+              }
+            />
+            <Route
+              path="/source/:id"
+              element={
+                <Protected>
+                  <SourcePage />
+                </Protected>
+              }
+            />
             <Route
               path="*"
               element={

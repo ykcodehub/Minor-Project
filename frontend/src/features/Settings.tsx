@@ -14,7 +14,7 @@ import {
 export default function Settings() {
   const { t } = useLanguage();
 
-  const { user, loading, refresh } = useSession();
+  const { user, loading, refresh, clear } = useSession();
   const [days, setDays] = useState(30);
   const [provider, setProvider] = useState("gemini");
   const [busy, setBusy] = useState(false);
@@ -62,8 +62,8 @@ export default function Settings() {
     setError(undefined);
     try {
       await api("/me", { method: "DELETE" });
-      await refresh();
-      navigate("/");
+      navigate("/sign-in", { replace: true });
+      await clear();
     } catch (e) {
       setError(e);
     } finally {
