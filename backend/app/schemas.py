@@ -55,6 +55,10 @@ class AnalysisInput(Strict):
     )
 
 
+class RetryInput(Strict):
+    acknowledge_uncertain_calls: bool = False
+
+
 class QuestionInput(Strict):
     language: Language | None = None
     question: str = Field(min_length=1, max_length=4000)

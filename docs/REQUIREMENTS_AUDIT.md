@@ -212,3 +212,14 @@ OPS-COMBINED-01 is implemented/tested locally: app.serve supervises one API plus
 | Provider-aware context handling | Full wire-payload preflight, exact-source rechunking, bounded window audits | Page/offset preservation and incomplete-audit downgrade regression tests |
 | Grounded complete-category Summary | services/summary.py, /analyses/{id}/summary, SmartSummary.tsx | All category families mapped; partial counts/error reasons/citation navigation covered; no inferred absence claims |
 | Frontend permissions and status | Settings, Intake, SourcePage, Workspace | Browser fixtures cover saved permissions without repeated consent and truthful partial Summary |
+
+## 2026-11-11 bounded indexing/checkpoint amendment
+
+| Scope | Implementation | Evidence / limits |
+|---|---|---|
+| Source-wide indexing beyond 12 windows | services/context_index.py; shared qualification scans, lexical retrieval and all-indexed-excerpt semantic batches | test_analysis_architecture.py checks >12 windows scanned once, invalid index rejection; synthetic 50-page cases scan 25 windows |
+| Source provenance and wire budgets | reversible source/section aliases; role-aware full-wire guards | canonical IDs restored before existing exact quote/page/offset checks; prior provenance/fallback tests preserved |
+| Structured-output recovery | 1,024-token semantic and 2,048-token index output reserves; bounded regeneration on truncation | compatible length recovery plus cached larger-output completion regression |
+| Resumable bounded jobs | AnalysisCheckpoint, services/checkpoints.py; migration c819ba204ae1 | cache/lease/permissions/job-isolation, restart-without-rebilling and uncertain acknowledgment tests; no production migration |
+| Honest UI | per-provider source-audit scope, finding support counts, partial retry and uncertain-call confirmation | browser explicit acknowledgment scenario; global language messages |
+| Resource qualification | scripts/benchmark_analysis.py | 15 isolated real-PDF/worker/persistence cases with mocked inference; peak memory is one Windows worker-equivalent process, not a combined Render deployment |

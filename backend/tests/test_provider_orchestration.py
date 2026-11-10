@@ -171,7 +171,7 @@ def test_small_context_model_audits_all_windows_before_supported(monkeypatch):
             "id": "sec",
             "source_id": "src",
             "page": 1,
-            "text": "Payment is due. " + "General procedural text. " * 400,
+            "text": "Payment is due. " + "General procedural text. " * 800,
         }
     ]
     candidate = {
@@ -216,7 +216,7 @@ def test_failed_source_window_audit_cannot_be_promoted(monkeypatch):
             "id": "sec",
             "source_id": "src",
             "page": 1,
-            "text": "Payment is due. " + "General procedural text. " * 400,
+            "text": "Payment is due. " + "General procedural text. " * 800,
         }
     ]
     candidate = {
@@ -286,7 +286,7 @@ def test_model_aware_rechunking_keeps_exact_source_offsets(monkeypatch):
     assert all(
         p["text"] == section["text"][p["start_offset"] : p["end_offset"]]
         and p["page"] == 7
-        and p["section_id"] == "section"
+        and p["section_id"] in {"section", "r0"}
         for p in mapped
     )
 

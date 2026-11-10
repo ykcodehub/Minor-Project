@@ -62,6 +62,8 @@ class ModelProvider:
     on_attempt: Callable[[dict], None] | None = field(default=None, repr=False)
     authorize: Callable[[], bool] | None = field(default=None, repr=False)
     budget: dict | None = field(default=None, repr=False)
+    checkpoint: Any = field(default=None, repr=False)
+    context_tokens: int | None = None
     request_tokens: int = 24000
     max_output_tokens: int = 8192
     max_payload_bytes: int = 256000
@@ -72,6 +74,48 @@ class ModelProvider:
 
     def request(self, system: str, prompt: str, schema: dict) -> tuple[str, dict, dict]:
         raise NotImplementedError
+
+    def request_usage(self, payload: dict) -> dict:
+        """One conservative wire estimate for splitting and the final outbound guard.
+
+        Router IDs have no fixed selected-model context. The application request
+        cap still applies; an explicit known model context can only tighten it.
+        """
+        encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        output = payload.get("max_tokens", payload.get("generationConfig", {}).get("maxOutputTokens", 0))
+        input_tokens = int(self.count_tokens(encoded) * 1.2) + 256
+        return {
+            "estimated_input_tokens": input_tokens,
+            "reserved_output_tokens": output,
+            "estimated_request_tokens": input_tokens + output,
+            "payload_bytes": len(encoded.encode("utf-8")),
+            "request_token_limit": self.request_tokens,
+            "context_tokens": self.context_tokens,
+            "budget_basis": ("configured_router_cap" if self.context_tokens else "router_application_policy")
+            if self.name == "openrouter" and self.model in {"openrouter/free", "openrouter/auto"}
+            else ("configured_model_context" if self.context_tokens else "application_policy"),
+        }
+
+    def output_limit(self, role):
+        return min(
+            self.max_output_tokens, {"semantic_verification": 1024, "context_indexing": 2048}.get(role, 4096)
+        )
+
+    def fits(self, system: str, prompt: str, schema: dict, role=None) -> bool:
+        try:
+            _, _, payload = self.request(system, prompt, schema)
+        except ProviderError:
+            return False
+        if role:
+            if self.name == "gemini":
+                payload["generationConfig"]["maxOutputTokens"] = self.output_limit(role)
+            else:
+                payload["max_tokens"] = self.output_limit(role)
+        usage = self.request_usage(payload)
+        return (
+            usage["estimated_request_tokens"] <= self.request_tokens
+            and usage["payload_bytes"] <= self.max_payload_bytes
+        )
 
     def count_tokens(self, text: str) -> int:
         """Shared tokenizer estimate; authoritative usage comes from provider responses."""
@@ -135,7 +179,7 @@ class ModelProvider:
             raise ProviderError("PROVIDER_NOT_CONFIGURED")
         if len(system) + len(prompt) > 180000:
             raise ProviderError("PROVIDER_INPUT_BUDGET_EXCEEDED")
-        output_budget = min(4096, self.max_output_tokens)
+        output_budget = self.output_limit(role)
         for attempt in range(min(max(self.retries, 0), 2) + 1):
             started = time.monotonic()
             call = {
@@ -143,11 +187,12 @@ class ModelProvider:
                 "model": self.model,
                 "role": role,
                 "attempt": attempt + 1,
-                "prompt_version": "evidence-v2.2.0",
+                "prompt_version": "evidence-v2.3.0",
                 "token_in": None,
                 "token_out": None,
                 "estimated_cost": None,
             }
+            ticket = None
             retryable = False
             retry_after = 0.0
             try:
@@ -160,14 +205,28 @@ class ModelProvider:
                     raise ProviderError("PROVIDER_PERMISSION_REVOKED")
                 if self.name == "gemini":
                     payload["generationConfig"]["maxOutputTokens"] = output_budget
-                encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
-                output_tokens = payload.get(
-                    "max_tokens", payload.get("generationConfig", {}).get("maxOutputTokens", 0)
-                )
-                estimated = int(self.count_tokens(encoded) * 1.2) + output_tokens + 256
-                call.update(estimated_request_tokens=estimated, payload_bytes=len(encoded.encode("utf-8")))
+                else:
+                    payload["max_tokens"] = output_budget
+                call.update(self.request_usage(payload), budget_phase="local_preflight")
+                estimated = call["estimated_request_tokens"]
                 if estimated > self.request_tokens or call["payload_bytes"] > self.max_payload_bytes:
                     raise ProviderError("PROVIDER_CONTEXT_LIMIT")
+                if self.checkpoint is not None:
+                    ticket, cached = self.checkpoint.begin(
+                        payload, schema_type.model_json_schema(), role, dict(call), estimated, self.budget
+                    )
+                    if cached:
+                        return schema_type.model_validate(cached["value"]), [
+                            {
+                                **cached["metadata"],
+                                "cached": True,
+                                "token_in": 0,
+                                "token_out": 0,
+                                "estimated_cost": 0,
+                                "latency_ms": 0,
+                                "outcome": "SUCCESS",
+                            }
+                        ]
                 if self.budget is not None:
                     if (
                         self.budget["calls"] >= self.budget["max_calls"]
@@ -180,6 +239,7 @@ class ModelProvider:
                 with httpx.Client(timeout=self.timeout, follow_redirects=False, trust_env=False) as client:
                     response = client.post(url, headers=headers, json=payload)
                 call["http_status"] = response.status_code
+                call["budget_phase"] = "provider_response"
                 if response.status_code != 200:
                     header = response.headers.get("Retry-After", "")
                     try:
@@ -206,6 +266,21 @@ class ModelProvider:
                         422: "PROVIDER_REQUEST_REJECTED",
                         429: "PROVIDER_RATE_LIMITED",
                     }.get(response.status_code, "PROVIDER_UNAVAILABLE")
+                    if response.status_code == 400:
+                        try:
+                            error = response.json().get("error", {})
+                            message = error.get("message", "")
+                            if error.get("code") == "context_length_exceeded" or (
+                                isinstance(message, str)
+                                and re.search(
+                                    r"maximum context length|context window exceeded|context_length_exceeded",
+                                    message,
+                                    re.IGNORECASE,
+                                )
+                            ):
+                                code = "PROVIDER_CONTEXT_LIMIT"
+                        except (ValueError, AttributeError, TypeError):
+                            pass
                     raise ProviderError(code)
                 raw = response.json()
                 if not isinstance(raw, dict):
@@ -241,8 +316,17 @@ class ModelProvider:
                         raise ProviderError("PROVIDER_CONTENT_BLOCKED")
                     if reason == "MAX_TOKENS":
                         retryable = output_budget < self.max_output_tokens
-                        output_budget = min(8192, self.max_output_tokens)
+                        output_budget = min(output_budget * 2, 8192, self.max_output_tokens)
                         raise ProviderError("PROVIDER_OUTPUT_LIMIT")
+                if (
+                    self.name != "gemini"
+                    and raw.get("choices")
+                    and raw["choices"][0].get("finish_reason") == "length"
+                ):
+                    call["finish_reason"] = "length"
+                    retryable = output_budget < self.max_output_tokens
+                    output_budget = min(output_budget * 2, 8192, self.max_output_tokens)
+                    raise ProviderError("PROVIDER_OUTPUT_LIMIT")
                 content, token_in, token_out = self.unpack(raw)
                 call.update(token_in=token_in, token_out=token_out)
                 if (
@@ -257,6 +341,8 @@ class ModelProvider:
                 value = schema_type.model_validate_json(content)
                 call["outcome"] = "SUCCESS"
                 call["latency_ms"] = round((time.monotonic() - started) * 1000)
+                if ticket is not None:
+                    self.checkpoint.finish(ticket, value.model_dump(), dict(call))
                 calls.append(call)
                 return value, calls
             except httpx.TimeoutException:
@@ -267,6 +353,8 @@ class ModelProvider:
                 code, retryable = "PROVIDER_INVALID_OUTPUT", True
             except ProviderError as exc:
                 code = exc.code
+            if ticket is not None:
+                self.checkpoint.fail(ticket, code)
             call.update(outcome=code, latency_ms=round((time.monotonic() - started) * 1000))
             calls.append(call)
             # Strict whitelist: no raw response, request, exception text, credentials or source text.
@@ -281,6 +369,13 @@ class ModelProvider:
                     "finish_reason",
                     "outcome",
                     "latency_ms",
+                    "estimated_input_tokens",
+                    "reserved_output_tokens",
+                    "estimated_request_tokens",
+                    "request_token_limit",
+                    "payload_bytes",
+                    "budget_phase",
+                    "budget_basis",
                 )
                 if k in call
             }
@@ -365,15 +460,24 @@ def configured_provider(config: dict) -> ModelProvider:
         on_attempt=config.get("on_attempt"),
         authorize=config.get("authorize"),
         budget=config.get("budget"),
+        checkpoint=config.get("checkpoint"),
+        context_tokens=int(config["context_tokens"]) if config.get("context_tokens") is not None else None,
         request_tokens=max(
-            1024,
+            1,
             min(
                 int(config.get("request_tokens", {"groq": 6000, "gemini": 24000, "openrouter": 12000}[name])),
-                int(config.get("context_tokens", 24000)),
+                int(
+                    config.get(
+                        "context_tokens",
+                        config.get(
+                            "request_tokens", {"groq": 6000, "gemini": 24000, "openrouter": 12000}[name]
+                        ),
+                    )
+                ),
             ),
         ),
         max_output_tokens=max(
-            256,
+            1,
             min(
                 int(
                     config.get("max_output_tokens", {"groq": 2048, "gemini": 8192, "openrouter": 4096}[name])
@@ -381,7 +485,7 @@ def configured_provider(config: dict) -> ModelProvider:
                 8192,
             ),
         ),
-        max_payload_bytes=max(4096, min(int(config.get("max_payload_bytes", 256000)), 1000000)),
+        max_payload_bytes=max(1, min(int(config.get("max_payload_bytes", 256000)), 1000000)),
         timeout=min(float(config.get("timeout", 40)), 60),
         retries=int(config.get("retries", 2)),
         input_price_per_million=config.get("input_price_per_million"),
@@ -438,7 +542,12 @@ def generate_with_fallback(
                 last_code,
                 max(0, len(configs[:3]) - index - 1),
             )
-            if last_code in {"PROVIDER_CONTENT_BLOCKED", "PROVIDER_OPERATION_BUDGET_EXCEEDED"}:
+            if last_code in {
+                "PROVIDER_CONTENT_BLOCKED",
+                "PROVIDER_OPERATION_BUDGET_EXCEEDED",
+                "PROVIDER_CHECKPOINT_UNCERTAIN",
+                "PROVIDER_JOB_INTERRUPTED",
+            }:
                 break
     raise ProviderError(last_code, calls=calls)
 
@@ -446,7 +555,10 @@ def generate_with_fallback(
 def input_budget(config: dict, schema_type: type[BaseModel]) -> int:
     """Conservative text allowance after complete wire-schema/output overhead."""
     provider = configured_provider(config)
-    _, _, payload = provider.request("", "", schema_type.model_json_schema())
+    try:
+        _, _, payload = provider.request("", "", schema_type.model_json_schema())
+    except ProviderError:
+        return 0
     output = payload.get("max_tokens", payload.get("generationConfig", {}).get("maxOutputTokens", 4096))
     overhead = provider.count_tokens(json.dumps(payload, ensure_ascii=False))
-    return max(64, int((provider.request_tokens - output - 512) / 1.2) - overhead)
+    return max(0, int((provider.request_tokens - output - 512) / 1.2) - overhead)

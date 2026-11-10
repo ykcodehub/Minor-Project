@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { providerFailure } from "./providerFailure";
 describe("provider failure guidance", () => {
   it.each([
+    "CHECKPOINT_UNCERTAIN",
+    "CONTEXT_INCOMPLETE",
     "CONTEXT_LIMIT",
     "PERMISSION_REVOKED",
     "OPERATION_BUDGET_EXCEEDED",

@@ -417,3 +417,7 @@ No existing Render/Vercel secret values need to change. Rebuild both frontend an
 - `MAX_AI_CALLS_PER_OPERATION=100`, `MAX_AI_TOKENS_PER_OPERATION=500000`: shared bounds across retries, fallback and verification for one analysis/chat/translation operation. Token accounting reserves estimated worst-case output, not a guaranteed dollar charge. Lower bounds to constrain usage. Provider rate limits and paid billing still apply.
 
 Full live Gemini/Groq/OpenRouter availability, quotas and answer quality require a separately authorized real-provider smoke test. Automated integration coverage uses synthetic HTTP; no production records or live AI requests were used.
+
+## 11 November 2026 amendment: bounded indexed verification
+
+Use a shared source-wide qualification index with exact validated quotations and bounded semantic review, not a per-finding 12-window cutoff. Display source-audit coverage separately from finding support and workflow completion. Preserve original source identifiers/pages/offsets through reversible wire aliases. Reuse durable completed request checkpoints on explicit retry; require cost acknowledgment for interrupted uncertain requests. Global call/token reservations survive retry. Neither retrieval nor a completed model-assisted index certifies correctness. The 10–15-page target is validated using synthetic PDFs and mocked inference only; production model quality, quotas and combined hosting memory remain unverified. See README and docs/benchmarks/BENCHMARKS.md for implementation limits and execution evidence.

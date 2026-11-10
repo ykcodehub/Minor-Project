@@ -204,7 +204,22 @@ export default function Workspace() {
     setBusy(true);
     setError(undefined);
     try {
-      await post(`/jobs/${jobId}/${action}`);
+      if (
+        action === "retry" &&
+        job.data?.uncertain_ai_requests &&
+        !window.confirm(
+          t(
+            "An interrupted AI request may already have been billed. Retry it while reusing completed checkpoints?",
+          ),
+        )
+      )
+        return;
+      await post(
+        `/jobs/${jobId}/${action}`,
+        action === "retry"
+          ? { acknowledge_uncertain_calls: !!job.data?.uncertain_ai_requests }
+          : undefined,
+      );
       polling.resume();
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["analysis", id] }),
@@ -391,12 +406,14 @@ export default function Workspace() {
           </button>
         </section>
       )}
-      {["FAILED", "CANCELLED", "CANCELED"].includes(state || "") && (
+      {["FAILED", "CANCELLED", "CANCELED", "PARTIAL_COMPLETION"].includes(
+        state || "",
+      ) && (
         <div className="notice error">
           <FileSearch size={20} />
           <div>
             <strong>
-              {state === "FAILED"
+              {["FAILED", "PARTIAL_COMPLETION"].includes(state || "")
                 ? t("Analysis could not be completed")
                 : t("Processing was canceled")}
             </strong>
@@ -763,6 +780,21 @@ export default function Workspace() {
         <details className="coverage-footer" data-testid="processing-coverage">
           <summary>{t("Processing coverage")}</summary>
           <CoverageNotice coverage={data?.coverage} state={state} />
+          {Array.isArray(data?.coverage?.context_indexes) &&
+            data.coverage.context_indexes.map(
+              (item: Record<string, unknown>, index: number) => (
+                <p key={index}>
+                  {t("Source-wide index coverage")} ({display(item.provider)}):{" "}
+                  {display(item.windows_processed)} /{" "}
+                  {display(item.windows_total)} {t("windows reviewed")}.{" "}
+                  {t(
+                    item.complete
+                      ? "Source audit completed; semantic verification is still required for each finding."
+                      : "This provider audit is incomplete. A completed authorized audit and semantic verification are required for supported findings.",
+                  )}
+                </p>
+              ),
+            )}
           {data?.overview && (
             <details>
               <summary>{t("Original analysis overview")}</summary>

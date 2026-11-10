@@ -123,3 +123,71 @@ test("partial summary shows verified counts and failure reason", async ({
   await page.getByText("Processing failure reasons", { exact: true }).click();
   await expect(page.getByText(/^PROVIDER_CONTEXT_LIMIT:/)).toBeVisible();
 });
+
+test("uncertain checkpoint replay requires a browser acknowledgment", async ({
+  page,
+}) => {
+  let retries = 0;
+  await page.route("**/api/v1/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    let data: unknown = [];
+    if (path === "/api/v1/me")
+      data = {
+        id: "synthetic",
+        email: "synthetic@example.com",
+        is_guest: false,
+        verified: true,
+        language: "en",
+        retention_days: 30,
+        csrf_token: "fixture",
+        providers: [],
+      };
+    else if (path === "/api/v1/analyses/synthetic")
+      data = {
+        id: "synthetic",
+        job_id: "job",
+        status: "FAILED",
+        sources: [],
+        source_ids: [],
+        coverage: {},
+        limitations: [],
+        findings_count: 0,
+      };
+    else if (path === "/api/v1/jobs/job")
+      data = {
+        job_id: "job",
+        state: "FAILED",
+        stage: "FAILED",
+        result: {},
+        progress: {},
+        uncertain_ai_requests: 1,
+        error: "PROVIDER_CHECKPOINT_UNCERTAIN",
+      };
+    else if (path === "/api/v1/jobs/job/retry") {
+      expect(route.request().postDataJSON().acknowledge_uncertain_calls).toBe(
+        true,
+      );
+      retries++;
+      data = { state: "QUEUED" };
+    } else if (path === "/api/v1/analyses/synthetic/summary")
+      data = {
+        summary: {
+          level: "Not Determinable",
+          rule: "Incomplete",
+          rule_version: "test",
+          disclaimer: "Not legal advice",
+          groups: {},
+        },
+        translations: {},
+        translation_ready: true,
+      };
+    return route.fulfill({ json: data });
+  });
+  await page.goto("/analysis/synthetic");
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page.getByRole("button", { name: "Retry analysis" }).click();
+  expect(retries).toBe(0);
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Retry analysis" }).click();
+  await expect.poll(() => retries).toBe(1);
+});

@@ -364,3 +364,58 @@ Final executed checks:
 Intermediate failures were fixed: the API schema snapshot was refreshed for the additive fields, manually constructed legacy test jobs now include their explicit consent, the existing full-source prompt field was preserved, and Summary text assertions were updated for actionable failure guidance. Original multilingual quotation/navigation tests are preserved alongside new tests. No migration or data changes were applied to Neon, no .env values were modified, no real provider calls were made, and nothing was pushed/deployed. Production provider/model availability, actual plan limits, paid billing and linguistic/model quality require an authorized live smoke test.
 
 Deployment: apply python -m alembic upgrade head from backend through the approved migration workflow before starting the new API/worker; then rebuild backend/frontend. Existing secrets and start commands remain valid. Optional PROVIDER_LIMITS, MAX_AI_CALLS_PER_OPERATION and MAX_AI_TOKENS_PER_OPERATION are documented in README and backend/.env.example; no new Vercel secrets are needed.
+
+## Dense source-map/OpenRouter context fix — 2026-11-10
+
+Confirmed from a read-only query for analysis 4fa50893-a62a-47d1-ad1d-a89758661c05: all three OpenRouter candidate calls failed in local preflight, with no HTTP status. Estimated total budgets were 19,946 / 19,949 / 18,131 tokens. Source chunks had 1,788 / 1,786 / 1,685 text tokens but 113 / 113 / 106 source-span records. Text-only chunk sizing omitted serialized mapping metadata, making the locally enforced 12,000-token budget fail before OpenRouter was contacted. This does not prove that an underlying selected model rejected the request. All three provider credentials/models were configured, but this user's effective saved permissions allowed only OpenRouter; no permitted fallback existed.
+
+Read-only same-document verification with generation HTTP explicitly disabled: raw 3 chunks -> fitted 10 chunks; peak estimated total request tokens 19,949 -> 11,688, below the unchanged 12,000-token policy cap. Every original character range remained covered. No source text was printed, no job was retried, no model request was made and no database record changed. This verifies local preflight correction, not successful live AI analysis.
+
+Changes: providers/base.py shares wire-usage calculation between the fitter and outbound guard, distinguishes router/application versus explicitly configured context, preserves configured small limits and records local/upstream budget phase; services/analysis.py shares exact prompt builders and source-span fitting for candidates and context-audit windows; config.py honors exact model-ID budget keys with backward-compatible namespaced overrides. Frontend failure wording now distinguishes application and provider limits. No new schema migration.
+
+Synthetic regressions in tests/test_openrouter_budget.py cover dense short-section documents, exact offsets/pages/full coverage, selected response-model tracking, free-router unknown context, system/schema/output accounting, model override precedence, small-limit enforcement, upstream context rejection without blind retry, context-audit wire fitting and persisted authorized fallback without unchecked providers.
+
+Final executed results for the OpenRouter dense-map fix:
+
+| Check | Actual result |
+|---|---|
+| backend: ENVIRONMENT=test DATABASE_URL=sqlite:// python -m pytest tests -q --tb=short | 240 passed, 1 skipped; 125.57s; PostgreSQL integration opt-in not enabled |
+| New tests/test_openrouter_budget.py | 7 passed, synthetic sources/HTTP only |
+| Focused provider, orchestration and evidence regressions | 45 passed before the final two additional router regressions were added |
+| frontend: npm test | 40 passed, 12 files |
+| frontend: npm run lint | passed |
+| frontend: npm run build | TypeScript plus Vite build passed |
+| python scripts/test_e2e.py using backend virtualenv | 18 passed, 1 skipped; isolated temporary local services; live PostgreSQL/AI scenario deliberately skipped |
+| Ruff app + new tests; git diff --check | passed |
+
+Changed for this fix: backend/app/providers/base.py, backend/app/config.py, backend/app/services/analysis.py, backend/tests/test_openrouter_budget.py (new), frontend/src/lib/providerFailure.ts, frontend/src/lib/messages.json, backend/.env.example (comments only), README.md, HOW_TO_RUN.md and this verification report. The model-override test initially used a development SQLite configuration rejected by the existing PostgreSQL guard; the fixture was corrected to a synthetic PostgreSQL URL without making any database connection. Production guards were preserved.
+
+No .env edits, migrations, production-data writes, paid/live generation calls, pushes or deployments occurred. No application budget was raised. Model/provider availability, selected-model tokenization and actual inference quality remain live-test limitations. Existing users must explicitly enable fallback providers in Settings; API-key configuration alone never authorizes document transfer.
+
+## Source-wide indexing, bounded output and restart-safe requests ? 2026-11-11
+
+Implementation: services/context_index.py builds one source-wide qualification index per source/provider, with Unicode lexical retrieval, exact reversible source aliases and mandatory semantic checks against every indexed material-context batch. The main pipeline no longer has a 12-window per-finding gate. Full-source wire checks replace the prior character heuristic; small sources can use direct whole-source review. Missing references, malformed/unvalidated index quotes, incomplete scans and failed semantic checks cannot produce a supported finding. Index coverage is not legal accuracy or independent verification; model omissions remain possible.
+
+Provider guards use complete serialized payloads with role-aware output reserves: semantic verification starts at 1,024 tokens, indexing at 2,048, candidate generation at existing provider caps up to 4,096. Compatible-provider `length` and Gemini MAX_TOKENS reject truncated output and permit bounded regeneration within existing model/request/operation caps. Cached larger-output completions can satisfy an identical logical request without another model HTTP call. No original file/page/document/context/call/token cap was raised.
+
+AnalysisCheckpoint and services/checkpoints.py reserve usage before sending, store only schema-valid completed values, enforce current user permissions and lease ownership, and isolate caches by job/request/schema/model/task/version. Reservations survive explicit retries and do not reset the job budget. A RUNNING checkpoint left by an interrupted worker is uncertain; retry without acknowledgment is rejected, and the browser asks before resending such a request. Completed requests resume from cache with zero additional HTTP/token charges. Source/account deletion cascades through the existing job ownership graph. Checkpoints are private PostgreSQL application data; no unprotected cache endpoint was added.
+
+Executed checks:
+
+| Command / check | Actual result |
+|---|---|
+| backend: ENVIRONMENT=test DATABASE_URL=sqlite:// python -m pytest tests -q --tb=short | 247 passed, 1 skipped; 190.22s; explicit PostgreSQL integration opt-in not enabled |
+| frontend: npm test | 42 passed across 12 files |
+| frontend: npm run lint | passed |
+| frontend: npm run build | TypeScript + Vite build passed |
+| Ruff app/new tests/new migration/benchmark script; git diff --check | passed |
+| backend/.venv/Scripts/python.exe scripts/test_e2e.py | 19 passed, 1 skipped; live PostgreSQL/AI scenario intentionally disabled |
+| Isolated Alembic upgrade b730a1410f91 -> c819ba204ae1 | passed, synthetic legacy user preserved, schema check clean |
+| PostgreSQL migration SQL compilation offline | passed; no PostgreSQL connection or production DDL |
+| scripts/benchmark_analysis.py | all 15 provider/page cases executed; see docs/benchmarks/BENCHMARKS.md and JSON |
+
+New regression coverage: source-wide scans beyond 12 windows run once; invalid/global evidence never gains support; reversible IDs retain source scope; cached results are job-scoped and permission-guarded; uncertain calls require explicit acknowledgment; reserved budgets persist across retry; a worker interrupted after completed responses resumes to persisted findings without additional provider HTTP; structured-output growth reuses its saved completion. Existing provenance tests were updated to assert exact wire aliases instead of assuming verbose UUIDs. Existing audit fixtures were lengthened to force actual full-wire overflow after removing the old character heuristic; their negative support assertions remain intact.
+
+Benchmark conclusions are fixture-specific: 1/5/10/15 pages completed across all three mocked adapters; all expected quotes retained exact page/offset validation. At 50 pages all 25 source-index windows were audited; Gemini/OpenRouter returned partial results at the unchanged token cap, while Groq completed the zero-error synthetic fixture. Windows single-process peak memory is approximately 136?141 MiB, not qualification of Render's combined 512 MiB service or image-heavy 20 MiB input. Local elapsed times exclude real model/network inference; no model-quality claim is made. The JSON records exact case metrics and the markdown report explains scope.
+
+Migration c819ba204ae1 is additive and has NOT been applied to Neon. Apply python -m alembic upgrade head from backend in the approved migration workflow before running the updated API/worker. No new environment variables are required. Existing provider/storage/auth credentials and production values were not edited. No production data was changed, no live paid inference was called, and nothing was pushed or deployed. Dense contracts, provider quotas/outages, model omissions and long jobs under Render sleep/CPU limits remain practical limitations; use partial results and budget review rather than silently raising limits or replaying uncertain calls.

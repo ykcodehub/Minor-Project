@@ -9,6 +9,7 @@ from sqlalchemy import String, cast, func, select
 from app.config import settings
 from app.models import (
     Analysis,
+    AnalysisCheckpoint,
     AnalysisSource,
     Finding,
     Job,
@@ -32,6 +33,7 @@ from app.schemas import (
     QuestionInput,
     QuestionResponse,
     ReportResponse,
+    RetryInput,
 )
 from app.security import CurrentUser, Db, throttle
 from app.services.resources import LIMITATIONS, audit, owned, quota, source_dict
@@ -438,6 +440,11 @@ def get_job(job_id: str, db: Db, user: CurrentUser):
         "progress": job.progress,
         "error": job.error,
         "attempts": job.attempts,
+        "uncertain_ai_requests": db.scalar(
+            select(func.count())
+            .select_from(AnalysisCheckpoint)
+            .where(AnalysisCheckpoint.job_id == job.id, AnalysisCheckpoint.state == "RUNNING")
+        ),
         "result": job.result,
     }
 
@@ -459,7 +466,7 @@ def cancel_job(job_id: str, db: Db, user: CurrentUser):
 
 
 @router.post("/jobs/{job_id}/retry")
-def retry_job(job_id: str, db: Db, user: CurrentUser):
+def retry_job(job_id: str, db: Db, user: CurrentUser, data: RetryInput | None = None):
     quota(db, user)
     job = owned(db, Job, job_id, user, lock=True)
     if job.state not in ("FAILED", "CANCELLED", "PARTIAL_COMPLETION"):
@@ -474,6 +481,18 @@ def retry_job(job_id: str, db: Db, user: CurrentUser):
             providers_for(user, job.payload)
         except ProviderError as exc:
             raise HTTPException(403 if exc.code == "PROVIDER_PERMISSION_REVOKED" else 503, exc.code) from None
+    uncertain = db.scalars(
+        select(AnalysisCheckpoint).where(
+            AnalysisCheckpoint.job_id == job.id, AnalysisCheckpoint.state == "RUNNING"
+        )
+    ).all()
+    if uncertain and not (data and data.acknowledge_uncertain_calls):
+        raise HTTPException(
+            409,
+            "An interrupted AI request may already have been billed. Explicit acknowledgment is required before retrying it.",
+        )
+    for record in uncertain:
+        record.state = "ABANDONED"
     job.state, job.stage, job.error = "QUEUED", "RECEIVED", None
     job.lease_token = None
     job.lease_until = None

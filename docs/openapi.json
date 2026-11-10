@@ -1693,6 +1693,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RetryInput"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Data"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2823,6 +2840,18 @@
           "created_at"
         ],
         "title": "ReportResponse"
+      },
+      "RetryInput": {
+        "properties": {
+          "acknowledge_uncertain_calls": {
+            "type": "boolean",
+            "title": "Acknowledge Uncertain Calls",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RetryInput"
       },
       "SectionResponse": {
         "properties": {

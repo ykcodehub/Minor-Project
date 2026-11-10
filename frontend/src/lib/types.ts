@@ -70,6 +70,7 @@ export interface Finding {
   provider?: string;
 }
 export interface Job {
+  uncertain_ai_requests?: number;
   id: string;
   state: string;
   stage: string;

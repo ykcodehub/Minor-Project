@@ -279,7 +279,10 @@ def process(job_id, token):
         with SessionLocal() as policy_db:
             owner = policy_db.get(User, job.owner_id)
             providers = providers_for(owner, payload, SessionLocal)
+        from app.services.checkpoints import RequestCheckpoints
+        checkpoints=RequestCheckpoints(SessionLocal,job_id,token)
         for provider in providers:
+            provider["checkpoint"]=checkpoints
             provider["on_attempt"] = lambda event: progress(
                 job_id, token, "AI_" + event["role"].upper(), **event
             )

@@ -131,6 +131,17 @@ class ModelCall(Base):
     created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=now)
 
 
+class AnalysisCheckpoint(Base):
+    __tablename__ = "analysis_checkpoints"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    job_id: Mapped[str] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
+    request_hash: Mapped[str] = mapped_column(String(64), index=True)
+    state: Mapped[str] = mapped_column(String(20))
+    reserved_tokens: Mapped[int] = mapped_column(Integer)
+    data: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
 class EvidenceSpan(Base):
     __tablename__ = "evidence_spans"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)

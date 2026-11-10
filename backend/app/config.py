@@ -182,6 +182,7 @@ class Settings(BaseSettings):
                 "key": getattr(self, n + "_api_key"),
                 "model": getattr(self, n + "_model"),
                 **self.provider_limits.get(n, {}),
+                **self.provider_limits.get(getattr(self, n + "_model"), {}),
                 **self.provider_limits.get(n + "/" + getattr(self, n + "_model"), {}),
                 **{
                     k: v

@@ -1979,12 +1979,40 @@
     "hi": "प्रक्रिया की निर्धारित AI सीमा पूरी हो गई। नया विश्लेषण शुरू करने से पहले आंशिक निष्कर्ष देखें।",
     "hinglish": "Operation ka bounded AI budget khatam hua. Naya analysis shuru karne se pehle partial findings dekhein."
   },
-  "The provider rejected the request size or token budget. Authorized alternatives were considered; inspect coverage and try a smaller source.": {
-    "hi": "प्रदाता ने अनुरोध का आकार या टोकन सीमा अस्वीकार की। अधिकृत विकल्पों पर विचार हुआ; कवरेज जाँचें और छोटा स्रोत आज़माएँ।",
-    "hinglish": "Provider ne request size ya token budget reject kiya. Authorized alternatives consider hue; coverage check karein aur chhota source try karein."
-  },
   "Current AI provider": {
     "hi": "वर्तमान AI प्रदाता",
     "hinglish": "Current AI provider"
+  },
+  "The request exceeds an application or provider context budget. Review coverage and use a smaller source or an authorized alternative.": {
+    "hi": "अनुरोध एप्लिकेशन या प्रदाता की संदर्भ सीमा से बड़ा है। कवरेज जाँचें और छोटा स्रोत या अधिकृत विकल्प चुनें।",
+    "hinglish": "Request application ya provider ke context budget se bada hai. Coverage check karein aur chhota source ya authorized alternative use karein."
+  },
+  "Source-wide index coverage": {
+    "hi": "संपूर्ण स्रोत सूचकांक कवरेज",
+    "hinglish": "Source-wide index coverage"
+  },
+  "windows reviewed": {
+    "hi": "खंडों की समीक्षा हुई",
+    "hinglish": "windows reviewed"
+  },
+  "Source audit completed; semantic verification is still required for each finding.": {
+    "hi": "स्रोत समीक्षा पूरी हुई; हर निष्कर्ष का अर्थ-सत्यापन अभी भी आवश्यक है।",
+    "hinglish": "Source audit complete hai; har finding ki semantic verification zaroori hai."
+  },
+  "An interrupted AI request may already have been billed. Retry it while reusing completed checkpoints?": {
+    "hi": "रुके हुए AI अनुरोध का शुल्क लग चुका हो सकता है। सहेजे गए परिणामों का पुनः उपयोग करते हुए प्रयास करें?",
+    "hinglish": "Interrupted AI request bill ho sakti hai. Saved checkpoints reuse karke retry karein?"
+  },
+  "An interrupted AI request has no saved response. Review possible usage before explicitly retrying it; completed responses will be reused.": {
+    "hi": "रुके हुए AI अनुरोध का उत्तर सहेजा नहीं गया। पुनः प्रयास से पहले संभावित उपयोग जाँचें; पूरे उत्तरों का पुनः उपयोग होगा।",
+    "hinglish": "Interrupted AI request ka response saved nahi hai. Retry se pehle usage check karein; complete responses reuse honge."
+  },
+  "The source-wide qualification audit is incomplete. Results remain unverified; inspect coverage before retrying.": {
+    "hi": "संपूर्ण स्रोत समीक्षा अधूरी है। परिणाम असत्यापित हैं; पुनः प्रयास से पहले कवरेज जाँचें।",
+    "hinglish": "Source-wide audit incomplete hai. Results unverified hain; retry se pehle coverage dekhein."
+  },
+  "This provider audit is incomplete. A completed authorized audit and semantic verification are required for supported findings.": {
+    "hi": "इस प्रदाता की समीक्षा अधूरी है। समर्थित निष्कर्षों के लिए पूरी अधिकृत समीक्षा और अर्थ-सत्यापन आवश्यक हैं।",
+    "hinglish": "Is provider ka audit incomplete hai. Supported findings ke liye complete authorized audit aur semantic verification zaroori hain."
   }
 }
