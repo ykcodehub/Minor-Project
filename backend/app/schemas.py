@@ -112,6 +112,7 @@ class CitationResponse(ResponseModel):
 
 
 class FindingResponse(ResponseModel):
+    risk_assessment: dict = Field(default_factory=dict)
     id: str
     finding_id: str
     category: str

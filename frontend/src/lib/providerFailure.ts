@@ -15,7 +15,7 @@ export function providerFailure(error: string): string | undefined {
   if (error.includes("PROVIDER_CONTENT_BLOCKED"))
     return "The provider blocked generation. Repeated retries are unlikely to help. Inspect the source; no verified result was produced.";
   if (error.includes("PROVIDER_OUTPUT_LIMIT"))
-    return "The provider reached its output limit after bounded recovery. Try analyzing a smaller document; incomplete output was not accepted.";
+    return "The provider exhausted its output allowance. Review partial evidence and choose a compatible, authorized provider in Settings before retrying; truncated output was rejected.";
   if (
     error.includes("PROVIDER_AUTH_FAILED") ||
     error.includes("PROVIDER_MODEL_UNAVAILABLE") ||

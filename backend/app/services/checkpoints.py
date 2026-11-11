@@ -13,7 +13,7 @@ class RequestCheckpoints:
     def __init__(self, factory, job_id, lease_token):
         self.factory, self.job_id, self.lease_token = factory, job_id, lease_token
 
-    def begin(self, payload, schema, role, metadata, estimated, budget):
+    def begin(self, payload, schema, role, metadata, estimated, budget, before_reserve=None):
         logical = json.loads(json.dumps(payload))
         logical.pop("max_tokens", None)
         if "generationConfig" in logical:
@@ -59,6 +59,8 @@ class RequestCheckpoints:
             ).one()
             if calls >= budget["max_calls"] or tokens + estimated > budget["max_tokens"]:
                 raise ProviderError("PROVIDER_OPERATION_BUDGET_EXCEEDED")
+            if before_reserve:
+                before_reserve()
             record = AnalysisCheckpoint(
                 job_id=self.job_id,
                 request_hash=fingerprint,

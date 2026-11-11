@@ -1,5 +1,6 @@
 import io
 import json
+import math
 from typing import Literal
 
 from fastapi import APIRouter, Header, HTTPException
@@ -41,6 +42,17 @@ from app.services.resources import LIMITATIONS, audit, owned, quota, source_dict
 router = APIRouter()
 
 
+def ai_unavailable(exc, operation):
+    wait = max((c.get("retry_after_seconds", 0) for c in exc.model_calls), default=0)
+    error = HTTPException(
+        503,
+        f"{operation} unavailable: {exc.code}. No unverified output is accepted; original evidence remains available.",
+        headers={"Retry-After": str(math.ceil(wait))} if wait else None,
+    )
+    error.public_code = exc.code
+    return error
+
+
 def analysis_sources(db, analysis):
     return db.scalars(
         select(Source).join(AnalysisSource).where(AnalysisSource.analysis_id == analysis.id)
@@ -48,7 +60,9 @@ def analysis_sources(db, analysis):
 
 
 def finding_dict(row):
-    return {**row.data, "id": row.id, "finding_id": row.id}
+    from app.services.summary import assess_finding
+
+    return {**row.data, "id": row.id, "finding_id": row.id, "risk_assessment": assess_finding(row.data)}
 
 
 def call_dict(row):
@@ -164,6 +178,8 @@ def get_findings(
     limit: int = 200,
     source_id: str | None = None,
     response: Response = None,
+    severity: str | None = None,
+    group_by: Literal["category", "severity"] | None = None,
 ):
     owned(db, Analysis, analysis_id, user)
     if offset < 0 or not 1 <= limit <= 200:
@@ -172,7 +188,11 @@ def get_findings(
     if category:
         query = query.where(Finding.data["category"].as_string().in_(category.split(",")))
     if status:
-        query = query.where(Finding.data["support_status"].as_string() == status)
+        query = query.where(
+            Finding.data["support_status"].as_string().in_(["PARTIALLY_SUPPORTED", "AMBIGUOUS"])
+            if status == "NEEDS_REVIEW"
+            else Finding.data["support_status"].as_string() == status
+        )
     if q:
         query = query.where(
             cast(Finding.data, String).ilike(
@@ -185,6 +205,23 @@ def get_findings(
         query = query.where(
             Finding.id.in_(select(EvidenceSpan.finding_id).where(EvidenceSpan.source_id == source_id))
         )
+    if severity or group_by:
+        if severity and severity not in {"High", "Moderate", "Low", "Unassessed", "Needs Review"}:
+            raise HTTPException(422, "Invalid review priority.")
+        rows = [finding_dict(f) for f in db.scalars(query.order_by(Finding.id))]
+        if severity:
+            rows = [f for f in rows if f["risk_assessment"]["level"] == severity]
+        rank = {"High": 0, "Moderate": 1, "Low": 2, "Needs Review": 3, "Unassessed": 4}
+        rows.sort(
+            key=lambda f: (
+                f["category"] if group_by == "category" else "",
+                rank.get(f["risk_assessment"]["level"], 4),
+                f["finding_id"],
+            )
+        )
+        if response is not None:
+            response.headers["X-Total-Count"] = str(len(rows))
+        return rows[offset : offset + limit]
     total = db.scalar(select(func.count()).select_from(query.subquery()))
     if response is not None:
         response.headers["X-Total-Count"] = str(total)
@@ -213,7 +250,7 @@ def ask_question(analysis_id: str, data: QuestionInput, db: Db, user: CurrentUse
     from app.services.provider_policy import providers_for
 
     try:
-        providers = providers_for(user, job.payload)
+        providers = providers_for(user, job.payload, operation="question")
     except ProviderError as exc:
         raise HTTPException(403 if exc.code == "PROVIDER_PERMISSION_REVOKED" else 503, exc.code) from None
     sources = analysis_sources(db, analysis)
@@ -223,13 +260,25 @@ def ask_question(analysis_id: str, data: QuestionInput, db: Db, user: CurrentUse
     findings = [
         finding_dict(f) for f in db.scalars(select(Finding).where(Finding.analysis_id == analysis.id))
     ]
+    retrieval_calls = []
     try:
         from app.services.localization import retrieval_question
         from app.services.retrieval import retrieve_chunks
 
-        search_question, retrieval_calls = retrieval_question(data.question, providers)
-        for call in retrieval_calls:
-            db.add(ModelCall(job_id=job.id, data=call))
+        retrieval_warning = None
+        try:
+            search_question, retrieval_calls = retrieval_question(data.question, providers)
+        except ProviderError as exc:
+            if exc.code in {
+                "PROVIDER_CONTENT_BLOCKED",
+                "PROVIDER_PERMISSION_REVOKED",
+                "PROVIDER_OPERATION_BUDGET_EXCEEDED",
+                "ANALYSIS_DEADLINE_EXCEEDED",
+            }:
+                raise
+            # Search translation is optional; try original multilingual lexical retrieval.
+            search_question, retrieval_calls = data.question, exc.model_calls
+            retrieval_warning = "SEARCH_TRANSLATION_UNAVAILABLE"
         chunks = retrieve_chunks(db, [s.id for s in sources], search_question, owner_id=user.id)
         result = ask(
             data.question,
@@ -240,14 +289,14 @@ def ask_question(analysis_id: str, data: QuestionInput, db: Db, user: CurrentUse
             language=data.language or user.language,
         )
         result["language"] = data.language or user.language
+        if retrieval_warning:
+            result["retrieval_warning"] = retrieval_warning
     except ProviderError as exc:
-        for call in exc.model_calls:
+        for call in retrieval_calls + exc.model_calls:
             db.add(ModelCall(job_id=job.id, data=call))
         db.commit()
-        raise HTTPException(
-            503, "The AI provider could not answer this question. Please retry later."
-        ) from None
-    for call in result.pop("model_calls", []):
+        raise ai_unavailable(exc, "Ask Veriora") from None
+    for call in retrieval_calls + result.pop("model_calls", []):
         db.add(ModelCall(job_id=job.id, data=call))
     if not user.is_guest:
         db.add(Question(analysis_id=analysis.id, question=data.question, answer=result))
@@ -530,7 +579,7 @@ def retry_job(job_id: str, db: Db, user: CurrentUser, data: RetryInput | None = 
 
 @router.get("/analyses/{analysis_id}/summary")
 def analysis_summary(analysis_id: str, db: Db, user: CurrentUser, language: Language = "en"):
-    from app.services.localization import fingerprint
+    from app.services.localization import fingerprint, fingerprint_candidates
     from app.services.summary import suggested_questions, summarize
 
     analysis = owned(db, Analysis, analysis_id, user)
@@ -550,8 +599,22 @@ def analysis_summary(analysis_id: str, db: Db, user: CurrentUser, language: Lang
         {
             ("PROVIDER_CONTEXT_LIMIT" if c.data.get("http_status") == 413 else c.data.get("outcome"))
             for c in db.scalars(select(ModelCall).where(ModelCall.job_id == job.id))
-            if c.data.get("outcome") and c.data.get("outcome") != "SUCCESS"
+            if c.data.get("outcome")
+            and c.data.get("outcome") != "SUCCESS"
+            and c.data.get("operation", "analysis") == "analysis"
+            and c.data.get("role")
+            not in {
+                "explanation_translation",
+                "translation_verification",
+                "multilingual_retrieval",
+                "question_answering",
+            }
         }
+    )
+    summary["failure_codes"] = sorted(
+        set(summary["failure_codes"])
+        | {r["error"] for r in analysis.coverage.get("context_indexes", []) if r.get("error")}
+        | {f["verification"]["error_code"] for f in findings if f.get("verification", {}).get("error_code")}
     )
     translations = {}
     if language != "en":
@@ -559,7 +622,7 @@ def analysis_summary(analysis_id: str, db: Db, user: CurrentUser, language: Lang
             select(LocalizedAnalysis).where(
                 LocalizedAnalysis.analysis_id == analysis.id,
                 LocalizedAnalysis.language == language,
-                LocalizedAnalysis.fingerprint == fingerprint(findings),
+                LocalizedAnalysis.fingerprint.in_(fingerprint_candidates(findings)),
             )
         )
         if saved:
@@ -569,7 +632,9 @@ def analysis_summary(analysis_id: str, db: Db, user: CurrentUser, language: Lang
         "summary": summary,
         "language": language,
         "translations": translations,
-        "translation_ready": language == "en" or bool(translations) or not findings,
+        "translation_ready": language == "en" or all(f["id"] in translations for f in findings),
+        "translation_completed": len(translations),
+        "translation_total": len(findings),
         "fingerprint": fingerprint(findings),
         "suggested_questions": suggested_questions(findings, language),
     }
@@ -580,7 +645,7 @@ def translate_analysis(analysis_id: str, db: Db, user: CurrentUser, language: La
     from sqlalchemy.exc import IntegrityError
 
     from app.providers.base import ProviderError
-    from app.services.localization import fingerprint, localize
+    from app.services.localization import fingerprint, fingerprint_candidates, localize
 
     analysis = owned(db, Analysis, analysis_id, user)
     job = db.get(Job, analysis.job_id)
@@ -595,10 +660,10 @@ def translate_analysis(analysis_id: str, db: Db, user: CurrentUser, language: La
         select(LocalizedAnalysis).where(
             LocalizedAnalysis.analysis_id == analysis.id,
             LocalizedAnalysis.language == language,
-            LocalizedAnalysis.fingerprint == stamp,
+            LocalizedAnalysis.fingerprint.in_(fingerprint_candidates(findings)),
         )
     )
-    if language == "en" or saved or not findings:
+    if language == "en" or (saved and all(f["id"] in saved.data for f in findings)) or not findings:
         return {"ready": True}
     throttle(db, "translation:" + user.id, 10, 3600)
     # Serialize translations for this analysis to avoid duplicate billable requests.
@@ -607,29 +672,44 @@ def translate_analysis(analysis_id: str, db: Db, user: CurrentUser, language: La
         select(LocalizedAnalysis).where(
             LocalizedAnalysis.analysis_id == analysis.id,
             LocalizedAnalysis.language == language,
-            LocalizedAnalysis.fingerprint == stamp,
+            LocalizedAnalysis.fingerprint.in_(fingerprint_candidates(findings)),
         )
     )
-    if saved:
+    if saved and all(f["id"] in saved.data for f in findings):
         return {"ready": True}
     from app.services.provider_policy import providers_for
 
     try:
-        providers = providers_for(user, job.payload)
+        providers = providers_for(user, job.payload, operation="translation")
     except ProviderError as exc:
         raise HTTPException(403 if exc.code == "PROVIDER_PERMISSION_REVOKED" else 503, exc.code) from None
     try:
-        translated, calls = localize(findings, language, providers)
+        existing = dict(saved.data) if saved else {}
+        translated, calls = localize([f for f in findings if f["id"] not in existing], language, providers)
+        translated = {**existing, **translated}
     except ProviderError as exc:
+        partial = {**(saved.data if saved else {}), **getattr(exc, "translations", {})}
+        if partial:
+            if saved:
+                saved.data = partial
+            else:
+                db.add(
+                    LocalizedAnalysis(
+                        analysis_id=analysis.id, language=language, fingerprint=stamp, data=partial
+                    )
+                )
         for call in exc.model_calls:
             db.add(ModelCall(job_id=job.id, data=call))
         db.commit()
-        raise HTTPException(
-            503, "Translation could not be verified. Original analysis remains available."
-        ) from None
+        raise ai_unavailable(exc, "Translation") from None
     for call in calls:
         db.add(ModelCall(job_id=job.id, data=call))
-    db.add(LocalizedAnalysis(analysis_id=analysis.id, language=language, fingerprint=stamp, data=translated))
+    if saved:
+        saved.data = translated
+    else:
+        db.add(
+            LocalizedAnalysis(analysis_id=analysis.id, language=language, fingerprint=stamp, data=translated)
+        )
     try:
         db.commit()
     except IntegrityError:

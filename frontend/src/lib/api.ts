@@ -2,6 +2,8 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    public code?: string,
+    public retryAfterSeconds?: number,
   ) {
     super(message);
   }
@@ -34,6 +36,10 @@ async function request(
           ? error.detail
           : "The request could not be completed. Please try again.",
       response.status,
+      typeof error.code === "string" ? error.code : undefined,
+      Number(response.headers.get("Retry-After")) > 0
+        ? Number(response.headers.get("Retry-After"))
+        : undefined,
     );
   }
   return response;

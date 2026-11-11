@@ -193,7 +193,7 @@ def test_retry_then_explicitly_permitted_fallback(monkeypatch):
     ]
     value, calls = generate_with_fallback(configs, "system", "prompt", CandidateBatch, "candidate_generation")
     assert value.findings == []
-    assert seen_hosts == ["api.groq.com", "api.groq.com", "openrouter.ai"]
+    assert seen_hosts == ["api.groq.com", "openrouter.ai"]  # quota errors fall back immediately
     assert calls[-1]["fallback"] is True
     assert calls[0]["outcome"] == "PROVIDER_RATE_LIMITED"
     assert "private body" not in json.dumps(calls)

@@ -1,3 +1,4 @@
+import RiskDashboard from "./RiskDashboard";
 import { providerFailure } from "../lib/providerFailure";
 import { useState } from "react";
 import type { Finding, Language } from "../lib/types";
@@ -17,6 +18,13 @@ import {
 } from "lucide-react";
 export interface SummaryData {
   summary: {
+    risk_groups?: Record<string, Finding[]>;
+    risk_counts?: Record<string, number>;
+    assessments?: Record<string, { level: string; reason: string }>;
+    priority_index?: number | null;
+    priority_method?: string;
+    assessment_complete?: boolean;
+    coverage?: Record<string, number>;
     level: string;
     rule: string;
     rule_version: string;
@@ -34,6 +42,8 @@ export interface SummaryData {
     Pick<Finding, "statement" | "rationale" | "qualifications">
   >;
   translation_ready: boolean;
+  translation_completed?: number;
+  translation_total?: number;
   fingerprint?: string;
   suggested_questions?: string[];
 }
@@ -148,6 +158,11 @@ export default function SmartSummary({
     disputes: Scale,
     other_clauses: ListChecks,
   };
+  const featured = new Set(
+    (data.summary.risk_groups?.High || []).slice(0, 3).map((f) => f.finding_id),
+  );
+  const topicFindings = (key: string) =>
+    (data.summary.groups[key] || []).filter((f) => !featured.has(f.finding_id));
   const total =
     data.summary.counts?.verified ??
     new Set(
@@ -162,6 +177,13 @@ export default function SmartSummary({
         language === "hi" ? "hi" : language === "hinglish" ? "hi-Latn" : "en"
       }
     >
+      {language !== "en" && !data.translation_ready && (
+        <p className="notice" role="status">
+          {t("Verified translations available")}:{" "}
+          {data.translation_completed || 0} / {data.translation_total || 0}.{" "}
+          {t("Untranslated explanations remain in the original language.")}
+        </p>
+      )}
       <div className={`summary-hero risk-${tone}`}>
         <div className="summary-hero-copy">
           <p className="eyebrow">{t("Evidence-grounded overview")}</p>
@@ -191,7 +213,7 @@ export default function SmartSummary({
           </div>
         </div>
       </div>
-      {(tone === "high" || tone === "unknown") && (
+      {(tone === "unknown" || (tone === "high" && !featured.size)) && (
         <div className={`summary-warning risk-${tone}`} role="note">
           <RiskIcon size={20} />
           <div>
@@ -200,6 +222,7 @@ export default function SmartSummary({
           </div>
         </div>
       )}
+      <RiskDashboard data={data} onSelect={onSelect} />
       <section className="panel" aria-label={t("Document overview")}>
         <h3>{t("Document overview")}</h3>
         <p>
@@ -250,9 +273,9 @@ export default function SmartSummary({
       <div className="summary-layout">
         <div className="summary-grid">
           {groups
-            .filter((key) => (data.summary.groups[key] || []).length > 0)
+            .filter((key) => topicFindings(key).length > 0)
             .map((key) => {
-              const findings = data.summary.groups[key] || [];
+              const findings = topicFindings(key);
               const Icon = icons[key as keyof typeof icons];
               return (
                 <section
@@ -275,10 +298,23 @@ export default function SmartSummary({
                         const text = data.translations[f.finding_id] || f;
                         return (
                           <article
-                            className="summary-clause"
+                            className={`summary-clause ${data.summary.assessments?.[f.finding_id]?.level === "High" ? "risk-item-high" : ""}`}
                             key={f.finding_id}
                           >
                             <h4>{text.statement}</h4>
+                            {data.summary.assessments?.[f.finding_id] && (
+                              <p
+                                className={`risk-tag risk-${data.summary.assessments[f.finding_id].level.toLowerCase()}`}
+                              >
+                                {t(
+                                  data.summary.assessments[f.finding_id].level,
+                                )}{" "}
+                                |{" "}
+                                {t(
+                                  data.summary.assessments[f.finding_id].reason,
+                                )}
+                              </p>
+                            )}
                             <details className="clause-context">
                               <summary>{t("Source & context")}</summary>
                               <p>{text.rationale}</p>

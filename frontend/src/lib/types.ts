@@ -58,6 +58,7 @@ export interface Citation {
   clause_label?: string;
 }
 export interface Finding {
+  risk_assessment?: { level: string; reason: string; rule_version: string };
   finding_id: string;
   category: string;
   statement: string;

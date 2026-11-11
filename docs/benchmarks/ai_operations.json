@@ -1,0 +1,52 @@
+[
+  {
+    "operation": "quota_shared",
+    "mock_inference": true,
+    "local_seconds": 0.7306,
+    "http_requests": 3,
+    "primary_rate_limited_requests": 1,
+    "fallback_http_requests": 2,
+    "shared_retry_seconds": 90
+  },
+  {
+    "operation": "translation_cache_hi",
+    "mock_inference": true,
+    "local_seconds": 0.5144,
+    "method": "service-mocked verified batches",
+    "batch_sizes": [
+      4,
+      3,
+      3
+    ],
+    "cached_after_first_failure": 4,
+    "completed_translations": 7,
+    "retranslated_completed_batches": 0
+  },
+  {
+    "operation": "translation_cache_hinglish",
+    "mock_inference": true,
+    "local_seconds": 0.489,
+    "method": "service-mocked verified batches",
+    "batch_sizes": [
+      4,
+      3,
+      3
+    ],
+    "cached_after_first_failure": 4,
+    "completed_translations": 7,
+    "retranslated_completed_batches": 0
+  },
+  {
+    "operation": "oversized_question",
+    "mock_inference": true,
+    "local_seconds": 0.2637,
+    "http_requests": 11,
+    "source_sections": 9,
+    "selected_sources": 2,
+    "max_estimated_semantic_input_tokens": 1106,
+    "max_estimated_request_tokens": 11198,
+    "source_audits_complete": true,
+    "exact_citations": 1,
+    "authoritative_token_usage": null
+  }
+]

@@ -90,11 +90,29 @@ class SourceWideIndex:
             "complete": False,
             "windows_total": len(windows),
             "windows_processed": 0,
+            "windows_validated": 0,
+            "windows_attempted": 0,
+            "window_states": ["UNREVIEWED"] * len(windows),
             "excerpts": excerpts,
             "error": None,
         }
+
+        def notify():
+            if config.get("on_index_progress"):
+                config["on_index_progress"](
+                    {
+                        "windows_total": len(windows),
+                        "windows_reviewed": record["windows_processed"],
+                        "windows_validated": record["windows_validated"],
+                        "windows_unreviewed": len(windows) - record["windows_processed"],
+                        "error": record["error"],
+                    }
+                )
+
+        notify()
         # Existing operation limits, not a per-finding 12-window cutoff, bound the scan.
-        for window in windows:
+        for window_index, window in enumerate(windows):
+            record["windows_attempted"] += 1
             passages = a._mapped_passages([window], source)
             _, aliases = compact_passages(passages)
             try:
@@ -111,13 +129,38 @@ class SourceWideIndex:
                         raise ProviderError("PROVIDER_INVALID_OUTPUT")
                     excerpts.append(citation)
                 record["windows_processed"] += 1
+                record["window_states"][window_index] = (
+                    "REVIEWED_UNRESOLVED" if audit.unresolved_context else "INDEX_VALIDATED"
+                )
+                record["windows_validated"] += int(not audit.unresolved_context)
+                notify()
             except ProviderError as exc:
                 calls.extend(exc.model_calls)
                 record["error"] = exc.code
+                record["window_states"][window_index] = "FAILED"
                 complete = False
                 break
         record["complete"] = complete and record["windows_processed"] == len(windows) and bool(windows)
         record["excerpts"] = list({(c["section_id"], c["start"], c["end"]): c for c in excerpts}.values())
+        record["windows_indexed"] = len(windows)
+        record["windows_reviewed"] = record["windows_processed"]
+        record["windows_unreviewed"] = len(windows) - record["windows_processed"]
+        record["verification_scope"] = (
+            "Qualification index validation only; not semantic verification of findings."
+        )
+        if config.get("on_index_progress"):
+            config["on_index_progress"](
+                {
+                    k: record[k]
+                    for k in (
+                        "windows_total",
+                        "windows_reviewed",
+                        "windows_validated",
+                        "windows_unreviewed",
+                        "error",
+                    )
+                }
+            )
         self.saved[key] = record
         return record, calls
 
@@ -133,7 +176,7 @@ class SourceWideIndex:
                 provider = configured_provider(config)
                 # Whole source only when small AND its complete wire envelope fits.
                 whole = self.by_source[candidate["source_id"]]
-                if sum(count_tokens(s["text"]) for s in whole) <= 2000 and provider.fits(
+                if sum(count_tokens(s["text"]) for s in whole) <= 400 and provider.fits(
                     a.SYSTEM,
                     a._verification_prompt(candidate, whole, True),
                     a.Verdict.model_json_schema(),
@@ -149,15 +192,37 @@ class SourceWideIndex:
                     raise ProviderError(record["error"] or "PROVIDER_CONTEXT_INCOMPLETE")
                 complete = record["complete"] and resolved
                 # Keep target/neighbor/retrieved sections whole; never trim them silently.
-                context = local
-                if not provider.fits(
-                    a.SYSTEM,
-                    a._verification_prompt(candidate, context, complete),
-                    a.Verdict.model_json_schema(),
-                    role="semantic_verification",
-                ):
-                    context = [self.by_id[candidate["section_id"]]]
-                material = record["excerpts"]
+                # Keep a bounded exact neighborhood, with original coordinates.
+                # Distant qualifications AND explicit referenced sections are all
+                # reviewed in separate bounded batches, never silently discarded.
+                from app.services.verification import verify_quote
+
+                original = self.by_id[candidate["section_id"]]
+                target = original
+                anchor = verify_quote(candidate, [original])
+                if count_tokens(original["text"]) > 600 and anchor["match_status"] in {"EXACT", "NORMALIZED"}:
+                    start = max(0, anchor["start"] - 400)
+                    end = min(len(original["text"]), anchor["end"] + 400)
+                    target = {
+                        **original,
+                        "text": original["text"][start:end],
+                        "start_offset": start,
+                        "end_offset": end,
+                    }
+                context = [target]
+                references = [
+                    s
+                    for s in local
+                    if s["id"] != original["id"]
+                    and any(
+                        ref.casefold() in f"{s.get('heading', '')} {s.get('clause_label', '')}".casefold()
+                        for ref in candidate.get("cross_references", [])
+                        if ref
+                    )
+                ]
+                material = record["excerpts"] + [
+                    {"section_id": s["id"], "start": 0, "end": len(s["text"])} for s in references
+                ]
                 windows = (
                     [
                         {
@@ -226,7 +291,22 @@ class SourceWideIndex:
                 "source_id": key[0],
                 "provider": key[1],
                 "model": key[2],
-                **{k: v[k] for k in ("complete", "windows_total", "windows_processed", "error")},
+                **{
+                    k: v[k]
+                    for k in (
+                        "complete",
+                        "windows_total",
+                        "windows_processed",
+                        "windows_indexed",
+                        "windows_attempted",
+                        "windows_reviewed",
+                        "windows_validated",
+                        "windows_unreviewed",
+                        "window_states",
+                        "verification_scope",
+                        "error",
+                    )
+                },
             }
             for key, v in self.saved.items()
         ]

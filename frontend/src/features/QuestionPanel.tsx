@@ -1,13 +1,16 @@
+import { providerFailure } from "../lib/providerFailure";
 import { useLanguage } from "../app/language";
 import { useState, type FormEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Send } from "lucide-react";
-import { api, post } from "../lib/api";
+import { api, post, ApiError } from "../lib/api";
 import type { Citation, Language } from "../lib/types";
 import { useSession } from "../app/session";
 import { ErrorNotice, Loading } from "../components/ui";
 
 interface Answer {
+  reason_code?: string;
+  retrieval_warning?: string;
   answer: string;
   citations?: (Citation & { finding_id?: string })[];
   limitations?: string[];
@@ -98,6 +101,16 @@ export default function QuestionPanel({
         {t("selected document(s). External legal research is not enabled.")}
       </p>
       <ErrorNotice error={error || history.error} />
+      {error instanceof Error && providerFailure(error.message) && (
+        <p className="notice" role="status">
+          {t(providerFailure(error.message)!)}
+        </p>
+      )}
+      {error instanceof ApiError && error.retryAfterSeconds && (
+        <p className="small-copy muted">
+          {t("Provider retry delay (seconds)")}: {error.retryAfterSeconds}
+        </p>
+      )}
       {history.isFetching && !user?.guest && (
         <Loading label={t("Loading conversation…")} />
       )}
@@ -105,6 +118,20 @@ export default function QuestionPanel({
         <article className="answer" key={a.result.question_id || i}>
           <h3>{a.question}</h3>
           <p>{a.result.answer}</p>
+          {!a.result.citations?.length && (
+            <p className="small-copy muted">
+              {t(
+                "No verified answer was established. This does not prove the document lacks the provision.",
+              )}
+            </p>
+          )}
+          {a.result.retrieval_warning && (
+            <p className="small-copy muted">
+              {t(
+                "Search translation was unavailable; retrieval used your original question.",
+              )}
+            </p>
+          )}
           {a.result.citations?.map((c, j) => (
             <button
               className="citation-chip"

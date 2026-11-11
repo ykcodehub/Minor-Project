@@ -773,7 +773,7 @@
   },
   "Needs review": {
     "hi": "समीक्षा आवश्यक",
-    "hinglish": "Review karna hai"
+    "hinglish": "Review zaroori"
   },
   "New analysis": {
     "hi": "नया विश्लेषण",
@@ -1132,8 +1132,8 @@
     "hinglish": "Available official links ki samiksha karein aur apne sources chunen."
   },
   "Review priority": {
-    "hi": "प्राथमिकता की समीक्षा करें",
-    "hinglish": "Priority ki samiksha karein."
+    "hi": "समीक्षा प्राथमिकता",
+    "hinglish": "Review priority"
   },
   "Rights & duties": {
     "hi": "अधिकार और कर्तव्य",
@@ -2018,5 +2018,161 @@
   "Processing reached its time limit. Inspect preserved results and checkpointed usage before retrying.": {
     "hi": "प्रक्रिया की समय सीमा पूरी हो गई। पुनः प्रयास से पहले सहेजे गए परिणाम और API उपयोग जाँचें।",
     "hinglish": "Processing ki time limit poori ho gayi. Retry se pehle saved results aur recorded API usage dekhein."
+  },
+  "Document risk dashboard": {
+    "hi": "दस्तावेज़ जोखिम डैशबोर्ड",
+    "hinglish": "Document risk dashboard"
+  },
+  "Verified risk distribution": {
+    "hi": "सत्यापित जोखिम का वितरण",
+    "hinglish": "Verified risk distribution"
+  },
+  "classified findings": {
+    "hi": "वर्गीकृत निष्कर्ष",
+    "hinglish": "classified findings"
+  },
+  "Low Risk": {
+    "hi": "कम जोखिम",
+    "hinglish": "Low Risk"
+  },
+  "Moderate Risk": {
+    "hi": "मध्यम जोखिम",
+    "hinglish": "Moderate Risk"
+  },
+  "High Risk": {
+    "hi": "उच्च जोखिम",
+    "hinglish": "High Risk"
+  },
+  "Counts describe classified verified findings, not probabilities or the safety of unassessed terms.": {
+    "hi": "गिनती केवल वर्गीकृत सत्यापित निष्कर्षों की है; यह संभावना या बिना जाँची शर्तों की सुरक्षा नहीं बताती।",
+    "hinglish": "Counts verified findings ke hain; probability ya unassessed terms ki safety nahi."
+  },
+  "Evidence & coverage": {
+    "hi": "साक्ष्य और कवरेज",
+    "hinglish": "Evidence aur coverage"
+  },
+  "Verified": {
+    "hi": "सत्यापित",
+    "hinglish": "Verified"
+  },
+  "Needs Review": {
+    "hi": "समीक्षा आवश्यक",
+    "hinglish": "Review zaroori"
+  },
+  "Unassessed": {
+    "hi": "मूल्यांकन नहीं हुआ",
+    "hinglish": "Assessment nahi hua"
+  },
+  "Source sections processed": {
+    "hi": "संसाधित स्रोत अनुभाग",
+    "hinglish": "Processed source sections"
+  },
+  "Review priority index": {
+    "hi": "समीक्षा प्राथमिकता सूचकांक",
+    "hinglish": "Review priority index"
+  },
+  "How this index works": {
+    "hi": "यह सूचकांक कैसे काम करता है",
+    "hinglish": "Index kaise kaam karta hai"
+  },
+  "Top critical issues": {
+    "hi": "प्रमुख गंभीर शर्तें",
+    "hinglish": "Top critical issues"
+  },
+  "Review the exact wording, scope and exceptions before accepting these terms.": {
+    "hi": "इन शर्तों को स्वीकार करने से पहले मूल शब्दों, दायरे और अपवादों की समीक्षा करें।",
+    "hinglish": "Accept karne se pehle exact wording, scope aur exceptions review karein."
+  },
+  "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.": {
+    "hi": "सत्यापित उद्धरण में विशेष ध्यान वाली शर्त है। उसके दायरे और अपवादों की समीक्षा करें।",
+    "hinglish": "Verified quote mein high-attention phrase hai. Scope aur exceptions review karein."
+  },
+  "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.": {
+    "hi": "सत्यापित दायित्व, प्रतिबंध या महत्वपूर्ण शर्त की समीक्षा आवश्यक है; कोई उच्च प्राथमिकता वाला वाक्यांश नहीं मिला।",
+    "hinglish": "Verified duty ya condition ko review karein; high-attention phrase match nahi hua."
+  },
+  "A verified right, permission or exception is lower review priority under these rules; this does not establish safety.": {
+    "hi": "इन नियमों के अनुसार सत्यापित अधिकार, अनुमति या अपवाद की प्राथमिकता कम है; इससे सुरक्षा सिद्ध नहीं होती।",
+    "hinglish": "Verified right ya exception lower priority hai; isse safety prove nahi hoti."
+  },
+  "The interpretation has not passed source and semantic verification.": {
+    "hi": "व्याख्या का स्रोत और अर्थ सत्यापन पूरा नहीं हुआ।",
+    "hinglish": "Interpretation source aur semantic verification pass nahi hui."
+  },
+  "This verified provision has no applicable severity rule.": {
+    "hi": "इस सत्यापित शर्त पर कोई गंभीरता नियम लागू नहीं है।",
+    "hinglish": "Is verified term ke liye severity rule nahi hai."
+  },
+  "All priorities": {
+    "hi": "सभी प्राथमिकताएँ",
+    "hinglish": "Sab priorities"
+  },
+  "Group findings": {
+    "hi": "निष्कर्षों का समूह",
+    "hinglish": "Findings group karein"
+  },
+  "Default order": {
+    "hi": "मूल क्रम",
+    "hinglish": "Default order"
+  },
+  "Group by category": {
+    "hi": "श्रेणी के अनुसार",
+    "hinglish": "Category ke hisab se"
+  },
+  "Group by priority": {
+    "hi": "प्राथमिकता के अनुसार",
+    "hinglish": "Priority ke hisab se"
+  },
+  "Verification explanation": {
+    "hi": "सत्यापन का कारण",
+    "hinglish": "Verification explanation"
+  },
+  "Ordinal review index: Low=1, Moderate=2, High=3; maximum classified verified finding. Available only with complete processed coverage and classification. Not a probability, legal-risk score or guarantee of safety.": {
+    "hi": "समीक्षा सूचकांक: कम=1, मध्यम=2, उच्च=3; वर्गीकृत सत्यापित निष्कर्षों का अधिकतम स्तर। केवल पूर्ण कवरेज और वर्गीकरण पर उपलब्ध। यह संभावना, कानूनी जोखिम का अंक या सुरक्षा की गारंटी नहीं है।",
+    "hinglish": "Review index: Low=1, Moderate=2, High=3; verified findings ka maximum level. Complete coverage aur classification par hi available. Probability, legal-risk score ya safety guarantee nahi."
+  },
+  "The provider exhausted its output allowance. Review partial evidence and choose a compatible, authorized provider in Settings before retrying; truncated output was rejected.": {
+    "hi": "प्रदाता की आउटपुट सीमा पूरी हो गई। आंशिक साक्ष्य की समीक्षा करें और दोबारा प्रयास से पहले सेटिंग्स में उपयुक्त अधिकृत प्रदाता चुनें; अधूरा आउटपुट अस्वीकार किया गया।",
+    "hinglish": "Provider ki output limit poori ho gayi. Partial evidence review karein aur retry se pehle Settings mein compatible authorized provider chunein; truncated output reject hua."
+  },
+  "Untranslated explanations remain in the original language. Only verified translations are shown; original evidence quotes never change. Uses only your authorized providers.": {
+    "hi": "जिन व्याख्याओं का अनुवाद नहीं हुआ वे मूल भाषा में हैं। केवल सत्यापित अनुवाद दिखते हैं; साक्ष्य के मूल उद्धरण नहीं बदलते। केवल अधिकृत प्रदाता उपयोग होते हैं।",
+    "hinglish": "Untranslated explanations original language mein hain. Sirf verified translations dikhte hain; original quotes nahi badalte. Sirf authorized providers use hote hain."
+  },
+  "Untranslated explanations remain in the original language.": {
+    "hi": "बिना अनुवाद की व्याख्याएँ मूल भाषा में हैं।",
+    "hinglish": "Untranslated explanations original language mein hain."
+  },
+  "Verified translations available": {
+    "hi": "उपलब्ध सत्यापित अनुवाद",
+    "hinglish": "Available verified translations"
+  },
+  "indexed windows": {
+    "hi": "तैयार स्रोत खंड",
+    "hinglish": "indexed windows"
+  },
+  "reviewed windows": {
+    "hi": "समीक्षा किए गए खंड",
+    "hinglish": "reviewed windows"
+  },
+  "validated index windows": {
+    "hi": "सत्यापित सूचकांक खंड",
+    "hinglish": "validated index windows"
+  },
+  "unreviewed windows": {
+    "hi": "बिना समीक्षा के खंड",
+    "hinglish": "unreviewed windows"
+  },
+  "No verified answer was established. This does not prove the document lacks the provision.": {
+    "hi": "कोई सत्यापित उत्तर नहीं मिला। इससे यह सिद्ध नहीं होता कि दस्तावेज़ में वह शर्त नहीं है।",
+    "hinglish": "Verified answer nahi mila. Isse document mein provision absent hona prove nahi hota."
+  },
+  "Search translation was unavailable; retrieval used your original question.": {
+    "hi": "खोज का अनुवाद उपलब्ध नहीं था; आपके मूल प्रश्न से खोज की गई।",
+    "hinglish": "Search translation unavailable thi; original question se search hua."
+  },
+  "Provider retry delay (seconds)": {
+    "hi": "प्रदाता के पुनः प्रयास की प्रतीक्षा (सेकंड)",
+    "hinglish": "Provider retry wait (seconds)"
   }
 }

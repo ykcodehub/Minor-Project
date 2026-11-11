@@ -155,3 +155,9 @@ Reproduce synthetic benchmarks with `backend/.venv/Scripts/python.exe scripts/be
 Optional `ANALYSIS_TIMEOUT_SECONDS` defaults to 900 (30-3600). No required Render/Vercel configuration change or new migration is introduced; keep `python -m app.serve` and the existing checkpoint migration. Authorized-only fallback, operation budgets and strict evidence checks remain enforced. Truncation/invalid JSON use bounded changed-request recovery; expired processing becomes FAILED or preserves saved findings as PARTIAL_COMPLETION.
 
 See [provider recovery verification](docs/VERIFICATION.md#provider-failure-recovery-11-november-2026) for sanitized diagnostics, exact behavior, executed tests and live-provider limitations. Real inference has not been reverified; catalog availability alone does not establish successful analysis.
+
+
+Risk Summary now displays verified High/Moderate/Low counts, an explicitly ordinal 1-3 review index only when complete, partial-state warnings and direct source navigation. Detailed Analysis adds priority/group filters. The extracted PDF viewer uses original pages rather than block counts. See [two-page verification benchmark](docs/benchmarks/TWO_PAGE_RISK.md) for isolated test scope and [verification](docs/VERIFICATION.md) for remaining live-provider limitations.
+
+
+AI quota handling now shares cooldowns across API/worker through the existing PostgreSQL rate buckets. A 429 uses authorized fallback immediately; manual retries during cooldown do not create another provider request. Summary translations reuse fidelity-checked cached batches and keep originals visible on failure. Ask Veriora uses bounded retrieved context plus strict selected-source qualification review. Readiness reports infrastructure only (`ai_providers=not_probed`). See [operation benchmarks and limitations](docs/benchmarks/AI_OPERATIONS.md). No new environment variable or migration is required; API/worker must share the same database.

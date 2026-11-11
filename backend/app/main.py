@@ -32,7 +32,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Content-Type", "X-CSRF-Token", "Idempotency-Key"],
-    expose_headers=["X-Total-Count", "X-Request-ID", "X-Report-ID"],
+    expose_headers=["X-Total-Count", "X-Request-ID", "X-Report-ID", "Retry-After"],
 )
 
 
@@ -90,6 +90,7 @@ async def http_error(request: Request, exc: HTTPException):
             "request_id": request.state.request_id,
         },
         status_code=exc.status_code,
+        headers=exc.headers,
     )
 
 
@@ -158,6 +159,6 @@ def ready():
                 {"status": "unavailable", "database": "connected", "worker": "starting_or_stalled"},
                 status_code=503,
             )
-        return {"status": "ready", "database": "connected"}
+        return {"status": "ready", "database": "connected", "ai_providers": "not_probed"}
     except SQLAlchemyError:
         return JSONResponse({"status": "unavailable", "database": "unavailable"}, status_code=503)

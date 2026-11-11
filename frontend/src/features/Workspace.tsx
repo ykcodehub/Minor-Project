@@ -87,6 +87,8 @@ export default function Workspace() {
   for (const [urlKey, apiKey] of [
     ["q", "q"],
     ["category", "category"],
+    ["severity", "severity"],
+    ["group", "group_by"],
     ["status", "status"],
     ["source", "source_id"],
   ]) {
@@ -143,9 +145,12 @@ export default function Workspace() {
       summary.data?.fingerprint,
     ],
     queryFn: async () => {
-      await post(`/analyses/${id}/translations?language=${language}`);
-      await summary.refetch();
-      return true;
+      try {
+        await post(`/analyses/${id}/translations?language=${language}`);
+        return true;
+      } finally {
+        await summary.refetch();
+      }
     },
     enabled:
       !!user &&
@@ -336,7 +341,7 @@ export default function Workspace() {
           <div>
             <p className="muted small-copy">
               {t(
-                "Original English explanations remain visible until translation is verified. Source quotes always stay unchanged. Uses your analysis provider.",
+                "Untranslated explanations remain in the original language. Only verified translations are shown; original evidence quotes never change. Uses only your authorized providers.",
               )}
             </p>
             <button
@@ -437,6 +442,11 @@ export default function Workspace() {
         </div>
       )}
       <ErrorNotice error={summary.error || translation.error} />
+      {translation.error && providerFailure(translation.error.message) && (
+        <p className="notice" role="status">
+          {t(providerFailure(translation.error.message)!)}
+        </p>
+      )}
       {mode === "summary" && summary.isPending && <Loading />}
       {mode === "summary" && summary.data && (
         <SmartSummary
@@ -563,6 +573,9 @@ export default function Workspace() {
                         onChange={(e) => filter("status", e.target.value)}
                       >
                         <option value="">{t("All evidence states")}</option>
+                        <option value="NEEDS_REVIEW">
+                          {t("Needs review")}
+                        </option>
                         {[
                           "SUPPORTED",
                           "PARTIALLY_SUPPORTED",
@@ -573,6 +586,43 @@ export default function Workspace() {
                             {t(s.replaceAll("_", " "))}
                           </option>
                         ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="filter-row">
+                    <label>
+                      <span className="sr-only">{t("Review priority")}</span>
+                      <select
+                        value={params.get("severity") || ""}
+                        onChange={(e) => filter("severity", e.target.value)}
+                      >
+                        <option value="">{t("All priorities")}</option>
+                        {[
+                          "High",
+                          "Moderate",
+                          "Low",
+                          "Needs Review",
+                          "Unassessed",
+                        ].map((value) => (
+                          <option key={value} value={value}>
+                            {t(value)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="sr-only">{t("Group findings")}</span>
+                      <select
+                        value={params.get("group") || ""}
+                        onChange={(e) => filter("group", e.target.value)}
+                      >
+                        <option value="">{t("Default order")}</option>
+                        <option value="category">
+                          {t("Group by category")}
+                        </option>
+                        <option value="severity">
+                          {t("Group by priority")}
+                        </option>
                       </select>
                     </label>
                   </div>
@@ -610,7 +660,7 @@ export default function Workspace() {
                     : filtered
                   ).map((f) => (
                     <article
-                      className={`finding-card ${f.finding_id === selectedId ? "selected" : ""}`}
+                      className={`finding-card ${f.finding_id === selectedId ? "selected" : ""} ${f.risk_assessment?.level === "High" ? "risk-item-high" : ""}`}
                       key={f.finding_id}
                     >
                       <div className="row between">
@@ -625,7 +675,30 @@ export default function Workspace() {
                           }
                         />
                       </div>
+                      {params.get("group") && (
+                        <p className="tiny-label">
+                          {t(
+                            params.get("group") === "category"
+                              ? f.category
+                              : f.risk_assessment?.level || "Unassessed",
+                          )}
+                        </p>
+                      )}
                       <h2>{f.statement}</h2>
+                      {f.risk_assessment && (
+                        <p
+                          className={`risk-tag risk-${f.risk_assessment.level.toLowerCase().replaceAll(" ", "-")}`}
+                        >
+                          {t(f.risk_assessment.level)} |{" "}
+                          {t(f.risk_assessment.reason)}
+                        </p>
+                      )}
+                      {typeof f.verification?.rationale === "string" && (
+                        <details>
+                          <summary>{t("Verification explanation")}</summary>
+                          <p>{String(f.verification.rationale)}</p>
+                        </details>
+                      )}
                       <p>{f.rationale}</p>
                       {f.qualifications?.length > 0 && (
                         <p className="qualification">
@@ -785,8 +858,19 @@ export default function Workspace() {
               (item: Record<string, unknown>, index: number) => (
                 <p key={index}>
                   {t("Source-wide index coverage")} ({display(item.provider)}):{" "}
-                  {display(item.windows_processed)} /{" "}
-                  {display(item.windows_total)} {t("windows reviewed")}.{" "}
+                  {display(item.windows_indexed ?? item.windows_total)}{" "}
+                  {t("indexed windows")} |{" "}
+                  {display(item.windows_reviewed ?? item.windows_processed)}{" "}
+                  {t("reviewed windows")} |{" "}
+                  {display(item.windows_validated ?? item.windows_processed)}{" "}
+                  {t("validated index windows")} |{" "}
+                  {display(
+                    item.windows_unreviewed ??
+                      Number(item.windows_total) -
+                        Number(item.windows_processed),
+                  )}{" "}
+                  {t("unreviewed windows")}.{" "}
+                  {item.error ? display(item.error) : ""}{" "}
                   {t(
                     item.complete
                       ? "Source audit completed; semantic verification is still required for each finding."

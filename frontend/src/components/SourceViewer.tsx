@@ -35,25 +35,35 @@ export function SourceViewer({
     () => query.data?.sections || [],
     [query.data?.sections],
   );
+  const pages = useMemo(() => {
+    const groups = new Map<string, typeof sections>();
+    for (const section of sections) {
+      const key = section.page != null ? `page-${section.page}` : section.id;
+      groups.set(key, [...(groups.get(key) || []), section]);
+    }
+    return [...groups.values()];
+  }, [sections]);
+  useEffect(() => {
+    setIndex(0);
+  }, [sourceId]);
   useEffect(() => {
     if (citation) {
-      const found = sections.findIndex((s) => s.id === citation.section_id);
+      const found = pages.findIndex((group) =>
+        group.some((s) => s.id === citation.section_id),
+      );
       if (found >= 0) setIndex(found);
     }
-  }, [citation, sections]);
+  }, [citation, pages]);
   useEffect(() => {
     highlight.current?.scrollIntoView({
       block: "nearest",
       behavior: "instant",
     });
   }, [citation, index]);
-  const section = sections[index];
-  const mappedSpan =
-    citation && section?.id === citation.section_id && citationValid(citation)
-      ? splitPassage(section.text, citation.start, citation.end)
-      : null;
-  const span =
-    mappedSpan && mappedSpan[1] === citation?.quote ? mappedSpan : null;
+  const visible = pages[index] || [];
+  const section = visible[0];
+  const pageTotal =
+    Number(query.data?.coverage?.pages_total || 0) || pages.length;
   async function original() {
     setError(undefined);
     try {
@@ -99,13 +109,15 @@ export function SourceViewer({
           <span>
             {section?.page
               ? `${t("Page")} ${section.page}`
-              : `Section ${sections.length ? index + 1 : 0}`}{" "}
-            <span className="muted">/ {sections.length}</span>
+              : `${t("Source section")} ${pages.length ? index + 1 : 0}`}{" "}
+            <span className="muted">
+              / {section?.page != null ? pageTotal : pages.length}
+            </span>
           </span>
           <button
             aria-label={t("Next source section")}
             className="icon-button"
-            disabled={index >= sections.length - 1}
+            disabled={index >= pages.length - 1}
             onClick={() => setIndex((i) => i + 1)}
           >
             <ChevronRight size={17} />
@@ -140,19 +152,35 @@ export function SourceViewer({
             {section.heading ||
               `Extracted ${section.page ? `page ${section.page}` : `section ${section.ordinal + 1}`}`}
           </p>
-          <div className="source-text">
-            {span ? (
-              <>
-                {span[0]}
-                <mark ref={highlight} tabIndex={-1}>
-                  {span[1]}
-                </mark>
-                {span[2]}
-              </>
-            ) : (
-              section.text
-            )}
-          </div>
+          {visible.map((block) => {
+            const mapped =
+              citation &&
+              block.id === citation.section_id &&
+              citationValid(citation)
+                ? splitPassage(block.text, citation.start, citation.end)
+                : null;
+            const span =
+              mapped && mapped[1] === citation?.quote ? mapped : null;
+            return (
+              <div
+                className="source-text source-block"
+                key={block.id}
+                data-section-id={block.id}
+              >
+                {span ? (
+                  <>
+                    {span[0]}
+                    <mark ref={highlight} tabIndex={-1}>
+                      {span[1]}
+                    </mark>
+                    {span[2]}
+                  </>
+                ) : (
+                  block.text
+                )}
+              </div>
+            );
+          })}
           <p className="source-extraction-note">
             {t(
               "Extracted source text. Original file layout may differ; locations refer to the captured extraction.",

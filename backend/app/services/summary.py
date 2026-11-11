@@ -5,11 +5,56 @@ from collections import Counter
 
 from app.services.verification import verify_quote
 
-RULE_VERSION = "attention-1.1"
+RULE_VERSION = "attention-1.2"
 HIGH = re.compile(
     r"\b(?:unlimited liability|irrevocable (?:license|licence)|waive (?:all |any )?(?:rights?|claims?)|sell your personal (?:data|information))\b",
     re.IGNORECASE,
 )
+
+
+def assess_finding(finding, source_validated=False):
+    """Ordinal review priority, never probability of legal harm."""
+    citations = finding.get("citations", [])
+    level, reason = "Needs Review", "The interpretation has not passed source and semantic verification."
+    if (
+        finding.get("support_status") == "SUPPORTED"
+        and citations
+        and (source_validated or all(c.get("match_status") in {"EXACT", "NORMALIZED"} for c in citations))
+    ):
+        high = any(
+            not re.search(
+                r"\b(?:no|not|never|without)\b", c["quote"][max(0, m.start() - 50) : m.start()], re.IGNORECASE
+            )
+            for c in citations
+            for m in HIGH.finditer(c["quote"])
+        )
+        if high:
+            level, reason = (
+                "High",
+                "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+            )
+        elif finding.get("category") in {
+            "OBLIGATION",
+            "PAYMENT",
+            "RESTRICTION",
+            "RISK_NOTE",
+            "PRIVACY",
+            "CONSENT",
+            "TERMINATION",
+            "DISPUTE",
+        }:
+            level, reason = (
+                "Moderate",
+                "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            )
+        elif finding.get("category") in {"RIGHT", "PERMISSION", "EXCEPTION"}:
+            level, reason = (
+                "Low",
+                "A verified right, permission or exception is lower review priority under these rules; this does not establish safety.",
+            )
+        else:
+            level, reason = "Unassessed", "This verified provision has no applicable severity rule."
+    return {"level": level, "reason": reason, "rule_version": RULE_VERSION}
 
 
 def summarize(findings, sections, coverage, state):
@@ -60,7 +105,10 @@ def summarize(findings, sections, coverage, state):
         or state != "COMPLETED"
         or not valid
         or any(f.get("support_status") != "SUPPORTED" for f in findings)
-        or coverage.get("warnings")
+        or any(
+            w != "PDF reading order and hidden text cannot be guaranteed; inspect original pages."
+            for w in coverage.get("warnings", [])
+        )
         or coverage.get("failed_chunks")
         or not coverage.get("chunks_total")
         or coverage.get("chunks_processed", 0) != coverage.get("chunks_total")
@@ -71,20 +119,12 @@ def summarize(findings, sections, coverage, state):
         )
     )
 
-    def positive_trigger(finding):
-        if finding["category"] not in {"RISK_NOTE", "RESTRICTION", "OBLIGATION"}:
-            return False
-        for citation in finding["citations"]:
-            for match in HIGH.finditer(citation["quote"]):
-                if not re.search(
-                    r"\b(?:no|not|never|without)\b",
-                    citation["quote"][max(0, match.start() - 50) : match.start()],
-                    re.IGNORECASE,
-                ):
-                    return True
-        return False
-
-    triggers = [f for f in valid if positive_trigger(f)]
+    assessments = {f.get("finding_id", f.get("id")): assess_finding(f, source_validated=True) for f in valid}
+    risk_groups = {
+        level: [f for f in valid if assessments[f.get("finding_id", f.get("id"))]["level"] == level]
+        for level in ("High", "Moderate", "Low", "Unassessed")
+    }
+    triggers = risk_groups["High"]
     if incomplete:
         level, rule = (
             "Not Determinable",
@@ -95,7 +135,7 @@ def summarize(findings, sections, coverage, state):
             "High",
             "Supported source includes an explicit unlimited-liability, irrevocable-license, rights-waiver or personal-data-sale phrase; review its scope and exceptions.",
         )
-    elif groups["restrictions"] or groups["potential_risks"] or groups["obligations"]:
+    elif risk_groups["Moderate"]:
         level, rule = (
             "Moderate",
             "Supported restrictions, obligations or risk notes require attention; no high-attention phrase matched.",
@@ -109,6 +149,18 @@ def summarize(findings, sections, coverage, state):
         level, rule = "Not Determinable", "Supported categories do not justify a rule-based assessment."
     return {
         "level": level,
+        "risk_groups": risk_groups,
+        "risk_counts": {k: len(v) for k, v in risk_groups.items()},
+        "assessments": assessments,
+        "assessment_complete": not bool(incomplete) and not risk_groups["Unassessed"],
+        "priority_index": None
+        if incomplete or risk_groups["Unassessed"]
+        else (3 if triggers else 2 if risk_groups["Moderate"] else 1),
+        "priority_method": "Ordinal review index: Low=1, Moderate=2, High=3; maximum classified verified finding. Available only with complete processed coverage and classification. Not a probability, legal-risk score or guarantee of safety.",
+        "coverage": {
+            k: coverage.get(k, 0)
+            for k in ("chunks_total", "chunks_processed", "sections_total", "sections_processed")
+        },
         "counts": {
             "retained": len(findings),
             "verified": len(valid),

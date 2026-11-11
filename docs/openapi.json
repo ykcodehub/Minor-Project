@@ -1288,6 +1288,42 @@
               ],
               "title": "Source Id"
             }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Severity"
+            }
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "category",
+                    "severity"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group By"
+            }
           }
         ],
         "responses": {
@@ -2430,6 +2466,11 @@
       },
       "FindingResponse": {
         "properties": {
+          "risk_assessment": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Risk Assessment"
+          },
           "id": {
             "type": "string",
             "title": "Id"

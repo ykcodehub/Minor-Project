@@ -286,6 +286,14 @@ def process(job_id, token):
         checkpoints = RequestCheckpoints(SessionLocal, job_id, token)
         for provider in providers:
             provider["checkpoint"] = checkpoints
+            provider["on_index_progress"] = lambda event: progress(
+                job_id,
+                token,
+                "VERIFYING",
+                event["windows_reviewed"],
+                event["windows_total"],
+                source_audit=event,
+            )
             provider["on_attempt"] = lambda event: progress(
                 job_id, token, "AI_" + event["role"].upper(), **event
             )

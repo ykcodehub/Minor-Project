@@ -60,3 +60,24 @@ describe("evidence grounded summary", () => {
     expect(screen.getByText("Exact original quote")).toBeInTheDocument();
   });
 });
+
+it("discloses partial translations without relabeling originals as translated", () => {
+  render(
+    <SmartSummary
+      data={{
+        ...base,
+        translation_ready: false,
+        translation_completed: 4,
+        translation_total: 7,
+      }}
+      language="hi"
+      onSelect={() => {}}
+    />,
+  );
+  expect(
+    screen.getByText(/Verified translations available.*4.*7/),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/Untranslated explanations remain/),
+  ).toBeInTheDocument();
+});

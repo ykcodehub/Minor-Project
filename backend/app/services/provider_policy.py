@@ -1,5 +1,7 @@
 """One consent boundary for API jobs, workers and every outbound retry."""
 
+import time
+
 from app.config import settings
 from app.db import SessionLocal
 from app.models import User
@@ -25,13 +27,14 @@ def names_for(user, payload):
     return [n for n in dict.fromkeys([user.preferred_provider, *permissions]) if n in permissions]
 
 
-def providers_for(user, payload, factory=None):
+def providers_for(user, payload, factory=None, *, operation="analysis"):
     factory = factory or SessionLocal
     configs = {p["name"]: p for p in settings().providers()}
     names = names_for(user, payload)
     if not names:
         raise ProviderError("PROVIDER_PERMISSION_REVOKED")
     budget = {
+        "deadline": time.monotonic() + settings().analysis_timeout_seconds,
         "calls": 0,
         "tokens": 0,
         "max_calls": settings().max_ai_calls_per_operation,
@@ -48,7 +51,19 @@ def providers_for(user, payload, factory=None):
                 current = db.get(User, owner_id)
                 return current is not None and name in names_for(current, payload)
 
-        result.append({**configs[name], "authorize": authorized, "budget": budget})
+        from app.services.provider_quota import hooks
+
+        check, block = hooks(configs[name], factory)
+        result.append(
+            {
+                **configs[name],
+                "authorize": authorized,
+                "budget": budget,
+                "operation": operation,
+                "quota_check": check,
+                "quota_block": block,
+            }
+        )
     if not result:
         raise ProviderError("PROVIDER_NOT_CONFIGURED")
     return result

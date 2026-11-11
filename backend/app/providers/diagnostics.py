@@ -25,6 +25,8 @@ PARAMS = {
     "max_completion_tokens",
     "reasoning",
     "reasoning_effort",
+    "reasoning.effort",
+    "reasoning.exclude",
 }
 
 
@@ -120,3 +122,22 @@ def json_content(content):
     if text.startswith("```json\n") and text.endswith("\n```") and text.count("```") == 2:
         return text[8:-4].strip()
     return text
+
+
+def structured_retry_delay(response):
+    """Read only Google's typed numeric RetryInfo delay, never error prose."""
+    try:
+        details = response.json().get("error", {}).get("details", [])
+        if not isinstance(details, list):
+            return 0.0
+        waits = []
+        for item in details[:20]:
+            if isinstance(item, dict) and item.get("@type") == "type.googleapis.com/google.rpc.RetryInfo":
+                value = item.get("retryDelay", "")
+                if isinstance(value, str) and re.fullmatch(r"[0-9]{1,8}(?:\.[0-9]{1,9})?s", value):
+                    seconds = float(value[:-1])
+                    if 0 < seconds <= 31536000:
+                        waits.append(seconds)
+        return max(waits, default=0.0)
+    except (ValueError, TypeError, AttributeError):
+        return 0.0
