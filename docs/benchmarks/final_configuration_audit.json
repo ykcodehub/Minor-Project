@@ -1,0 +1,20 @@
+{
+  "scope": "local configuration flags, not Render secret inventory",
+  "checks": {
+    "environment_is_production": false,
+    "storage_is_s3": false,
+    "secure_cookies": false,
+    "public_url_https": false,
+    "origins_all_https": false,
+    "oauth_redirect_https": false,
+    "oauth_credentials_present": true,
+    "smtp_configuration_present": true,
+    "stable_storage_key_present": true,
+    "openrouter_explicit_model": false,
+    "openrouter_credential_present": true
+  },
+  "remote_render_environment": "UNVERIFIED",
+  "remote_r2_operations": "NOT_EXECUTED",
+  "real_smtp_mail": "NOT_SENT",
+  "real_google_consent": "NOT_EXECUTED"
+}

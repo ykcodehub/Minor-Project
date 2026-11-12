@@ -1,0 +1,60 @@
+{
+  "scope": "running isolated local services; no inference",
+  "frontend": "http://127.0.0.1:5175",
+  "api": "http://127.0.0.1:8000",
+  "live_inference_requests": 0,
+  "stages": {
+    "api_readiness": "PASS",
+    "pdf_upload_worker_extraction": "PASS",
+    "fresh_analysis_summary_qa": "BLOCKED_NO_INFERENCE_AUTHORIZATION"
+  },
+  "readiness": {
+    "status": "ready",
+    "database": "connected",
+    "ai_providers": "not_probed"
+  },
+  "pdf_status": "READY",
+  "pdf_coverage": {
+    "pages_total": 2,
+    "pages_extracted": 2,
+    "sections_total": 8,
+    "warnings": [
+      "PDF reading order and hidden text cannot be guaranteed; inspect original pages."
+    ]
+  },
+  "configured_providers": [
+    {
+      "name": "gemini",
+      "configured": false
+    },
+    {
+      "name": "groq",
+      "configured": false
+    },
+    {
+      "name": "openrouter",
+      "configured": false
+    }
+  ],
+  "analysis_start_http_status": 503,
+  "browser_checks": {
+    "total_passed": 17,
+    "real_running_auth_upload_language_mobile": "PASS",
+    "synthetic_pdf_browser_upload": "PASS",
+    "summary_risk_details_citations_qa": "PASS_SYNTHETIC_BROWSER_FIXTURES_ONLY",
+    "offline_demo": "PASS_DESKTOP_AND_MOBILE",
+    "fresh_live_analysis_qa": "BLOCKED_NO_INFERENCE_AUTHORIZATION"
+  },
+  "processes": {
+    "api_launcher": 22200,
+    "api_listener": 14504,
+    "worker_launcher": 17320,
+    "frontend_launcher": 18856,
+    "frontend_listener": 9620
+  },
+  "postgres_check": {
+    "status": "PASS_READ_ONLY",
+    "head": "c819ba204ae1",
+    "application_test_database": "isolated SQLite; no local PostgreSQL installation found"
+  }
+}

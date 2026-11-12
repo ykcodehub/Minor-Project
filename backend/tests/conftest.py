@@ -8,6 +8,30 @@ from app.db import Base, SessionLocal
 from app.main import app
 
 
+@pytest.fixture(autouse=True)
+def synthetic_model_catalog(monkeypatch):
+    """All inference tests use a synthetic catalog; never contact real AI services."""
+    monkeypatch.setattr(
+        "app.providers.model_policy.eligible_endpoint",
+        lambda model: {
+            "tag": "synthetic",
+            "status": 0,
+            "supported_parameters": ["structured_outputs", "max_tokens", "response_format", "reasoning"],
+            "pricing": {"prompt": "0", "completion": "0"},
+        },
+    )
+    monkeypatch.setattr(
+        "app.providers.model_policy.model_info",
+        lambda model: {
+            "id": model,
+            "context_length": 32000,
+            "supported_parameters": ["structured_outputs", "max_tokens", "reasoning"],
+            "reasoning": {"mandatory": False},
+            "top_provider": {"max_completion_tokens": 8192},
+        },
+    )
+
+
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     cfg = settings()

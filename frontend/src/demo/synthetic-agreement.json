@@ -1,0 +1,1040 @@
+{
+  "mode": "OFFLINE_AUTHORED_REFERENCE",
+  "version": "1",
+  "live_inference": false,
+  "provenance": "Authored synthetic reference. Exact quotations and risk rules validated locally; no live or independent semantic verification.",
+  "sha256": "122d4d2a8938e4f6abafcd8061ecf73f306e2b0a2f3c5be3ab7a86bd304f6744",
+  "pages": 2,
+  "sections": [
+    {
+      "id": "demo-section-0",
+      "ordinal": 0,
+      "page": 1,
+      "heading": "",
+      "text": "SYNTHETIC DEMO AGREEMENT - Page 1\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [35.0, 32.099998474121094, 270.3799743652344, 48.5880012512207],
+        "block": 0,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-1",
+      "ordinal": 1,
+      "page": 1,
+      "heading": "",
+      "text": "The customer accepts unlimited liability for all service losses.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 91.4000015258789, 250.61598205566406, 102.39199829101562
+        ],
+        "block": 1,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-2",
+      "ordinal": 2,
+      "page": 1,
+      "heading": "",
+      "text": "The customer grants an irrevocable license to submitted materials.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 156.39999389648438, 270.63995361328125, 167.39199829101562
+        ],
+        "block": 2,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-3",
+      "ordinal": 3,
+      "page": 1,
+      "heading": "",
+      "text": "Invoices must be paid within thirty days.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 221.39999389648438, 175.94398498535156, 232.39199829101562
+        ],
+        "block": 3,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-4",
+      "ordinal": 4,
+      "page": 1,
+      "heading": "",
+      "text": "Personal data may be shared with service providers only with consent.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 286.3999938964844, 284.43194580078125, 297.3919982910156
+        ],
+        "block": 4,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-5",
+      "ordinal": 5,
+      "page": 2,
+      "heading": "",
+      "text": "SYNTHETIC DEMO AGREEMENT - Page 2\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [35.0, 32.099998474121094, 270.3799743652344, 48.5880012512207],
+        "block": 0,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-6",
+      "ordinal": 6,
+      "page": 2,
+      "heading": "",
+      "text": "The supplier may terminate service on seven days notice.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 91.4000015258789, 239.07997131347656, 102.39199829101562
+        ],
+        "block": 1,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-7",
+      "ordinal": 7,
+      "page": 2,
+      "heading": "",
+      "text": "Disputes must be resolved by arbitration in the stated venue.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 156.39999389648438, 249.76795959472656, 167.39199829101562
+        ],
+        "block": 2,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    },
+    {
+      "id": "demo-section-8",
+      "ordinal": 8,
+      "page": 2,
+      "heading": "",
+      "text": "The customer may request a copy of their stored records.\n",
+      "locator": {
+        "kind": "pdf_block",
+        "bbox": [
+          35.0, 221.39999389648438, 238.1919708251953, 232.39199829101562
+        ],
+        "block": 3,
+        "offset_unit": "unicode_codepoint",
+        "identity_map": true
+      },
+      "source_id": "offline-synthetic"
+    }
+  ],
+  "findings": [
+    {
+      "id": "demo-finding-0",
+      "finding_id": "demo-finding-0",
+      "category": "RISK_NOTE",
+      "statement": "The customer accepts unlimited liability for all service losses.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-1",
+          "page": 1,
+          "quote": "The customer accepts unlimited liability for all service losses.",
+          "start": 0,
+          "end": 64,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "High",
+        "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    {
+      "id": "demo-finding-1",
+      "finding_id": "demo-finding-1",
+      "category": "RESTRICTION",
+      "statement": "The customer grants an irrevocable license to submitted materials.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-2",
+          "page": 1,
+          "quote": "The customer grants an irrevocable license to submitted materials.",
+          "start": 0,
+          "end": 66,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "High",
+        "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    {
+      "id": "demo-finding-2",
+      "finding_id": "demo-finding-2",
+      "category": "PAYMENT",
+      "statement": "Invoices must be paid within thirty days.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-3",
+          "page": 1,
+          "quote": "Invoices must be paid within thirty days.",
+          "start": 0,
+          "end": 41,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    {
+      "id": "demo-finding-3",
+      "finding_id": "demo-finding-3",
+      "category": "PRIVACY",
+      "statement": "Personal data may be shared with service providers only with consent.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-4",
+          "page": 1,
+          "quote": "Personal data may be shared with service providers only with consent.",
+          "start": 0,
+          "end": 69,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    {
+      "id": "demo-finding-4",
+      "finding_id": "demo-finding-4",
+      "category": "TERMINATION",
+      "statement": "The supplier may terminate service on seven days notice.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-6",
+          "page": 2,
+          "quote": "The supplier may terminate service on seven days notice.",
+          "start": 0,
+          "end": 56,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    {
+      "id": "demo-finding-5",
+      "finding_id": "demo-finding-5",
+      "category": "DISPUTE",
+      "statement": "Disputes must be resolved by arbitration in the stated venue.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-7",
+          "page": 2,
+          "quote": "Disputes must be resolved by arbitration in the stated venue.",
+          "start": 0,
+          "end": 61,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    {
+      "id": "demo-finding-6",
+      "finding_id": "demo-finding-6",
+      "category": "RIGHT",
+      "statement": "The customer may request a copy of their stored records.",
+      "rationale": "Authored reference annotation restates the exact synthetic clause.",
+      "support_status": "SUPPORTED",
+      "qualifications": [],
+      "citations": [
+        {
+          "source_id": "offline-synthetic",
+          "section_id": "demo-section-8",
+          "page": 2,
+          "quote": "The customer may request a copy of their stored records.",
+          "start": 0,
+          "end": 56,
+          "match_status": "EXACT"
+        }
+      ],
+      "verification": {
+        "method": "authored_reference_exact_quote_check",
+        "live_model_review": false
+      },
+      "risk_assessment": {
+        "level": "Low",
+        "reason": "A verified right, permission or exception is lower review priority under these rules; this does not establish safety.",
+        "rule_version": "attention-1.2"
+      }
+    }
+  ],
+  "summary": {
+    "level": "Not Determinable",
+    "risk_groups": {
+      "High": [
+        {
+          "id": "demo-finding-0",
+          "finding_id": "demo-finding-0",
+          "category": "RISK_NOTE",
+          "statement": "The customer accepts unlimited liability for all service losses.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-1",
+              "page": 1,
+              "quote": "The customer accepts unlimited liability for all service losses.",
+              "start": 0,
+              "end": 64,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "High",
+            "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+            "rule_version": "attention-1.2"
+          }
+        },
+        {
+          "id": "demo-finding-1",
+          "finding_id": "demo-finding-1",
+          "category": "RESTRICTION",
+          "statement": "The customer grants an irrevocable license to submitted materials.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-2",
+              "page": 1,
+              "quote": "The customer grants an irrevocable license to submitted materials.",
+              "start": 0,
+              "end": 66,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "High",
+            "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "Moderate": [
+        {
+          "id": "demo-finding-2",
+          "finding_id": "demo-finding-2",
+          "category": "PAYMENT",
+          "statement": "Invoices must be paid within thirty days.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-3",
+              "page": 1,
+              "quote": "Invoices must be paid within thirty days.",
+              "start": 0,
+              "end": 41,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        },
+        {
+          "id": "demo-finding-3",
+          "finding_id": "demo-finding-3",
+          "category": "PRIVACY",
+          "statement": "Personal data may be shared with service providers only with consent.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-4",
+              "page": 1,
+              "quote": "Personal data may be shared with service providers only with consent.",
+              "start": 0,
+              "end": 69,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        },
+        {
+          "id": "demo-finding-4",
+          "finding_id": "demo-finding-4",
+          "category": "TERMINATION",
+          "statement": "The supplier may terminate service on seven days notice.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-6",
+              "page": 2,
+              "quote": "The supplier may terminate service on seven days notice.",
+              "start": 0,
+              "end": 56,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        },
+        {
+          "id": "demo-finding-5",
+          "finding_id": "demo-finding-5",
+          "category": "DISPUTE",
+          "statement": "Disputes must be resolved by arbitration in the stated venue.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-7",
+              "page": 2,
+              "quote": "Disputes must be resolved by arbitration in the stated venue.",
+              "start": 0,
+              "end": 61,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "Low": [
+        {
+          "id": "demo-finding-6",
+          "finding_id": "demo-finding-6",
+          "category": "RIGHT",
+          "statement": "The customer may request a copy of their stored records.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-8",
+              "page": 2,
+              "quote": "The customer may request a copy of their stored records.",
+              "start": 0,
+              "end": 56,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Low",
+            "reason": "A verified right, permission or exception is lower review priority under these rules; this does not establish safety.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "Unassessed": []
+    },
+    "risk_counts": {
+      "High": 2,
+      "Moderate": 4,
+      "Low": 1,
+      "Unassessed": 0
+    },
+    "assessments": {
+      "demo-finding-0": {
+        "level": "High",
+        "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+        "rule_version": "attention-1.2"
+      },
+      "demo-finding-1": {
+        "level": "High",
+        "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+        "rule_version": "attention-1.2"
+      },
+      "demo-finding-2": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      },
+      "demo-finding-3": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      },
+      "demo-finding-4": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      },
+      "demo-finding-5": {
+        "level": "Moderate",
+        "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+        "rule_version": "attention-1.2"
+      },
+      "demo-finding-6": {
+        "level": "Low",
+        "reason": "A verified right, permission or exception is lower review priority under these rules; this does not establish safety.",
+        "rule_version": "attention-1.2"
+      }
+    },
+    "assessment_complete": false,
+    "priority_index": null,
+    "priority_method": "Ordinal review index: Low=1, Moderate=2, High=3; maximum classified verified finding. Available only with complete processed coverage and classification. Not a probability, legal-risk score or guarantee of safety.",
+    "coverage": {
+      "chunks_total": 0,
+      "chunks_processed": 0,
+      "sections_total": 9,
+      "sections_processed": 9
+    },
+    "counts": {
+      "retained": 7,
+      "verified": 7,
+      "excluded": 0,
+      "SUPPORTED": 7
+    },
+    "processing_state": "COMPLETED",
+    "overview_findings": [
+      {
+        "id": "demo-finding-0",
+        "finding_id": "demo-finding-0",
+        "category": "RISK_NOTE",
+        "statement": "The customer accepts unlimited liability for all service losses.",
+        "rationale": "Authored reference annotation restates the exact synthetic clause.",
+        "support_status": "SUPPORTED",
+        "qualifications": [],
+        "citations": [
+          {
+            "source_id": "offline-synthetic",
+            "section_id": "demo-section-1",
+            "page": 1,
+            "quote": "The customer accepts unlimited liability for all service losses.",
+            "start": 0,
+            "end": 64,
+            "match_status": "EXACT"
+          }
+        ],
+        "verification": {
+          "method": "authored_reference_exact_quote_check",
+          "live_model_review": false
+        },
+        "risk_assessment": {
+          "level": "High",
+          "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+          "rule_version": "attention-1.2"
+        }
+      },
+      {
+        "id": "demo-finding-1",
+        "finding_id": "demo-finding-1",
+        "category": "RESTRICTION",
+        "statement": "The customer grants an irrevocable license to submitted materials.",
+        "rationale": "Authored reference annotation restates the exact synthetic clause.",
+        "support_status": "SUPPORTED",
+        "qualifications": [],
+        "citations": [
+          {
+            "source_id": "offline-synthetic",
+            "section_id": "demo-section-2",
+            "page": 1,
+            "quote": "The customer grants an irrevocable license to submitted materials.",
+            "start": 0,
+            "end": 66,
+            "match_status": "EXACT"
+          }
+        ],
+        "verification": {
+          "method": "authored_reference_exact_quote_check",
+          "live_model_review": false
+        },
+        "risk_assessment": {
+          "level": "High",
+          "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+          "rule_version": "attention-1.2"
+        }
+      },
+      {
+        "id": "demo-finding-2",
+        "finding_id": "demo-finding-2",
+        "category": "PAYMENT",
+        "statement": "Invoices must be paid within thirty days.",
+        "rationale": "Authored reference annotation restates the exact synthetic clause.",
+        "support_status": "SUPPORTED",
+        "qualifications": [],
+        "citations": [
+          {
+            "source_id": "offline-synthetic",
+            "section_id": "demo-section-3",
+            "page": 1,
+            "quote": "Invoices must be paid within thirty days.",
+            "start": 0,
+            "end": 41,
+            "match_status": "EXACT"
+          }
+        ],
+        "verification": {
+          "method": "authored_reference_exact_quote_check",
+          "live_model_review": false
+        },
+        "risk_assessment": {
+          "level": "Moderate",
+          "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+          "rule_version": "attention-1.2"
+        }
+      }
+    ],
+    "unestablished_topics": ["exceptions", "other_clauses"],
+    "group_totals": {
+      "benefits": 1,
+      "obligations": 1,
+      "restrictions": 1,
+      "potential_risks": 1,
+      "exceptions": 0,
+      "privacy_consent": 1,
+      "termination": 1,
+      "disputes": 1,
+      "other_clauses": 0
+    },
+    "rule": "Insufficient coverage, no supported findings, or unresolved interpretations.",
+    "rule_version": "attention-1.2",
+    "groups": {
+      "benefits": [
+        {
+          "id": "demo-finding-6",
+          "finding_id": "demo-finding-6",
+          "category": "RIGHT",
+          "statement": "The customer may request a copy of their stored records.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-8",
+              "page": 2,
+              "quote": "The customer may request a copy of their stored records.",
+              "start": 0,
+              "end": 56,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Low",
+            "reason": "A verified right, permission or exception is lower review priority under these rules; this does not establish safety.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "obligations": [
+        {
+          "id": "demo-finding-2",
+          "finding_id": "demo-finding-2",
+          "category": "PAYMENT",
+          "statement": "Invoices must be paid within thirty days.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-3",
+              "page": 1,
+              "quote": "Invoices must be paid within thirty days.",
+              "start": 0,
+              "end": 41,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "restrictions": [
+        {
+          "id": "demo-finding-1",
+          "finding_id": "demo-finding-1",
+          "category": "RESTRICTION",
+          "statement": "The customer grants an irrevocable license to submitted materials.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-2",
+              "page": 1,
+              "quote": "The customer grants an irrevocable license to submitted materials.",
+              "start": 0,
+              "end": 66,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "High",
+            "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "potential_risks": [
+        {
+          "id": "demo-finding-0",
+          "finding_id": "demo-finding-0",
+          "category": "RISK_NOTE",
+          "statement": "The customer accepts unlimited liability for all service losses.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-1",
+              "page": 1,
+              "quote": "The customer accepts unlimited liability for all service losses.",
+              "start": 0,
+              "end": 64,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "High",
+            "reason": "A supported quote contains an explicit high-attention phrase. Review its scope and exceptions.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "exceptions": [],
+      "privacy_consent": [
+        {
+          "id": "demo-finding-3",
+          "finding_id": "demo-finding-3",
+          "category": "PRIVACY",
+          "statement": "Personal data may be shared with service providers only with consent.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-4",
+              "page": 1,
+              "quote": "Personal data may be shared with service providers only with consent.",
+              "start": 0,
+              "end": 69,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "termination": [
+        {
+          "id": "demo-finding-4",
+          "finding_id": "demo-finding-4",
+          "category": "TERMINATION",
+          "statement": "The supplier may terminate service on seven days notice.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-6",
+              "page": 2,
+              "quote": "The supplier may terminate service on seven days notice.",
+              "start": 0,
+              "end": 56,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "disputes": [
+        {
+          "id": "demo-finding-5",
+          "finding_id": "demo-finding-5",
+          "category": "DISPUTE",
+          "statement": "Disputes must be resolved by arbitration in the stated venue.",
+          "rationale": "Authored reference annotation restates the exact synthetic clause.",
+          "support_status": "SUPPORTED",
+          "qualifications": [],
+          "citations": [
+            {
+              "source_id": "offline-synthetic",
+              "section_id": "demo-section-7",
+              "page": 2,
+              "quote": "Disputes must be resolved by arbitration in the stated venue.",
+              "start": 0,
+              "end": 61,
+              "match_status": "EXACT"
+            }
+          ],
+          "verification": {
+            "method": "authored_reference_exact_quote_check",
+            "live_model_review": false
+          },
+          "risk_assessment": {
+            "level": "Moderate",
+            "reason": "A verified duty, restriction or consequential condition requires review; no high-attention phrase matched.",
+            "rule_version": "attention-1.2"
+          }
+        }
+      ],
+      "other_clauses": []
+    },
+    "trigger_finding_ids": ["demo-finding-0", "demo-finding-1"],
+    "disclaimer": "Rule-based document attention only; not legal risk, enforceability, or evidence of a company's real-world practices."
+  },
+  "translations": {
+    "hi": {
+      "demo-finding-0": {
+        "statement": "ग्राहक सभी सेवा हानियों के लिए असीमित दायित्व स्वीकार करता है।",
+        "rationale": "ग्राहक सभी सेवा हानियों के लिए असीमित दायित्व स्वीकार करता है।",
+        "qualifications": []
+      },
+      "demo-finding-1": {
+        "statement": "ग्राहक जमा सामग्री का अपरिवर्तनीय लाइसेंस देता है।",
+        "rationale": "ग्राहक जमा सामग्री का अपरिवर्तनीय लाइसेंस देता है।",
+        "qualifications": []
+      },
+      "demo-finding-2": {
+        "statement": "बिलों का भुगतान तीस दिनों के भीतर करना होगा।",
+        "rationale": "बिलों का भुगतान तीस दिनों के भीतर करना होगा।",
+        "qualifications": []
+      },
+      "demo-finding-3": {
+        "statement": "व्यक्तिगत डेटा केवल सहमति से सेवा प्रदाताओं के साथ साझा किया जा सकता है।",
+        "rationale": "व्यक्तिगत डेटा केवल सहमति से सेवा प्रदाताओं के साथ साझा किया जा सकता है।",
+        "qualifications": []
+      },
+      "demo-finding-4": {
+        "statement": "आपूर्तिकर्ता सात दिनों की सूचना पर सेवा समाप्त कर सकता है।",
+        "rationale": "आपूर्तिकर्ता सात दिनों की सूचना पर सेवा समाप्त कर सकता है।",
+        "qualifications": []
+      },
+      "demo-finding-5": {
+        "statement": "विवाद निर्धारित स्थान पर मध्यस्थता द्वारा सुलझाए जाने चाहिए।",
+        "rationale": "विवाद निर्धारित स्थान पर मध्यस्थता द्वारा सुलझाए जाने चाहिए।",
+        "qualifications": []
+      },
+      "demo-finding-6": {
+        "statement": "ग्राहक अपने संग्रहीत रिकॉर्ड की प्रति माँग सकता है।",
+        "rationale": "ग्राहक अपने संग्रहीत रिकॉर्ड की प्रति माँग सकता है।",
+        "qualifications": []
+      }
+    },
+    "hinglish": {
+      "demo-finding-0": {
+        "statement": "Customer sabhi service losses ke liye unlimited liability accept karta hai.",
+        "rationale": "Customer sabhi service losses ke liye unlimited liability accept karta hai.",
+        "qualifications": []
+      },
+      "demo-finding-1": {
+        "statement": "Customer submitted materials ka irrevocable license deta hai.",
+        "rationale": "Customer submitted materials ka irrevocable license deta hai.",
+        "qualifications": []
+      },
+      "demo-finding-2": {
+        "statement": "Invoices ka payment tees din ke andar karna hoga.",
+        "rationale": "Invoices ka payment tees din ke andar karna hoga.",
+        "qualifications": []
+      },
+      "demo-finding-3": {
+        "statement": "Personal data sirf consent ke saath service providers ko share kiya ja sakta hai.",
+        "rationale": "Personal data sirf consent ke saath service providers ko share kiya ja sakta hai.",
+        "qualifications": []
+      },
+      "demo-finding-4": {
+        "statement": "Supplier saat din ke notice par service terminate kar sakta hai.",
+        "rationale": "Supplier saat din ke notice par service terminate kar sakta hai.",
+        "qualifications": []
+      },
+      "demo-finding-5": {
+        "statement": "Disputes stated venue par arbitration se resolve karne honge.",
+        "rationale": "Disputes stated venue par arbitration se resolve karne honge.",
+        "qualifications": []
+      },
+      "demo-finding-6": {
+        "statement": "Customer apne stored records ki copy maang sakta hai.",
+        "rationale": "Customer apne stored records ki copy maang sakta hai.",
+        "qualifications": []
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ import { useSession } from "./session";
 import { post, ApiError } from "../lib/api";
 import { ErrorNotice, Loading } from "../components/ui";
 const Landing = lazy(() => import("../features/Landing"));
+const OfflineDemo = lazy(() => import("../features/OfflineDemo"));
 const Intake = lazy(() => import("../features/Intake"));
 const Auth = lazy(() => import("../features/Auth"));
 const Library = lazy(() => import("../features/Library"));
@@ -151,6 +152,7 @@ export default function App() {
         <Suspense fallback={<Loading />}>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/demo/offline" element={<OfflineDemo />} />
             <Route path="/analyze" element={<Intake />} />
             <Route path="/discover" element={<Intake initialMode="url" />} />
             <Route path="/sign-in" element={<Auth />} />

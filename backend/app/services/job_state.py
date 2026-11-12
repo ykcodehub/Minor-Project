@@ -5,14 +5,14 @@ from sqlalchemy import func, select
 from app.models import Analysis, Finding, Job, now
 
 
-def fail_processing(db, job_id, token, reason):
+def fail_processing(db, job_id, token, reason, *, commit=True):
     job = db.scalar(
         select(Job).where(Job.id == job_id).with_for_update().execution_options(populate_existing=True)
     )
     if not job or job.state != "PROCESSING" or job.lease_token != token:
         return False
-    if reason.startswith("WORKER_LEASE_EXPIRED") and (
-        job.lease_until is None or job.lease_until.replace(tzinfo=now().tzinfo) >= now()
+    if reason.startswith("WORKER_LEASE_EXPIRED") and job.lease_until is not None and (
+        job.lease_until.replace(tzinfo=now().tzinfo) >= now()
     ):
         return False
     analysis = db.scalar(select(Analysis).where(Analysis.job_id == job_id))
@@ -30,5 +30,6 @@ def fail_processing(db, job_id, token, reason):
         coverage = dict(analysis.coverage or {})
         coverage["warnings"] = [*coverage.get("warnings", []), reason]
         analysis.coverage = coverage
-    db.commit()
+    if commit:
+        db.commit()
     return True

@@ -298,7 +298,7 @@ def test_oversized_qa_uses_bounded_generation_and_audits_uncited_sources(monkeyp
     seen = []
     config = {
         "name": "openrouter",
-        "model": "openrouter/free",
+        "model": "test/structured:free",
         "key": "synthetic",
         "budget": {"calls": 0, "tokens": 0, "max_calls": 100, "max_tokens": 500000},
     }

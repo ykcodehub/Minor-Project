@@ -1,0 +1,14 @@
+{
+  "mode": "READ_ONLY",
+  "production_records_written": false,
+  "live_inference_requests": 0,
+  "connection": "PASS",
+  "database_heads": [
+    "c819ba204ae1"
+  ],
+  "evidence_foreign_keys": 3,
+  "local_heads": [
+    "c819ba204ae1"
+  ],
+  "migration_match": true
+}

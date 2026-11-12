@@ -43,7 +43,9 @@ def dashboard(db: Db, user: CurrentUser):
         "counts": {
             "documents": db.scalar(select(func.count()).select_from(source_scope.subquery())),
             "completed_analyses": states.get("COMPLETED", 0) + states.get("PARTIAL_COMPLETION", 0),
-            "pending_analyses": states.get("QUEUED", 0) + states.get("PROCESSING", 0),
+            "pending_analyses": states.get("QUEUED", 0)
+            + states.get("PROCESSING", 0)
+            + states.get("WAITING_RATE_LIMIT", 0),
             "failed_analyses": states.get("FAILED", 0),
         },
         "recent_documents": recent,

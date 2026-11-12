@@ -1,5 +1,149 @@
 import { test, expect } from "@playwright/test";
 // Synthetic API fixtures exercise browser integration without accounts or paid AI.
+
+test("rate-limited analysis shows bounded recovery and permits cancellation", async ({
+  page,
+}) => {
+  let state = "WAITING_RATE_LIMIT";
+  await page.route("**/api/v1/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    let data: unknown = [];
+    if (path === "/api/v1/me")
+      data = {
+        id: "synthetic",
+        email: "synthetic@example.com",
+        is_guest: false,
+        language: "en",
+        csrf_token: "fixture",
+        providers: [],
+      };
+    else if (path === "/api/v1/jobs/job/cancel") {
+      state = "CANCELLED";
+      data = { state };
+    } else if (path === "/api/v1/analyses/synthetic")
+      data = {
+        id: "synthetic",
+        job_id: "job",
+        status: state,
+        sources: [],
+        source_ids: [],
+        coverage: {},
+        limitations: [],
+        findings_count: 0,
+      };
+    else if (path === "/api/v1/jobs/job")
+      data = {
+        id: "job",
+        state,
+        stage: "RATE_LIMIT_COOLDOWN",
+        result: {},
+        progress: {
+          resume_at: "2026-11-12T12:00:00Z",
+          automatic_resume: 1,
+          max_automatic_resumes: 2,
+        },
+        error: "PROVIDER_RATE_LIMITED",
+      };
+    else if (path.endsWith("/summary"))
+      data = {
+        summary: {
+          level: "Not Determinable",
+          rule: "Incomplete provider verification",
+          rule_version: "fixture",
+          disclaimer: "Synthetic test",
+          groups: {},
+          counts: { retained: 0, verified: 0, excluded: 0 },
+        },
+        translations: {},
+        translation_ready: true,
+      };
+    await route.fulfill({ json: data });
+  });
+  await page.goto("/analysis/synthetic");
+  await expect(
+    page.getByText("Paused for provider rate limit", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Next eligible resume", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Not Determinable", { exact: true }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Retry analysis" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Cancel processing" }).click();
+  await expect(
+    page.getByText("Processing was canceled", { exact: true }),
+  ).toBeVisible();
+});
+
+for (const [code, guidance] of [
+  ["PROVIDER_EXPLICIT_MODEL_REQUIRED", "configure an explicit model"],
+  [
+    "PROVIDER_REASONING_EXHAUSTED",
+    "Repeated document splitting will not fix this",
+  ],
+  ["PROVIDER_TEMPORARILY_SUPPRESSED", "temporarily paused after an outage"],
+]) {
+  test(`failed analysis explains ${code} without verified results`, async ({
+    page,
+  }) => {
+    await page.route("**/api/v1/**", async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      let data: unknown = [];
+      if (path === "/api/v1/me")
+        data = {
+          id: "synthetic",
+          email: "synthetic@example.com",
+          is_guest: false,
+          language: "en",
+          csrf_token: "fixture",
+          providers: [],
+        };
+      else if (path === "/api/v1/analyses/synthetic")
+        data = {
+          id: "synthetic",
+          job_id: "job",
+          status: "FAILED",
+          sources: [],
+          source_ids: [],
+          coverage: {},
+          limitations: [],
+          findings_count: 0,
+        };
+      else if (path === "/api/v1/jobs/job")
+        data = {
+          job_id: "job",
+          state: "FAILED",
+          stage: "FAILED",
+          result: {},
+          progress: {},
+          error: code,
+        };
+      else if (path.endsWith("/summary"))
+        data = {
+          summary: {
+            level: "Not Determinable",
+            rule: "Provider unavailable",
+            rule_version: "fixture",
+            disclaimer: "Synthetic test",
+            groups: {},
+            counts: { retained: 0, verified: 0, excluded: 0 },
+          },
+          translations: {},
+          translation_ready: true,
+        };
+      await route.fulfill({ json: data });
+    });
+    await page.goto("/analysis/synthetic");
+    await expect(page.getByText(guidance, { exact: false })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Retry analysis" }),
+    ).toBeVisible();
+    await expect(page.locator(".citation-chip")).toHaveCount(0);
+  });
+}
 test("saved permissions persist in settings and remove repeated source consent", async ({
   page,
 }) => {

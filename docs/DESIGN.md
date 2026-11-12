@@ -279,3 +279,11 @@ Use a shared source-wide qualification index with exact validated quotations and
 ### 11 November 2026: verified risk dashboard and bounded semantic review
 
 The implemented Summary groups only source-validated SUPPORTED findings into transparent High/Moderate/Low review-priority rules. Unassessed and unverified counts remain outside the classified distribution. The maximum ordinal 1-3 review index is withheld unless processed coverage, verification and classification are complete; it is not a legal-risk probability. High findings use red borders/text and a reduced-motion-aware one-time highlight; source quotations and exact original page/section offsets remain authoritative. Detailed findings support priority filters, category/priority grouping and preserved evidence statuses. PDF navigation groups blocks by original page, never by extracted block count. Source-wide qualification audit plus bounded exact-neighborhood and reference review reduces repeated semantic payloads without treating retrieval as proof. Implementation: services/summary.py, services/context_index.py, providers/base.py, SourceViewer.tsx, RiskDashboard.tsx and Workspace.tsx. Evidence: tests/test_risk_dashboard.py, frontend risk/source unit tests, e2e/risk-dashboard.spec.ts and docs/benchmarks/TWO_PAGE_RISK.md. Live provider completion/accuracy and production timing remain UNVERIFIED.
+
+## Partial-result presentation
+
+An interrupted analysis may retain validated findings. Keep the partial-analysis warning and coverage limitations visible; do not present incomplete verification as a completed safe assessment. The offline reference remains visibly separate from live inference.
+
+## Provider cooldown state
+
+The Analysis workspace shows a translated rate-limit notice, next eligible resume time, retained-evidence/incomplete-coverage explanation and cancellation control. Summary stays Not Determinable while analysis is incomplete. Do not render a paused state as successful or imply a provider reset time has been independently verified.

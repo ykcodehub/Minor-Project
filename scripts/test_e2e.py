@@ -128,7 +128,7 @@ def main():
                 else ["npx", "playwright", "test"]
             )
             result = subprocess.run(
-                command, cwd=ROOT / "frontend", env=env, check=False
+                [*command, *sys.argv[1:]], cwd=ROOT / "frontend", env=env, check=False
             )
             return result.returncode
         finally:

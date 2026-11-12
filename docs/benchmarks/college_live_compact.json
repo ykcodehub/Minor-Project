@@ -1,0 +1,1229 @@
+{
+  "model": "dots-studio/dots-3-note-preview:free",
+  "timestamp_utc": "2026-11-11T17:55:33.471932+00:00",
+  "synthetic_only": true,
+  "production_database_access": false,
+  "limits": {
+    "requests": 20,
+    "reserved_tokens": 80000,
+    "automatic_retries": 0
+  },
+  "stages": {
+    "preflight": "PASS",
+    "isolated_database": "PASS",
+    "extraction": "PASS",
+    "context_indexing": "PASS",
+    "candidate_generation": "PASS",
+    "evidence_quotes_pages": "PASS",
+    "semantic_verification": "FAIL",
+    "analysis": "FAIL",
+    "summary": "FAIL",
+    "result_persistence": "PASS",
+    "question_answering": "FAIL",
+    "translation_hi": "BLOCKED",
+    "translation_hinglish": "BLOCKED"
+  },
+  "calls": [
+    {
+      "role": "context_indexing",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "context_indexing",
+      "http_status": 200,
+      "latency_ms": 8121,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 724,
+        "completion_tokens": 283,
+        "total_tokens": 1007,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "candidate_generation",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 200,
+      "latency_ms": 16209,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 884,
+        "completion_tokens": 587,
+        "total_tokens": 1471,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 200,
+      "latency_ms": 6615,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1143,
+        "completion_tokens": 102,
+        "total_tokens": 1245,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 200,
+      "latency_ms": 6274,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1154,
+        "completion_tokens": 117,
+        "total_tokens": 1271,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 400,
+      "latency_ms": 1100,
+      "response_model": null,
+      "actual_provider": null,
+      "usage": null,
+      "finish_reason": null
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 200,
+      "latency_ms": 4164,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1151,
+        "completion_tokens": 84,
+        "total_tokens": 1235,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 200,
+      "latency_ms": 4439,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1148,
+        "completion_tokens": 85,
+        "total_tokens": 1233,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "analysis",
+      "http_status": 200,
+      "latency_ms": 5307,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1154,
+        "completion_tokens": 77,
+        "total_tokens": 1231,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "question_answering",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "question_answering",
+      "http_status": 200,
+      "latency_ms": 7317,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1181,
+        "completion_tokens": 117,
+        "total_tokens": 1298,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "stage": "question_answering",
+      "http_status": 200,
+      "latency_ms": 5855,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1162,
+        "completion_tokens": 82,
+        "total_tokens": 1244,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "inference_requests": 10,
+  "prior_consumed": {
+    "requests": 5,
+    "reserved_tokens": 37898
+  },
+  "fixture": "compact_authored_two_page",
+  "preflight": {
+    "catalog_pricing": {
+      "prompt": "0",
+      "completion": "0"
+    },
+    "endpoint_pricing": {
+      "prompt": "0",
+      "completion": "0",
+      "discount": 0
+    },
+    "provider": "AtlasCloud",
+    "status": 0,
+    "uptime_last_5m": 100,
+    "supported_parameters": [
+      "reasoning",
+      "include_reasoning",
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "response_format",
+      "structured_outputs",
+      "tools",
+      "tool_choice"
+    ],
+    "data_policy_scope": "Only generated synthetic agreement, synthetic questions and annotations; no personal/confidential content."
+  },
+  "source": {
+    "pages": 2,
+    "blocks": 9,
+    "sha256": "122d4d2a8938e4f6abafcd8061ecf73f306e2b0a2f3c5be3ab7a86bd304f6744"
+  },
+  "index_model_calls": [
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "context_indexing",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 724,
+      "token_out": 283,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1571,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3619,
+      "payload_bytes": 4199,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 8215,
+      "fallback": false
+    }
+  ],
+  "source_index": {
+    "complete": true,
+    "windows_total": 1,
+    "windows_processed": 1,
+    "windows_validated": 1,
+    "windows_attempted": 1,
+    "window_states": [
+      "INDEX_VALIDATED"
+    ],
+    "excerpts": [
+      {
+        "section_id": "sec_122d4d2a8938_1",
+        "quote": "The customer accepts unlimited liability for all service losses.",
+        "page": 1,
+        "start": 0,
+        "end": 64,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      },
+      {
+        "section_id": "sec_122d4d2a8938_2",
+        "quote": "The customer grants an irrevocable license to submitted materials.",
+        "page": 1,
+        "start": 0,
+        "end": 66,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      },
+      {
+        "section_id": "sec_122d4d2a8938_3",
+        "quote": "Invoices must be paid within thirty days.",
+        "page": 1,
+        "start": 0,
+        "end": 41,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      },
+      {
+        "section_id": "sec_122d4d2a8938_4",
+        "quote": "Personal data may be shared with service providers only with consent.",
+        "page": 1,
+        "start": 0,
+        "end": 69,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      },
+      {
+        "section_id": "sec_122d4d2a8938_6",
+        "quote": "The supplier may terminate service on seven days notice.",
+        "page": 2,
+        "start": 0,
+        "end": 56,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      },
+      {
+        "section_id": "sec_122d4d2a8938_7",
+        "quote": "Disputes must be resolved by arbitration in the stated venue.",
+        "page": 2,
+        "start": 0,
+        "end": 61,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      },
+      {
+        "section_id": "sec_122d4d2a8938_8",
+        "quote": "The customer may request a copy of their stored records.",
+        "page": 2,
+        "start": 0,
+        "end": 56,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+      }
+    ],
+    "error": null,
+    "windows_indexed": 1,
+    "windows_reviewed": 1,
+    "windows_unreviewed": 0,
+    "verification_scope": "Qualification index validation only; not semantic verification of findings."
+  },
+  "analysis_model_calls": [
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "candidate_generation",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 884,
+      "token_out": 587,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1920,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3968,
+      "payload_bytes": 5411,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 16309,
+      "fallback": false
+    },
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "semantic_verification",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 1143,
+      "token_out": 102,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1856,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3904,
+      "payload_bytes": 4470,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 6741,
+      "fallback": false
+    },
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "semantic_verification",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 1154,
+      "token_out": 117,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1872,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3920,
+      "payload_bytes": 4489,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 6366,
+      "fallback": false
+    },
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "semantic_verification",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": null,
+      "token_out": null,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "local_preflight",
+      "estimated_input_tokens": 1861,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3909,
+      "payload_bytes": 4446,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "outcome": "ZERO_COST_RESPONSE_UNCONFIRMED",
+      "latency_ms": 1227,
+      "fallback": false
+    },
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "semantic_verification",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 1151,
+      "token_out": 84,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1868,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3916,
+      "payload_bytes": 4501,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 4265,
+      "fallback": false
+    },
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "semantic_verification",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 1148,
+      "token_out": 85,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1865,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3913,
+      "payload_bytes": 4478,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 4555,
+      "fallback": false
+    },
+    {
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "role": "semantic_verification",
+      "operation": "controlled_synthetic_live",
+      "attempt": 1,
+      "prompt_version": "evidence-v2.3.0",
+      "token_in": 1154,
+      "token_out": 77,
+      "estimated_cost": null,
+      "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+      "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+      "budget_phase": "provider_response",
+      "estimated_input_tokens": 1872,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3920,
+      "payload_bytes": 4487,
+      "request_token_limit": 12000,
+      "context_tokens": 512000,
+      "budget_basis": "configured_model_context",
+      "request_sent": true,
+      "http_status": 200,
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "reasoning_tokens": 0,
+      "outcome": "SUCCESS",
+      "latency_ms": 5438,
+      "fallback": false
+    }
+  ],
+  "coverage": {
+    "context_indexes": [],
+    "chunks_total": 1,
+    "chunks_processed": 1,
+    "failed_chunks": [],
+    "sections_total": 9,
+    "sections_processed": 9
+  },
+  "warnings": [
+    "Semantic verification incomplete: ZERO_COST_RESPONSE_UNCONFIRMED."
+  ],
+  "findings": [
+    {
+      "id": "e1e176de-8250-4dbb-aa51-34c8ead5b2fd",
+      "finding_id": "e1e176de-8250-4dbb-aa51-34c8ead5b2fd",
+      "category": "RISK_NOTE",
+      "statement": "The customer accepts unlimited liability for all service losses.",
+      "rationale": "This clause assigns unlimited liability for service losses to the customer, representing an unfavorable allocation of liability.",
+      "qualifications": [],
+      "cross_references": [],
+      "citations": [
+        {
+          "section_id": "sec_122d4d2a8938_1",
+          "quote": "The customer accepts unlimited liability for all service losses.",
+          "page": 1,
+          "start": 0,
+          "end": 64,
+          "match_status": "EXACT",
+          "support_status": "AMBIGUOUS",
+          "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+          "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+        }
+      ],
+      "support_status": "AMBIGUOUS",
+      "verification": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "The statement is stated absolutely but lacks context defining scope, exceptions, or mutual duties; no cross-references supplied to clarify limits.",
+        "missing_qualifiers": [
+          "No definition of 'service losses'",
+          "No cap or limitation on liability stated",
+          "No reference to exclusions (e.g., indirect damages)",
+          "No mention of mutual obligations or supplier liability"
+        ],
+        "unresolved_references": [
+          "undefined term 'service losses'"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "original_candidate": {
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38",
+        "section_id": "sec_122d4d2a8938_1",
+        "quote": "The customer accepts unlimited liability for all service losses.",
+        "start": null,
+        "end": null,
+        "page": 1,
+        "category": "RISK_NOTE",
+        "statement": "The customer accepts unlimited liability for all service losses.",
+        "rationale": "This clause assigns unlimited liability for service losses to the customer, representing an unfavorable allocation of liability.",
+        "qualifications": [],
+        "cross_references": []
+      },
+      "candidate_ids": [
+        "b09ccca0-2268-4f7f-94c8-bd0ae392127b"
+      ],
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "prompt_version": "evidence-v2.3.0"
+    },
+    {
+      "id": "400f826e-a311-4eae-91ec-0e4cada298b7",
+      "finding_id": "400f826e-a311-4eae-91ec-0e4cada298b7",
+      "category": "RIGHT",
+      "statement": "The customer grants an irrevocable license to submitted materials.",
+      "rationale": "This clause grants the customer a right (a license) to submitted materials, with the qualification that it is irrevocable.",
+      "qualifications": [
+        "irrevocable"
+      ],
+      "cross_references": [],
+      "citations": [
+        {
+          "section_id": "sec_122d4d2a8938_2",
+          "quote": "The customer grants an irrevocable license to submitted materials.",
+          "page": 1,
+          "start": 0,
+          "end": 66,
+          "match_status": "EXACT",
+          "support_status": "PARTIALLY_SUPPORTED",
+          "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+          "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+        }
+      ],
+      "support_status": "PARTIALLY_SUPPORTED",
+      "verification": {
+        "support_status": "PARTIALLY_SUPPORTED",
+        "rationale": "The statement lacks qualifiers defining the scope of submitted materials and conditions for irrevocability. Cross-references to consent (sec_4) and venue (sec_7) are unresolved. No contradictions found, but context is incomplete.",
+        "missing_qualifiers": [
+          "scope of materials",
+          "termination conditions",
+          "consent requirements",
+          "venue specification"
+        ],
+        "unresolved_references": [
+          "sec_122d4d2a8938_4",
+          "sec_122d4d2a8938_7"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "original_candidate": {
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38",
+        "section_id": "sec_122d4d2a8938_2",
+        "quote": "The customer grants an irrevocable license to submitted materials.",
+        "start": null,
+        "end": null,
+        "page": 1,
+        "category": "RIGHT",
+        "statement": "The customer grants an irrevocable license to submitted materials.",
+        "rationale": "This clause grants the customer a right (a license) to submitted materials, with the qualification that it is irrevocable.",
+        "qualifications": [
+          "irrevocable"
+        ],
+        "cross_references": []
+      },
+      "candidate_ids": [
+        "1771e1a3-4244-4132-89fd-d08acc73627b"
+      ],
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "prompt_version": "evidence-v2.3.0"
+    },
+    {
+      "id": "28353b83-59cf-42b5-b47f-18b02cc2239b",
+      "finding_id": "28353b83-59cf-42b5-b47f-18b02cc2239b",
+      "category": "PAYMENT",
+      "statement": "Invoices must be paid within thirty days.",
+      "rationale": "This clause specifies the payment terms for invoices, requiring payment within thirty days.",
+      "qualifications": [
+        "within thirty days"
+      ],
+      "cross_references": [],
+      "citations": [
+        {
+          "section_id": "sec_122d4d2a8938_3",
+          "quote": "Invoices must be paid within thirty days.",
+          "page": 1,
+          "start": 0,
+          "end": 41,
+          "match_status": "EXACT",
+          "support_status": "AMBIGUOUS",
+          "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+          "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+        }
+      ],
+      "support_status": "AMBIGUOUS",
+      "verification": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "ZERO_COST_RESPONSE_UNCONFIRMED"
+      },
+      "original_candidate": {
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38",
+        "section_id": "sec_122d4d2a8938_3",
+        "quote": "Invoices must be paid within thirty days.",
+        "start": null,
+        "end": null,
+        "page": 1,
+        "category": "PAYMENT",
+        "statement": "Invoices must be paid within thirty days.",
+        "rationale": "This clause specifies the payment terms for invoices, requiring payment within thirty days.",
+        "qualifications": [
+          "within thirty days"
+        ],
+        "cross_references": []
+      },
+      "candidate_ids": [
+        "7d65a735-a107-4129-85d4-ecf48cebdcb4"
+      ],
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "prompt_version": "evidence-v2.3.0"
+    },
+    {
+      "id": "12dd024f-bb4a-492d-a804-a53adb814fd9",
+      "finding_id": "12dd024f-bb4a-492d-a804-a53adb814fd9",
+      "category": "PRIVACY",
+      "statement": "Personal data may be shared with service providers only with consent.",
+      "rationale": "This clause governs the handling of personal data, restricting sharing with service providers to instances where consent is obtained.",
+      "qualifications": [
+        "only with consent"
+      ],
+      "cross_references": [],
+      "citations": [
+        {
+          "section_id": "sec_122d4d2a8938_4",
+          "quote": "Personal data may be shared with service providers only with consent.",
+          "page": 1,
+          "start": 0,
+          "end": 69,
+          "match_status": "EXACT",
+          "support_status": "AMBIGUOUS",
+          "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+          "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+        }
+      ],
+      "support_status": "AMBIGUOUS",
+      "verification": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Statement is verbatim but lacks definition of consent, scope of service providers, or exceptions; no cross-references provided.",
+        "missing_qualifiers": [
+          "consent definition",
+          "scope of service providers",
+          "exceptions for legal obligations"
+        ],
+        "unresolved_references": [
+          "consent definition",
+          "service provider scope",
+          "legal obligation exceptions"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "original_candidate": {
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38",
+        "section_id": "sec_122d4d2a8938_4",
+        "quote": "Personal data may be shared with service providers only with consent.",
+        "start": null,
+        "end": null,
+        "page": 1,
+        "category": "PRIVACY",
+        "statement": "Personal data may be shared with service providers only with consent.",
+        "rationale": "This clause governs the handling of personal data, restricting sharing with service providers to instances where consent is obtained.",
+        "qualifications": [
+          "only with consent"
+        ],
+        "cross_references": []
+      },
+      "candidate_ids": [
+        "2ee1bdb0-dbb3-4bf2-8ddd-146103e5cdcb"
+      ],
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "prompt_version": "evidence-v2.3.0"
+    },
+    {
+      "id": "16035830-707c-443d-93b4-4561bdf5c811",
+      "finding_id": "16035830-707c-443d-93b4-4561bdf5c811",
+      "category": "TERMINATION",
+      "statement": "The supplier may terminate service on seven days notice.",
+      "rationale": "This clause outlines the conditions under which the supplier can terminate the service, requiring seven days notice.",
+      "qualifications": [
+        "on seven days notice"
+      ],
+      "cross_references": [],
+      "citations": [
+        {
+          "section_id": "sec_122d4d2a8938_6",
+          "quote": "The supplier may terminate service on seven days notice.",
+          "page": 2,
+          "start": 0,
+          "end": 56,
+          "match_status": "EXACT",
+          "support_status": "AMBIGUOUS",
+          "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+          "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+        }
+      ],
+      "support_status": "AMBIGUOUS",
+      "verification": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "The statement is a direct quote, but the source provides no conditions or exceptions governing the termination right. Without further context on grounds for termination, the claim lacks material qualification.",
+        "missing_qualifiers": [
+          "No conditions for supplier termination right (e.g., breach, convenience) are specified in the source"
+        ],
+        "unresolved_references": [],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "original_candidate": {
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38",
+        "section_id": "sec_122d4d2a8938_6",
+        "quote": "The supplier may terminate service on seven days notice.",
+        "start": null,
+        "end": null,
+        "page": 2,
+        "category": "TERMINATION",
+        "statement": "The supplier may terminate service on seven days notice.",
+        "rationale": "This clause outlines the conditions under which the supplier can terminate the service, requiring seven days notice.",
+        "qualifications": [
+          "on seven days notice"
+        ],
+        "cross_references": []
+      },
+      "candidate_ids": [
+        "e9b2c314-0120-48f3-943d-115f2a22b714"
+      ],
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "prompt_version": "evidence-v2.3.0"
+    },
+    {
+      "id": "01329b83-3e05-4f04-a948-e31cf66c5582",
+      "finding_id": "01329b83-3e05-4f04-a948-e31cf66c5582",
+      "category": "DISPUTE",
+      "statement": "Disputes must be resolved by arbitration in the stated venue.",
+      "rationale": "This clause specifies the method and venue for resolving disputes, mandating arbitration in a stated venue.",
+      "qualifications": [
+        "in the stated venue"
+      ],
+      "cross_references": [],
+      "citations": [
+        {
+          "section_id": "sec_122d4d2a8938_7",
+          "quote": "Disputes must be resolved by arbitration in the stated venue.",
+          "page": 2,
+          "start": 0,
+          "end": 61,
+          "match_status": "EXACT",
+          "support_status": "AMBIGUOUS",
+          "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+          "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38"
+        }
+      ],
+      "support_status": "AMBIGUOUS",
+      "verification": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "The statement is supported by the exact quote, but the qualifier 'stated venue' is undefined in the context, making the assertion ambiguous.",
+        "missing_qualifiers": [
+          "The term 'stated venue' is not defined in the provided text."
+        ],
+        "unresolved_references": [
+          "stated venue"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "original_candidate": {
+        "source_id": "5e0f8398-1cc6-4aa0-bf45-2c79d4a7ff38",
+        "section_id": "sec_122d4d2a8938_7",
+        "quote": "Disputes must be resolved by arbitration in the stated venue.",
+        "start": null,
+        "end": null,
+        "page": 2,
+        "category": "DISPUTE",
+        "statement": "Disputes must be resolved by arbitration in the stated venue.",
+        "rationale": "This clause specifies the method and venue for resolving disputes, mandating arbitration in a stated venue.",
+        "qualifications": [
+          "in the stated venue"
+        ],
+        "cross_references": []
+      },
+      "candidate_ids": [
+        "2b2ff42a-f363-404b-a6df-be64fd63a44e"
+      ],
+      "provider": "openrouter",
+      "model": "dots-studio/dots-3-note-preview:free",
+      "prompt_version": "evidence-v2.3.0"
+    }
+  ],
+  "verified_findings": 0,
+  "known_fixture_clauses_recovered": 0,
+  "summary": {
+    "level": "Not Determinable",
+    "risk_groups": {
+      "High": [],
+      "Moderate": [],
+      "Low": [],
+      "Unassessed": []
+    },
+    "risk_counts": {
+      "High": 0,
+      "Moderate": 0,
+      "Low": 0,
+      "Unassessed": 0
+    },
+    "assessments": {},
+    "assessment_complete": false,
+    "priority_index": null,
+    "priority_method": "Ordinal review index: Low=1, Moderate=2, High=3; maximum classified verified finding. Available only with complete processed coverage and classification. Not a probability, legal-risk score or guarantee of safety.",
+    "coverage": {
+      "chunks_total": 1,
+      "chunks_processed": 1,
+      "sections_total": 9,
+      "sections_processed": 9
+    },
+    "counts": {
+      "retained": 6,
+      "verified": 0,
+      "excluded": 6,
+      "AMBIGUOUS": 5,
+      "PARTIALLY_SUPPORTED": 1
+    },
+    "processing_state": "PARTIAL_COMPLETION",
+    "overview_findings": [],
+    "unestablished_topics": [
+      "benefits",
+      "obligations",
+      "restrictions",
+      "potential_risks",
+      "exceptions",
+      "privacy_consent",
+      "termination",
+      "disputes",
+      "other_clauses"
+    ],
+    "group_totals": {
+      "benefits": 0,
+      "obligations": 0,
+      "restrictions": 0,
+      "potential_risks": 0,
+      "exceptions": 0,
+      "privacy_consent": 0,
+      "termination": 0,
+      "disputes": 0,
+      "other_clauses": 0
+    },
+    "rule": "Insufficient coverage, no supported findings, or unresolved interpretations.",
+    "rule_version": "attention-1.2",
+    "groups": {
+      "benefits": [],
+      "obligations": [],
+      "restrictions": [],
+      "potential_risks": [],
+      "exceptions": [],
+      "privacy_consent": [],
+      "termination": [],
+      "disputes": [],
+      "other_clauses": []
+    },
+    "trigger_finding_ids": [],
+    "disclaimer": "Rule-based document attention only; not legal risk, enforceability, or evidence of a company's real-world practices."
+  },
+  "question_answer": {
+    "answer": "I cannot confirm this from the available document.",
+    "citations": [],
+    "limitations": [
+      "Answers describe the captured document, not actual company conduct or legal advice.",
+      "Only available selected sources were reviewed; AI review can make mistakes."
+    ],
+    "model_calls": [
+      {
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free",
+        "role": "question_answering",
+        "operation": "controlled_synthetic_live",
+        "attempt": 1,
+        "prompt_version": "evidence-v2.3.0",
+        "token_in": 1181,
+        "token_out": 117,
+        "estimated_cost": null,
+        "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+        "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+        "budget_phase": "provider_response",
+        "estimated_input_tokens": 2077,
+        "reserved_output_tokens": 2048,
+        "estimated_request_tokens": 4125,
+        "payload_bytes": 5044,
+        "request_token_limit": 12000,
+        "context_tokens": 512000,
+        "budget_basis": "configured_model_context",
+        "request_sent": true,
+        "http_status": 200,
+        "requested_model": "dots-studio/dots-3-note-preview:free",
+        "response_model": "dots-studio/dots-3-note-preview:free",
+        "reasoning_tokens": 0,
+        "outcome": "SUCCESS",
+        "latency_ms": 7410,
+        "fallback": false
+      },
+      {
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free",
+        "role": "semantic_verification",
+        "operation": "controlled_synthetic_live",
+        "attempt": 1,
+        "prompt_version": "evidence-v2.3.0",
+        "token_in": 1162,
+        "token_out": 82,
+        "estimated_cost": null,
+        "job_id": "5a6dab38-0495-4609-b919-1424635d7817",
+        "analysis_id": "e2e350eb-95ef-4e4c-9dcb-add4da52084f",
+        "budget_phase": "provider_response",
+        "estimated_input_tokens": 1880,
+        "reserved_output_tokens": 2048,
+        "estimated_request_tokens": 3928,
+        "payload_bytes": 4528,
+        "request_token_limit": 12000,
+        "context_tokens": 512000,
+        "budget_basis": "configured_model_context",
+        "request_sent": true,
+        "http_status": 200,
+        "requested_model": "dots-studio/dots-3-note-preview:free",
+        "response_model": "dots-studio/dots-3-note-preview:free",
+        "reasoning_tokens": 0,
+        "outcome": "SUCCESS",
+        "latency_ms": 6059,
+        "fallback": false
+      }
+    ],
+    "reason_code": "ANSWER_NOT_VERIFIED"
+  },
+  "reserved_tokens": 39122,
+  "cumulative_requests": 15,
+  "cumulative_reserved_tokens": 77020,
+  "wall_seconds": 69.481,
+  "role_counts": {
+    "context_indexing": 1,
+    "candidate_generation": 1,
+    "semantic_verification": 7,
+    "question_answering": 1
+  }
+}

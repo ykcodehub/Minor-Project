@@ -2,7 +2,9 @@
 
 ## Start locally
 
-Use Python 3.12-3.13, Node 22.12+ or 24+, and reachable PostgreSQL. Preserve existing backend/.env. Install dependencies using the root README if needed; never copy an example over configured secrets.
+Use Python 3.12-3.13, Node 22.12+ or 24+, and reachable PostgreSQL. Preserve existing `.env` configuration. The backend accepts a root `.env` and `backend/.env`; when both exist, `backend/.env` takes precedence. Install dependencies using the root README if needed; never copy an example over configured secrets.
+
+For SMTP, use port 587 with STARTTLS (`SMTP_USE_SSL=false`) or port 465 with implicit TLS (`SMTP_USE_SSL=true`). Restart the backend after changing environment variables because settings are cached at startup. The configured `PUBLIC_URL`, `ALLOWED_ORIGINS`, and `GOOGLE_REDIRECT_URI` must use the same application origin; register that exact callback URL in Google Cloud.
 
 From the project root, activate `.\.venv\Scripts\Activate.ps1`. Use three terminals:
 
@@ -35,7 +37,7 @@ Open http://127.0.0.1:5173 . API docs: http://127.0.0.1:8000/docs ; health: http
 1. Register with email only. Follow the verification link, then set/confirm a password. Login supports email/password and Google; forgot password sends a single-use reset link. Responses avoid exposing account existence.
 2. Select the language through the global globe control. English, Hindi and Hinglish preferences persist for signed-in users.
 3. Upload a supported document, paste text, or discover legal pages from a public website. Select accessible policies; discovery cannot guarantee exhaustive coverage.
-4. In Settings, choose a preferred configured model and authorize permitted providers once. Start analysis using the saved permissions. The worker displays real stages; failures remain visible and can be retried safely.
+4. In Settings, choose a preferred configured model and authorize permitted providers once. Set `GEMINI_MODEL=gemini-2.5-flash` for the supported Gemini default, or configure `OPENAI_API_KEY` with `OPENAI_MODEL=gpt-4o-mini` as an additional fallback. Start analysis using the saved permissions. The worker displays real stages; failures remain visible and can be retried safely.
 5. Summary opens by default. Expand source/context for key clauses or select a source citation. Detailed Analysis contains filters, source navigation, Evidence Passport and Veriora AI; Processing Coverage is at its bottom.
 6. Ask a document question or select a suggested question drawn from supported document categories. Quotes remain in their original language. Missing evidence produces an explicit abstention.
 7. Download a report/manifest; use Library for history. Logout invalidates the current session.
@@ -47,7 +49,7 @@ Add your final image at frontend/public/logo.png. Missing/unreadable images use 
 - Database failure: run `python -m app.manage check` from backend. Check reachability/TLS and credentials privately; runtime does not fall back to SQLite. Review migrations rather than resetting data.
 - Import error `No module named app`: use the backend working directory and project virtual environment.
 - Queued analysis: start the worker with the same database, storage key and provider configuration. Do not use fake progress or repeatedly enqueue duplicate analyses.
-- Provider failure: inspect the safe error code, configured model and quota. An unavailable provider may fall back only to another provider already authorized in Settings. Review the actual failure codes and coverage.
+- Provider failure: run `python -m app.manage providers` from `backend` to check configured model listing and capability availability without sending document content. Verified analysis rejects OpenRouter dynamic routers such as `openrouter/free` and `openrouter/auto`; set `OPENROUTER_MODEL` to an explicit catalog-listed model with structured outputs and compatible, non-mandatory reasoning, or authorize an explicitly configured Gemini/OpenAI alternative in Settings. An unavailable provider may fall back only to another provider already authorized in Settings.
 - Google state/cookie error: start with the real Google button, allow full browser navigation and keep the configured callback host consistent. A localhost/127.0.0.1 change affects host-only cookies. Do not open/reuse callback URLs. Keep server time synchronized. State/nonce/PKCE and strict token expiry stay enabled.
 - Email: privately verify SMTP authentication, sender ownership, delivery logs and spam folders. Accepted SMTP delivery is not proof of inbox receipt. No production OTP bypass exists.
 - Upload/extraction: supported formats are PDF/DOCX/TXT/HTML. Scanned PDFs require OCR outside the current implementation; incomplete coverage is disclosed.
@@ -116,3 +118,37 @@ Risk Summary now displays verified High/Moderate/Low counts, an explicitly ordin
 
 
 AI quota handling now shares cooldowns across API/worker through the existing PostgreSQL rate buckets. A 429 uses authorized fallback immediately; manual retries during cooldown do not create another provider request. Summary translations reuse fidelity-checked cached batches and keep originals visible on failure. Ask Veriora uses bounded retrieved context plus strict selected-source qualification review. Readiness reports infrastructure only (`ai_providers=not_probed`). See [operation benchmarks and limitations](docs/benchmarks/AI_OPERATIONS.md). No new environment variable or migration is required; API/worker must share the same database.
+
+## Explicit model configuration
+
+Before deployment, replace a configured OpenRouter dynamic router with a deliberately selected explicit model. Keep the existing authorized-provider settings; do not add paid models implicitly. Mandatory-reasoning models are rejected for compact evidence tasks. See [AI reliability policy](docs/AI_RELIABILITY.md) for exact failure codes, outage cooldowns and the zero-price smoke command. No `.env` or production settings were changed, and no new migration is required.
+
+## Reliable offline college demo
+
+From `frontend`, run `npm run build` then `npm run preview -- --port 5180 --strictPort`. Open http://127.0.0.1:5180/demo/offline . No backend, database or AI key is needed for this public synthetic reference. The page clearly labels authored results; it is not an offline processor for real uploads or arbitrary questions. Existing `.env` remains unchanged. See [readiness and live limitations](docs/COLLEGE_DEMO_READINESS.md).
+
+The isolated browser runner accepts Playwright arguments, for example `.venv/Scripts/python.exe scripts/test_e2e.py e2e/offline-demo.spec.ts`. The recorded Dots browser replay reads saved real results and makes no provider requests. Do not rerun live inference without fresh cost/health approval and a remaining bounded request/token allowance.
+
+## Optional task-specific AI routing
+
+`AI_TASK_PROVIDER_ORDER` may rank existing authorized providers separately for generation, indexing, semantic review, translation and QA. Defaults preserve the current user preference; no environment change is required. See [accuracy review/configuration example](docs/AI_ACCURACY_REVIEW.md). This does not authorize a provider, configure a model, establish free billing or increase the operation budget. Do not rerun live inference without approval.
+
+## Final verification status
+
+Use `python -m app.serve` from `backend` to run API and worker together. The isolated supervisor smoke test passed. Live AI acceptance remains blocked by provider HTTP 429; see [final readiness](docs/FINAL_PRODUCTION_READINESS.md). Do not confuse the offline demo with fresh inference.
+
+## Rate-limit handling
+
+The same `python -m app.serve` command handles API, worker and due cooldown jobs. Optional `AI_RATE_LIMIT_MAX_RESUMES=2` and `AI_RATE_LIMIT_MAX_WAIT_SECONDS=3600` use safe defaults; set resumes to 0 to disable automatic recovery. A provider-requested wait is never shortened. Render Free must be awake for recovery to run. See [exact configuration and demo checklist](docs/RATE_LIMIT_RECOVERY.md).
+
+## Safe local run without production writes or AI
+
+From the repository root, with existing dependencies installed:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/run_local_isolated.py --frontend-port 5175
+```
+
+This explicitly uses isolated **test-mode SQLite**, private synthetic-only storage, captured test email and blank AI/Google credentials. It does not substitute SQLite for the normal PostgreSQL configuration. It leaves loopback API (8000), worker and frontend (5175) processes running; refuses occupied ports; prints their launcher PIDs and the private runtime directory. Existing `.env` is preserved. Normal PostgreSQL startup remains documented above and must use an isolated writable database if production data must not change.
+
+Open http://127.0.0.1:5175 and http://127.0.0.1:5175/demo/offline . API documentation is http://127.0.0.1:8000/docs . No live AI, real SMTP delivery or Google login is enabled in this isolated mode. The authored offline reference is clearly labelled and does not analyze arbitrary uploads. Captured mail tokens stay in the ignored private runtime directory; never share them. Stop only the processes belonging to your printed local instance when finished.

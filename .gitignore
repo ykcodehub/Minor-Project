@@ -45,4 +45,5 @@ backups/
 *.pdf
 !backend/tests/fixtures/*.docx
 !backend/tests/fixtures/*.pdf
+!frontend/public/demo/synthetic-agreement.pdf
 .mypy_cache/

@@ -1,0 +1,42 @@
+{
+  "synthetic_only": true,
+  "production_data_access": false,
+  "results": [
+    {
+      "provider": "gemini",
+      "model": "gemini-3.6-flash",
+      "status": "BLOCKED",
+      "inference_requests": 0,
+      "token_in": null,
+      "token_out": null,
+      "reasoning_tokens": null,
+      "latency_ms": null,
+      "evidence_coverage": null,
+      "reason": "Zero billing cannot be established; paid usage not authorized."
+    },
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "status": "BLOCKED",
+      "inference_requests": 0,
+      "token_in": null,
+      "token_out": null,
+      "reasoning_tokens": null,
+      "latency_ms": null,
+      "evidence_coverage": null,
+      "reason": "Zero billing cannot be established; paid usage not authorized."
+    },
+    {
+      "provider": "openrouter",
+      "model": "openrouter/free",
+      "status": "BLOCKED",
+      "inference_requests": 0,
+      "token_in": null,
+      "token_out": null,
+      "reasoning_tokens": null,
+      "latency_ms": null,
+      "evidence_coverage": null,
+      "reason": "An existing explicit :free model and credential are required; no model substituted."
+    }
+  ]
+}

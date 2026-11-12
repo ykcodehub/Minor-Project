@@ -524,3 +524,84 @@ Final executed verification for quota-aware operations:
 Existing verified translation caches are read through exact legacy fingerprint candidates (including before derived risk metadata was added). Source/explanation/status and ownership scope must still match; no row migration or provider request is needed to reuse them. Regression tests prove complete legacy caches remain available with all provider credentials disabled in the isolated fixture. New canonical fingerprints avoid invalidating translations solely because decorative risk metadata changed. No production cache rows were rewritten.
 
 The new browser cases exercise real API error parsing with synthetic HTTP 503/PROVIDER_RATE_LIMITED and Retry-After, desktop/mobile no-answer states, and one non-repeating partial-translation request. The final frontend unit test likewise uses synthetic fetch through the real API parser. Existing risk graph, exact two-page/36-block navigation, red critical styling, reduced motion, source links, auth/OAuth, uploads, reports and global-language regressions remain passing. No currently working prior local feature was reverted.
+
+## Explicit-model reliability verification ? 11 November 2026
+
+Local implementation only. Nothing was committed, pushed or deployed; `.env`, existing migrations and production data were not changed. No new paid model or provider permission was introduced. See [design and required configuration](AI_RELIABILITY.md).
+
+| Executed check | Actual result |
+|---|---|
+| Backend: `python -m pytest tests -q --tb=short` from backend, isolated test environment and SQLite temporary databases | **303 passed, 1 skipped**, 127.03 seconds; opt-in PostgreSQL integration was skipped |
+| Backend: `python -m ruff check app tests ../scripts/check_ai_reliability.py --no-cache` | **PASS**, including the previously failing import order |
+| Targeted Python formatting and `git diff --check` | **PASS** |
+| Frontend: `npm test` | **55 passed**, 15 files |
+| Frontend: `npm run lint` | **PASS** |
+| Frontend: `npm run build` | **PASS**, TypeScript project build and Vite production build |
+| Browser: `.venv/Scripts/python.exe scripts/test_e2e.py` from root | **29 passed, 1 skipped**, about 1.4 minutes; local services/synthetic OAuth and AI responses, no real Google consent or production provider verification |
+| Two-page benchmark: `.venv/Scripts/python.exe scripts/benchmark_risk_agreement.py`, isolated test environment | **3 passed**; mocked Gemini/Groq/explicit synthetic OpenRouter each COMPLETED with 7/7 programmed findings supported, original 2 PDF pages/36 blocks preserved, risk H/M/L 2/4/1 |
+| Real-provider smoke preflight: `.venv/Scripts/python.exe scripts/check_ai_reliability.py --allow-provider openrouter --report docs/benchmarks/live_reliability_check.json` | **BLOCKED**, zero inference requests. Configured OpenRouter remains `openrouter/free`; Gemini/Groq zero billing cannot be established from credentials alone |
+
+All Python tests above override DATABASE_URL to isolated test SQLite and disable inherited live keys. SQLite is not introduced into application production. Production PostgreSQL checks and real-provider availability/quality were not executed. The browser runner applied existing migrations only to its fresh isolated test database; production schema/history were untouched.
+
+### Current synthetic measurements (not live performance)
+
+| Mock adapter/model | Local seconds | Generation/index/verification requests | Estimated full-envelope input total | Reserved output total | Verified fixture coverage |
+|---|---:|---|---:|---:|---|
+| Gemini / `gemini-3.6-flash` | 3.132 | 2 / 3 / 7 | 24,125 | 21,504 | 7/7 findings, 2 original pages |
+| Groq / `openai/gpt-oss-20b` | 2.263 | 5 / 3 / 7 | 28,360 | 23,552 | 7/7 findings, 2 original pages |
+| OpenRouter / `test/structured:free` (synthetic ID) | 1.439 | 2 / 3 / 7 | 25,448 | 28,672 | 7/7 findings, 2 original pages |
+
+Input estimates and output reservations are summed across calls, not document length or billed consumption. Actual inference tokens, live latency, accuracy and production memory were **not measured**. See [per-request benchmark JSON](benchmarks/two_page_risk_benchmark.json). The verified findings are programmed synthetic verdicts, not proof that any live model identifies all seven clauses.
+
+### Regression scope and changed files
+
+- New `backend/app/providers/model_policy.py`: reject dynamic routers, validate catalog schema/token capabilities, disable supported optional reasoning, reject mandatory reasoning and tighten model caps. Metadata requests are public GETs without source text or credentials.
+- `providers/base.py`, `services/analysis.py`: distinguish reasoning exhaustion, prevent repeated splitting/oversized completion growth, retain authorized task-scoped fallback, bounded retries and strict output/evidence validation; structured role/operation diagnostics with worker job/analysis IDs.
+- `services/provider_quota.py`, `provider_policy.py`: separate shared transient-outage buckets, respecting Retry-After, without changing 429 buckets or completed-checkpoint reuse.
+- `worker.py`: source audit progress uses `AI_CONTEXT_INDEXING`; terminal stage matches partial/completed state.
+- New `backend/tests/test_model_policy.py`, existing provider/risk/budget/operation tests and `conftest.py`: synthetic catalog, explicit fixtures, reasoning controls, 503 suppression, fallback and checkpoint coverage. No meaningful tests removed.
+- Frontend `providerFailure.ts` and tests, `messages.json`, `e2e/provider-summary.spec.ts`: actionable English/Hindi/Hinglish guidance and browser assertions for router rejection, exhaustion and outage pauses. Existing Risk Dashboard layout, citations and page viewer are preserved.
+- New bounded smoke runner/report, `.env.example` comments, README, HOW_TO_RUN, TRD, requirement audit and reliability/benchmark documentation.
+
+Before release, an operator must select a compatible explicit `OPENROUTER_MODEL`, establish approved zero-spend live testing for other providers if wanted, confirm Render's deployed SHA and run real synthetic end-to-end evaluation. No required Vercel variable, new schema migration, larger token cap or provider-permission grant was added.
+
+## College demo verification ? 11 November 2026
+
+Full results, source-grounding limitations, exact sanitized errors, prior harness defect and its fix, known real usage, regression counts and PostgreSQL read-only evidence are in [COLLEGE_DEMO_READINESS.md](COLLEGE_DEMO_READINESS.md). Backend 314 passed/1 skipped; frontend 56 passed; main browser 31 passed/1 skipped; recorded-real-result replay 1 passed. Lint, TypeScript and production build passed. The real Dots runs used 15 requests and 77,020 reserved estimated tokens with zero-price routes; semantic/QA acceptance FAIL, no live translations executed. Offline fixture/page/quote/risk/saved-answer functionality PASS and is explicitly authored, not fresh AI. No production records, migrations, settings, commits or deployments changed.
+
+## Recorded live accuracy follow-up
+
+No new inference. Backend: **329 passed, 1 skipped**, 136.68 seconds, isolated test databases/live keys disabled. Frontend: **58 passed**; ESLint, TypeScript and Vite production build passed. Browser: **32 passed, 1 skipped**, about 1.6 minutes, including the preserved offline demo and recorded real partial-result replay. Ruff, targeted formatting and `git diff --check` passed. PostgreSQL connection/head/foreign-key checks passed in an explicitly read-only transaction; head remains `c819ba204ae1` and evidence has three foreign keys. No PostgreSQL rows/migrations/settings were changed. See [accuracy review](AI_ACCURACY_REVIEW.md), [13 rejection traces](benchmarks/recorded_accuracy_diagnosis.json) and [read-only PostgreSQL evidence](benchmarks/accuracy_postgres_readonly.json).
+
+## Final local verification ? 12 November 2026
+
+- Backend: `python -m pytest tests -q --tb=short` ? **331 passed, 1 skipped**, 138.74 s, isolated test database and disabled real provider keys. The first full pass exposed an obsolete FAILED expectation; the regression now asserts retained PARTIAL_COMPLETION and verifies explicit retry completes without rebilling cached requests.
+- Frontend: `npm test` ? **58 passed**; `npm run lint` ? PASS; `npm run build` ? PASS (TypeScript and production Vite build).
+- Browser: `python scripts/test_e2e.py` ? **32 passed, 1 skipped**, about 1.6 min; isolated services, mocked/synthetic external authentication and AI. Real Google consent is not established by these tests.
+- Backend Ruff check and formatting check ? PASS; `git diff --check` ? PASS (existing CRLF conversion warnings only).
+- Real `python -m app.serve` isolated smoke ? readiness PASS; worker consumed ingestion to COMPLETED. No AI or production writes.
+- Neon read-only schema check ? PASS; local/database migration head `c819ba204ae1` matched. No new migration or database write.
+- Live OpenRouter Dots test ? **BLOCKED at HTTP 429** after 7 requests / 28,326 reserved estimated tokens / 52.118 s. Six successful responses reported 8,632 actual total tokens, zero reasoning tokens and zero cost; failed-request usage unavailable. Three SUPPORTED checkpoint verdicts, one correctly rejected category mismatch, zero final persisted findings in that recorded pre-fix run. Incremental persistence was subsequently fixed and locally tested, not live-retested.
+- Full real-provider Summary/dashboard, QA, Hindi/Hinglish, downloads ? BLOCKED. Real SMTP delivery, production OAuth consent and live R2 operations ? NOT RUN.
+
+See [final readiness assessment](FINAL_PRODUCTION_READINESS.md) for evidence links, exact deployment commands and outstanding release gates. **Production/live-AI verdict: NOT READY.** No secrets or `.env` were changed; no commit, push or deployment was made.
+
+## Rate-limit recovery verification ? 12 November 2026
+
+- Backend `python -m pytest tests -q --tb=short`: **342 passed, 1 skipped**, 116.70 seconds. Synthetic HTTP and isolated test databases; no live inference.
+- Frontend `npm test`: **58 passed**; `npm run lint`: PASS; `npm run build`: PASS, TypeScript plus production Vite build (13.25 seconds).
+- Browser `python scripts/test_e2e.py`: **33 passed, 1 skipped**, about 1.8 minutes. Includes waiting/cancellation, partial Risk Dashboard, desktop/mobile OAuth with synthetic external responses, offline demo and grounded workspace regressions. The live-provider browser scenario stayed skipped.
+- Ruff check and selected-file formatting: PASS. `git diff --check`: PASS (existing line-ending warnings only).
+- Neon: explicit read-only transaction PASS, migration heads both `c819ba204ae1`, no missing mapped tables, three evidence foreign keys; zero writes. See [read-only evidence](benchmarks/rate_limit_postgres_readonly.json).
+- Recorded 429 sequence regression: first validated finding retained, cooldown prevents premature claim, explicit failure alone is retried, completed generation/verdicts reused. Cancellation, revoked permission, uncertain requests, whole-job budget, daily quota uncertainty, long wait and resume caps covered.
+- Real-provider inference requests this pass: **0**. Exact historical upstream quota/Retry-After unavailable. Production SMTP/Google consent/R2/deployed revision remain unverified. No new migrations, credentials, production data, commit, push or deployment changes.
+
+[Deployment/configuration and demo checklist](RATE_LIMIT_RECOVERY.md). Verdict: **NOT READY** for real-provider production acceptance; offline authored backup remains verified.
+
+## Running local Windows instance ? 12 November 2026
+
+Started the real loopback API, worker and Vite at ports 8000/5175 with `scripts/run_local_isolated.py --frontend-port 5175`; port5173 was occupied and left untouched. Browser launch was requested through Windows. API `/api/v1/ready` and frontend both returned200. PostgreSQL Neon connectivity/head `c819ba204ae1` verified in a separate read-only transaction; no production writes. No local PostgreSQL tools or Docker were found, so the running instance explicitly uses a disposable test-mode SQLite database, not PostgreSQL fallback for normal configuration.
+
+Executed17 browser checks:16 existing tests passed (47.5s), plus a real synthetic two-page PDF browser upload passed (5.7s). Registration/email ownership/password/login/logout use real local APIs and a captured test mailbox. Source ingestion/extraction runs through the actual worker. Summary/Risk Dashboard/Detailed Analysis/citation/QA browser scenarios use explicit synthetic API fixtures; offline authored reference passed desktop/mobile. The initial new PDF assertion selected multiple source blocks; corrected its locator and reran successfully. No application extraction defect was found.
+
+Fresh AI findings/QA, actual Google consent, real SMTP delivery and normal writable PostgreSQL-backed app operation are BLOCKED or NOT RUN. Live inference requests:0. Safe launcher Ruff/syntax checks passed. See [running smoke evidence](benchmarks/local_running_smoke.json). No credentials, production records, commits, pushes or deployments changed.

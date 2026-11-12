@@ -3582,3 +3582,42 @@ main#main {
   font-size: 13px;
   margin: 8px 0 12px;
 }
+
+/* Authored public fixture only; live workspaces retain their existing layout. */
+.offline-demo > .notice {
+  margin-bottom: 24px;
+}
+.offline-demo .page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+.offline-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.offline-demo .panel {
+  margin: 16px 0;
+}
+.offline-finding {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.offline-source-selected {
+  border-left: 3px solid var(--primary);
+  background: var(--primary-soft, #e9f4f1);
+  padding: 12px;
+}
+.offline-hash {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+@media (max-width: 800px) {
+  .offline-demo-grid {
+    grid-template-columns: 1fr;
+  }
+}

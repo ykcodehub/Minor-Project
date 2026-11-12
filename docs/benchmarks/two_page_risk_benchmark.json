@@ -13,151 +13,151 @@
       "Low": 1,
       "Unassessed": 0
     },
-    "wall_seconds": 2.123,
+    "wall_seconds": 3.132,
     "requests": [
       {
         "role": "candidate_generation",
-        "estimated_input_tokens": 4152,
+        "estimated_input_tokens": 4162,
         "reserved_output_tokens": 4096,
-        "estimated_request_tokens": 8248,
-        "payload_bytes": 18153,
+        "estimated_request_tokens": 8258,
+        "payload_bytes": 18194,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 368,
-        "mock_handler_seconds": 0.0030824000132270157
+        "mock_handler_seconds": 0.005735600017942488
       },
       {
         "role": "context_indexing",
-        "estimated_input_tokens": 2970,
+        "estimated_input_tokens": 2980,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 5018,
-        "payload_bytes": 12551,
+        "estimated_request_tokens": 5028,
+        "payload_bytes": 12592,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 62,
-        "mock_handler_seconds": 0.0017668000073172152
+        "mock_handler_seconds": 0.003906700003426522
       },
       {
         "role": "context_indexing",
-        "estimated_input_tokens": 2677,
+        "estimated_input_tokens": 2687,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 4725,
-        "payload_bytes": 11742,
+        "estimated_request_tokens": 4735,
+        "payload_bytes": 11783,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 13,
-        "mock_handler_seconds": 0.0016984999529086053
+        "mock_handler_seconds": 0.0032482999959029257
       },
       {
         "role": "context_indexing",
-        "estimated_input_tokens": 2696,
+        "estimated_input_tokens": 2706,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 4744,
-        "payload_bytes": 11336,
+        "estimated_request_tokens": 4754,
+        "payload_bytes": 11377,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 13,
-        "mock_handler_seconds": 0.0016397999715991318
+        "mock_handler_seconds": 0.0038536000065505505
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1091,
+        "estimated_input_tokens": 1115,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2115,
-        "payload_bytes": 2837,
+        "estimated_request_tokens": 2139,
+        "payload_bytes": 2878,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0012845000019297004
+        "mock_handler_seconds": 0.0015350999892689288
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1102,
+        "estimated_input_tokens": 1126,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2126,
-        "payload_bytes": 2843,
+        "estimated_request_tokens": 2150,
+        "payload_bytes": 2884,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0007723000016994774
+        "mock_handler_seconds": 0.0019406999927014112
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1087,
+        "estimated_input_tokens": 1111,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2111,
-        "payload_bytes": 2768,
+        "estimated_request_tokens": 2135,
+        "payload_bytes": 2809,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0007166999857872725
+        "mock_handler_seconds": 0.0021037000115029514
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 972,
+        "estimated_input_tokens": 991,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 1996,
-        "payload_bytes": 2575,
+        "estimated_request_tokens": 2015,
+        "payload_bytes": 2616,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0006408999906852841
+        "mock_handler_seconds": 0.001494700030889362
       },
       {
         "role": "candidate_generation",
-        "estimated_input_tokens": 3878,
+        "estimated_input_tokens": 3888,
         "reserved_output_tokens": 4096,
-        "estimated_request_tokens": 7974,
-        "payload_bytes": 16934,
+        "estimated_request_tokens": 7984,
+        "payload_bytes": 16975,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 277,
-        "mock_handler_seconds": 0.002932199975475669
+        "mock_handler_seconds": 0.00534410000545904
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1091,
+        "estimated_input_tokens": 1115,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2115,
-        "payload_bytes": 2815,
+        "estimated_request_tokens": 2139,
+        "payload_bytes": 2856,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0008432000176981091
+        "mock_handler_seconds": 0.0017208000062964857
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1102,
+        "estimated_input_tokens": 1126,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2126,
-        "payload_bytes": 2830,
+        "estimated_request_tokens": 2150,
+        "payload_bytes": 2871,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0008065999718382955
+        "mock_handler_seconds": 0.00166379997972399
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1094,
+        "estimated_input_tokens": 1118,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2118,
-        "payload_bytes": 2815,
+        "estimated_request_tokens": 2142,
+        "payload_bytes": 2856,
         "request_token_limit": 24000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0008032000041566789
+        "mock_handler_seconds": 0.0015858000260777771
       }
     ],
     "retries": 0
@@ -176,7 +176,7 @@
       "Low": 1,
       "Unassessed": 0
     },
-    "wall_seconds": 1.974,
+    "wall_seconds": 2.263,
     "requests": [
       {
         "role": "candidate_generation",
@@ -188,7 +188,7 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 368,
-        "mock_handler_seconds": 0.0025313000078313053
+        "mock_handler_seconds": 0.004168100014794618
       },
       {
         "role": "context_indexing",
@@ -200,7 +200,7 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 62,
-        "mock_handler_seconds": 0.0026513999910093844
+        "mock_handler_seconds": 0.0040077000157907605
       },
       {
         "role": "context_indexing",
@@ -212,7 +212,7 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 13,
-        "mock_handler_seconds": 0.0033776999916881323
+        "mock_handler_seconds": 0.0036504999734461308
       },
       {
         "role": "context_indexing",
@@ -224,55 +224,55 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 13,
-        "mock_handler_seconds": 0.003144900023471564
+        "mock_handler_seconds": 0.0034611999872140586
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1153,
+        "estimated_input_tokens": 1160,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2177,
+        "estimated_request_tokens": 2184,
         "payload_bytes": 3071,
         "request_token_limit": 6000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0009593000286258757
+        "mock_handler_seconds": 0.0016413999837823212
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1164,
+        "estimated_input_tokens": 1171,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2188,
+        "estimated_request_tokens": 2195,
         "payload_bytes": 3077,
         "request_token_limit": 6000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0011928000021725893
+        "mock_handler_seconds": 0.0017253000405617058
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1150,
+        "estimated_input_tokens": 1157,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2174,
+        "estimated_request_tokens": 2181,
         "payload_bytes": 3002,
         "request_token_limit": 6000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.002062199986539781
+        "mock_handler_seconds": 0.0016624000272713602
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1042,
+        "estimated_input_tokens": 1046,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2066,
+        "estimated_request_tokens": 2070,
         "payload_bytes": 2809,
         "request_token_limit": 6000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0021314999903552234
+        "mock_handler_seconds": 0.0015425999881699681
       },
       {
         "role": "candidate_generation",
@@ -284,7 +284,7 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 6,
-        "mock_handler_seconds": 0.00468780001392588
+        "mock_handler_seconds": 0.0037674999912269413
       },
       {
         "role": "candidate_generation",
@@ -296,7 +296,7 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 6,
-        "mock_handler_seconds": 0.004720000026281923
+        "mock_handler_seconds": 0.0032998999813571572
       },
       {
         "role": "candidate_generation",
@@ -308,43 +308,43 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 277,
-        "mock_handler_seconds": 0.004102099977899343
+        "mock_handler_seconds": 0.004020199994556606
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1153,
+        "estimated_input_tokens": 1160,
         "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2177,
+        "estimated_request_tokens": 2184,
         "payload_bytes": 3049,
         "request_token_limit": 6000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0019688999745994806
+        "mock_handler_seconds": 0.0016340999864041805
+      },
+      {
+        "role": "semantic_verification",
+        "estimated_input_tokens": 1171,
+        "reserved_output_tokens": 1024,
+        "estimated_request_tokens": 2195,
+        "payload_bytes": 3064,
+        "request_token_limit": 6000,
+        "context_tokens": null,
+        "budget_basis": "application_policy",
+        "estimated_output_tokens": 34,
+        "mock_handler_seconds": 0.0021785999997518957
       },
       {
         "role": "semantic_verification",
         "estimated_input_tokens": 1164,
         "reserved_output_tokens": 1024,
         "estimated_request_tokens": 2188,
-        "payload_bytes": 3064,
-        "request_token_limit": 6000,
-        "context_tokens": null,
-        "budget_basis": "application_policy",
-        "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0018918999703601003
-      },
-      {
-        "role": "semantic_verification",
-        "estimated_input_tokens": 1157,
-        "reserved_output_tokens": 1024,
-        "estimated_request_tokens": 2181,
         "payload_bytes": 3049,
         "request_token_limit": 6000,
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0016986000118777156
+        "mock_handler_seconds": 0.001871999993454665
       },
       {
         "role": "candidate_generation",
@@ -356,14 +356,14 @@
         "context_tokens": null,
         "budget_basis": "application_policy",
         "estimated_output_tokens": 6,
-        "mock_handler_seconds": 0.0017886999994516373
+        "mock_handler_seconds": 0.0018973000114783645
       }
     ],
     "retries": 0
   },
   {
     "provider": "openrouter",
-    "model": "openrouter/free",
+    "model": "test/structured:free",
     "mock_inference": true,
     "pages": 2,
     "blocks": 36,
@@ -375,151 +375,151 @@
       "Low": 1,
       "Unassessed": 0
     },
-    "wall_seconds": 2.52,
+    "wall_seconds": 1.439,
     "requests": [
       {
         "role": "candidate_generation",
-        "estimated_input_tokens": 4350,
+        "estimated_input_tokens": 4356,
         "reserved_output_tokens": 4096,
-        "estimated_request_tokens": 8446,
-        "payload_bytes": 18773,
+        "estimated_request_tokens": 8452,
+        "payload_bytes": 18792,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 368,
-        "mock_handler_seconds": 0.007842799997888505
+        "mock_handler_seconds": 0.004087599983904511
       },
       {
         "role": "context_indexing",
-        "estimated_input_tokens": 3142,
+        "estimated_input_tokens": 3133,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 5190,
-        "payload_bytes": 13079,
+        "estimated_request_tokens": 5181,
+        "payload_bytes": 13054,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 62,
-        "mock_handler_seconds": 0.0055540999746881425
+        "mock_handler_seconds": 0.0024355000350624323
       },
       {
         "role": "context_indexing",
-        "estimated_input_tokens": 2849,
+        "estimated_input_tokens": 2840,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 4897,
-        "payload_bytes": 12270,
+        "estimated_request_tokens": 4888,
+        "payload_bytes": 12245,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 13,
-        "mock_handler_seconds": 0.0048744999803602695
+        "mock_handler_seconds": 0.0023642999585717916
       },
       {
         "role": "context_indexing",
-        "estimated_input_tokens": 2868,
+        "estimated_input_tokens": 2860,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 4916,
-        "payload_bytes": 11864,
+        "estimated_request_tokens": 4908,
+        "payload_bytes": 11839,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 13,
-        "mock_handler_seconds": 0.004832300008274615
+        "mock_handler_seconds": 0.0021569000091403723
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1190,
+        "estimated_input_tokens": 1182,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3238,
-        "payload_bytes": 3150,
+        "estimated_request_tokens": 3230,
+        "payload_bytes": 3125,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.003689299977850169
+        "mock_handler_seconds": 0.0008294999715872109
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1201,
+        "estimated_input_tokens": 1193,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3249,
-        "payload_bytes": 3156,
+        "estimated_request_tokens": 3241,
+        "payload_bytes": 3131,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.002466099977027625
+        "mock_handler_seconds": 0.0009055999689735472
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1187,
+        "estimated_input_tokens": 1178,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3235,
-        "payload_bytes": 3081,
+        "estimated_request_tokens": 3226,
+        "payload_bytes": 3056,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.00254239997593686
+        "mock_handler_seconds": 0.0009489000076428056
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1072,
+        "estimated_input_tokens": 1063,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3120,
-        "payload_bytes": 2888,
+        "estimated_request_tokens": 3111,
+        "payload_bytes": 2863,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0024559000157751143
+        "mock_handler_seconds": 0.0009260999504476786
       },
       {
         "role": "candidate_generation",
-        "estimated_input_tokens": 4076,
+        "estimated_input_tokens": 4082,
         "reserved_output_tokens": 4096,
-        "estimated_request_tokens": 8172,
-        "payload_bytes": 17554,
+        "estimated_request_tokens": 8178,
+        "payload_bytes": 17573,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 277,
-        "mock_handler_seconds": 0.007700500020291656
+        "mock_handler_seconds": 0.00284920004196465
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1190,
+        "estimated_input_tokens": 1182,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3238,
-        "payload_bytes": 3128,
+        "estimated_request_tokens": 3230,
+        "payload_bytes": 3103,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.003782800049521029
+        "mock_handler_seconds": 0.000889900024048984
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1201,
+        "estimated_input_tokens": 1193,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3249,
-        "payload_bytes": 3143,
+        "estimated_request_tokens": 3241,
+        "payload_bytes": 3118,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0035823999787680805
+        "mock_handler_seconds": 0.0009104000055231154
       },
       {
         "role": "semantic_verification",
-        "estimated_input_tokens": 1194,
+        "estimated_input_tokens": 1186,
         "reserved_output_tokens": 2048,
-        "estimated_request_tokens": 3242,
-        "payload_bytes": 3128,
+        "estimated_request_tokens": 3234,
+        "payload_bytes": 3103,
         "request_token_limit": 12000,
         "context_tokens": null,
-        "budget_basis": "router_application_policy",
+        "budget_basis": "application_policy",
         "estimated_output_tokens": 34,
-        "mock_handler_seconds": 0.0023578000254929066
+        "mock_handler_seconds": 0.000963500002399087
       }
     ],
     "retries": 0

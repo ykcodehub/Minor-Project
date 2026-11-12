@@ -22,7 +22,7 @@ def test_actual_failure_shapes_recover_to_persisted_summary(client, monkeypatch,
     for name, model in [
         ("gemini", "gemini-3.6-flash"),
         ("groq", "openai/gpt-oss-20b"),
-        ("openrouter", "openrouter/free"),
+        ("openrouter", "test/structured:free"),
     ]:
         monkeypatch.setattr(settings(), name + "_api_key", "synthetic")
         monkeypatch.setattr(settings(), name + "_model", model)
@@ -145,7 +145,7 @@ def test_complete_json_fence_supported_but_partial_json_rejected(monkeypatch):
         )
 
     provider = configured_provider(
-        {"name": "openrouter", "model": "openrouter/free", "key": "synthetic", "retries": 0}
+        {"name": "openrouter", "model": "test/structured:free", "key": "synthetic", "retries": 0}
     )
     install('```json\n{"findings":[]}\n```')
     assert provider.generate("s", "p", CandidateBatch, "candidate_generation")[0].findings == []

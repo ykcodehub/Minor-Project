@@ -1,0 +1,594 @@
+{
+  "timestamp_utc": "2026-11-11T18:57:45.266235+00:00",
+  "model": "dots-studio/dots-3-note-preview:free",
+  "synthetic_only": true,
+  "production_data_modified": false,
+  "limits": {
+    "requests": 20,
+    "reserved_tokens": 80000,
+    "automatic_retries": 0
+  },
+  "stages": {
+    "preflight": "PASS",
+    "local_verified_registration": "PASS_TEST_MAIL_TRANSPORT",
+    "pdf_upload_extraction": "PASS",
+    "context_indexing": "PASS",
+    "worker_analysis": "BLOCKED",
+    "summary_risk_data": "BLOCKED",
+    "verified_evidence_alignment": "BLOCKED",
+    "grounded_question": "BLOCKED",
+    "report_downloads": "BLOCKED",
+    "translation_hi": "BLOCKED",
+    "translation_hinglish": "BLOCKED",
+    "history": "BLOCKED"
+  },
+  "calls": [
+    {
+      "stage": "context_indexing",
+      "role": "context_indexing",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 1548,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3596,
+      "payload_bytes": 4287,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 200,
+      "latency_ms": 8960,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 712,
+        "completion_tokens": 281,
+        "total_tokens": 993,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "stage": "worker_analysis",
+      "role": "candidate_generation",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 1934,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 3982,
+      "payload_bytes": 5684,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 200,
+      "latency_ms": 13596,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 902,
+        "completion_tokens": 621,
+        "total_tokens": 1523,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "stage": "worker_analysis",
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 2092,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 4140,
+      "payload_bytes": 5942,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 200,
+      "latency_ms": 6119,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1442,
+        "completion_tokens": 77,
+        "total_tokens": 1519,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "stage": "worker_analysis",
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 2100,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 4148,
+      "payload_bytes": 5978,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 200,
+      "latency_ms": 4537,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1449,
+        "completion_tokens": 87,
+        "total_tokens": 1536,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "stage": "worker_analysis",
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 2105,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 4153,
+      "payload_bytes": 5998,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 200,
+      "latency_ms": 4531,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1453,
+        "completion_tokens": 83,
+        "total_tokens": 1536,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "stage": "worker_analysis",
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 2101,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 4149,
+      "payload_bytes": 6004,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 200,
+      "latency_ms": 7830,
+      "response_model": "dots-studio/dots-3-note-preview:free",
+      "actual_provider": "AtlasCloud",
+      "usage": {
+        "prompt_tokens": 1450,
+        "completion_tokens": 75,
+        "total_tokens": 1525,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "finish_reason": "stop"
+    },
+    {
+      "stage": "worker_analysis",
+      "role": "semantic_verification",
+      "requested_model": "dots-studio/dots-3-note-preview:free",
+      "estimated_input_tokens": 2110,
+      "reserved_output_tokens": 2048,
+      "estimated_request_tokens": 4158,
+      "payload_bytes": 6014,
+      "request_token_limit": 12000,
+      "context_tokens": null,
+      "budget_basis": "application_policy",
+      "http_status": 429,
+      "latency_ms": 75,
+      "validation_issue": "DETAILS_REDACTED"
+    }
+  ],
+  "preflight": {
+    "provider": "AtlasCloud",
+    "endpoint_status": 0,
+    "catalog_pricing": {
+      "prompt": "0",
+      "completion": "0"
+    },
+    "endpoint_pricing": {
+      "prompt": "0",
+      "completion": "0",
+      "discount": 0
+    },
+    "supported_parameters": [
+      "reasoning",
+      "include_reasoning",
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "response_format",
+      "structured_outputs",
+      "tools",
+      "tool_choice"
+    ],
+    "reasoning": {
+      "mandatory": false
+    },
+    "privacy_scope": "Generated fictional clauses only; credentials/session/email never enter prompts."
+  },
+  "source": {
+    "id": "f5d39a58-d213-41ef-b623-284239792b97",
+    "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+    "original_name": "synthetic-final.pdf",
+    "kind": "upload",
+    "sha256": "2e7b485fcba3cabe341991411ea133abb4949054dadb8ade7cbd307ea7bcf5ac",
+    "captured_at": "2026-11-11T18:57:49.729614+00:00",
+    "expires_at": "2026-11-12T18:57:49.726995+00:00",
+    "source_url": null,
+    "status": "READY",
+    "version": "f5d39a58-d213-41ef-b623-284239792b97",
+    "sections": [
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:0",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 0,
+        "text": "SYNTHETIC SERVICE AGREEMENT - Page 1\n",
+        "page": 1,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            28.174999237060547,
+            261.0550231933594,
+            43.28900146484375
+          ],
+          "block": 0,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:1",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 1,
+        "text": "Customer must pay each invoice within thirty calendar days after receiving it.\n",
+        "page": 1,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            95.0,
+            369.0099182128906,
+            108.73999786376953
+          ],
+          "block": 1,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:2",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 2,
+        "text": "Customer accepts unlimited liability for all direct losses caused by Customer's use of Service.\n",
+        "page": 1,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            235.0,
+            442.0399169921875,
+            248.74000549316406
+          ],
+          "block": 2,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:3",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 3,
+        "text": "Customer grants Supplier an irrevocable license to reproduce and use materials Customer uploads to Service.\n",
+        "page": 1,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            375.0,
+            517.4098510742188,
+            388.739990234375
+          ],
+          "block": 3,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:4",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 4,
+        "text": "SYNTHETIC SERVICE AGREEMENT - Page 2\n",
+        "page": 2,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            28.174999237060547,
+            261.0550231933594,
+            43.28900146484375
+          ],
+          "block": 0,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:5",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 5,
+        "text": "Supplier may share Customer's personal data with hosting providers only after Customer gives written consent.\n",
+        "page": 2,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            95.0,
+            520.9799194335938,
+            108.73999786376953
+          ],
+          "block": 1,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:6",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 6,
+        "text": "Either party may terminate Service for any reason by giving the other party seven calendar days' written notice.\n",
+        "page": 2,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            235.0,
+            520.4498901367188,
+            248.74000549316406
+          ],
+          "block": 2,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      },
+      {
+        "id": "f5d39a58-d213-41ef-b623-284239792b97:7",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97",
+        "ordinal": 7,
+        "text": "Customer may request a copy of their stored records at any time, and Supplier must deliver that copy within thirty\ncalendar days.\n",
+        "page": 2,
+        "heading": "",
+        "locator": {
+          "kind": "pdf_block",
+          "bbox": [
+            30.0,
+            375.0,
+            529.639892578125,
+            403.510498046875
+          ],
+          "block": 3,
+          "offset_unit": "unicode_codepoint",
+          "identity_map": true
+        }
+      }
+    ],
+    "original_filename": "synthetic-final.pdf",
+    "coverage": {
+      "pages_total": 2,
+      "pages_extracted": 2,
+      "sections_total": 8,
+      "warnings": [
+        "PDF reading order and hidden text cannot be guaranteed; inspect original pages."
+      ]
+    },
+    "mime": "application/pdf",
+    "token_count": 136,
+    "chunks_total": 1,
+    "job_id": "d5bae895-6049-4429-b344-d66263adc313",
+    "processing_error": null,
+    "job_state": "COMPLETED"
+  },
+  "expected_clauses": [
+    "Customer must pay each invoice within thirty calendar days after receiving it.",
+    "Customer accepts unlimited liability for all direct losses caused by Customer's use of Service.",
+    "Customer grants Supplier an irrevocable license to reproduce and use materials Customer uploads to Service.",
+    "Supplier may share Customer's personal data with hosting providers only after Customer gives written consent.",
+    "Either party may terminate Service for any reason by giving the other party seven calendar days' written notice.",
+    "Customer may request a copy of their stored records at any time, and Supplier must deliver that copy within thirty calendar days."
+  ],
+  "context_index": {
+    "complete": true,
+    "windows_total": 1,
+    "windows_processed": 1,
+    "windows_validated": 1,
+    "windows_attempted": 1,
+    "window_states": [
+      "INDEX_VALIDATED"
+    ],
+    "excerpts": [
+      {
+        "section_id": "f5d39a58-d213-41ef-b623-284239792b97:1",
+        "quote": "Customer must pay each invoice within thirty calendar days after receiving it.",
+        "page": 1,
+        "start": 0,
+        "end": 78,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97"
+      },
+      {
+        "section_id": "f5d39a58-d213-41ef-b623-284239792b97:2",
+        "quote": "Customer accepts unlimited liability for all direct losses caused by Customer's use of Service.",
+        "page": 1,
+        "start": 0,
+        "end": 95,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97"
+      },
+      {
+        "section_id": "f5d39a58-d213-41ef-b623-284239792b97:3",
+        "quote": "Customer grants Supplier an irrevocable license to reproduce and use materials Customer uploads to Service.",
+        "page": 1,
+        "start": 0,
+        "end": 107,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97"
+      },
+      {
+        "section_id": "f5d39a58-d213-41ef-b623-284239792b97:5",
+        "quote": "Supplier may share Customer's personal data with hosting providers only after Customer gives written consent.",
+        "page": 2,
+        "start": 0,
+        "end": 109,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97"
+      },
+      {
+        "section_id": "f5d39a58-d213-41ef-b623-284239792b97:6",
+        "quote": "Either party may terminate Service for any reason by giving the other party seven calendar days' written notice.",
+        "page": 2,
+        "start": 0,
+        "end": 112,
+        "match_status": "EXACT",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97"
+      },
+      {
+        "section_id": "f5d39a58-d213-41ef-b623-284239792b97:7",
+        "quote": "Customer may request a copy of their stored records at any time, and Supplier must deliver that copy within thirty\ncalendar days.",
+        "page": 2,
+        "start": 0,
+        "end": 129,
+        "match_status": "NORMALIZED",
+        "support_status": "AMBIGUOUS",
+        "reason": "Source span validated; semantic interpretation still requires a separate verifier.",
+        "source_id": "f5d39a58-d213-41ef-b623-284239792b97"
+      }
+    ],
+    "error": null,
+    "windows_indexed": 1,
+    "windows_reviewed": 1,
+    "windows_unreviewed": 0,
+    "verification_scope": "Qualification index validation only; not semantic verification of findings."
+  },
+  "error": "LIVE_PROVIDER_HTTP_429",
+  "inference_requests": 7,
+  "reserved_estimated_tokens": 28326,
+  "wall_seconds": 52.118
+}

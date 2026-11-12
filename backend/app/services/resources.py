@@ -24,6 +24,7 @@ LIMITATIONS = [
     "AI semantic review can be wrong; source matching alone does not establish support.",
     "English text only. OCR and external legal research are not enabled.",
 ]
+QUEUED_JOB_CLAIM_WINDOW = timedelta(minutes=15)
 
 
 def owned(db, cls, ident, user, *, lock=False):
@@ -56,6 +57,7 @@ def audit(db, user_id, action, object_id):
 def quota(db, user):
     # Serialize per-account admission on PostgreSQL, including separate API replicas.
     db.scalar(select(User).where(User.id == user.id).with_for_update())
+    _recover_stale_jobs(db, user)
     active = db.scalars(
         select(Job).where(Job.owner_id == user.id, Job.state.in_(["QUEUED", "PROCESSING"]))
     ).all()
@@ -65,6 +67,47 @@ def quota(db, user):
         lifetime_jobs = len(db.scalars(select(Job.id).where(Job.owner_id == user.id)).all())
         if lifetime_jobs >= 10:
             raise HTTPException(429, "Guest quota reached. Create an account to continue.")
+
+
+def _recover_stale_jobs(db, user):
+    """Release persisted work that can no longer be active without deleting history."""
+    from app.services.job_state import fail_processing
+
+    processing = db.scalars(
+        select(Job).where(
+            Job.owner_id == user.id,
+            Job.state == "PROCESSING",
+            (Job.lease_until < now()) | Job.lease_until.is_(None),
+        )
+    ).all()
+    recovered_processing = 0
+    for job in processing:
+        recovered_processing += fail_processing(
+            db,
+            job.id,
+            job.lease_token,
+            "WORKER_LEASE_EXPIRED: Worker interrupted; review checkpointed usage before retrying.",
+            commit=False,
+        )
+
+    cutoff = now() - QUEUED_JOB_CLAIM_WINDOW
+    queued = db.scalars(
+        select(Job)
+        .where(Job.owner_id == user.id, Job.state == "QUEUED", Job.created_at < cutoff)
+        .with_for_update()
+    ).all()
+    for job in queued:
+        job.state = "FAILED"
+        job.stage = "FAILED"
+        job.error = "Worker did not claim this job before the queue claim window expired."
+        job.lease_token = None
+        job.lease_until = None
+        if job.source_id and job.kind in ("ingest", "capture"):
+            source = db.get(Source, job.source_id)
+            if source and source.status not in ("READY", "PARTIAL"):
+                source.status = "FAILED"
+    if recovered_processing or queued:
+        db.commit()
 
 
 def source_dict(source):

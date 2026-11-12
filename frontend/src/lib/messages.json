@@ -287,6 +287,10 @@
     "hi": "पासवर्ड की पुष्टि करें",
     "hinglish": "Password confirm karein"
   },
+  "Confirm your email": {
+    "hi": "अपने ईमेल की पुष्टि करें",
+    "hinglish": "Apna email confirm karein"
+  },
   "Confirm ownership using your emailed link. No password or active account has been created yet.": {
     "hi": "ईमेल में मिले लिंक से अपना स्वामित्व सत्यापित करें। अभी कोई पासवर्ड या सक्रिय खाता नहीं बना है।",
     "hinglish": "Email link se ownership verify karein. Abhi password ya active account nahi bana hai."
@@ -294,6 +298,10 @@
   "Continue with Google": {
     "hi": "Google से जारी रखें",
     "hinglish": "Google se continue karein"
+  },
+  "Continue": {
+    "hi": "जारी रखें",
+    "hinglish": "Continue karein"
   },
   "Control retention and choose your preferred processing provider.": {
     "hi": "रिटेंशन को नियंत्रित करें और अपनी पसंदीदा प्रोसेसिंग प्रोवाइडर चुनें।",
@@ -310,6 +318,10 @@
   "Create Password": {
     "hi": "पासवर्ड बनाएँ",
     "hinglish": "Password banayein"
+  },
+  "Create a new password": {
+    "hi": "नया पासवर्ड बनाएँ",
+    "hinglish": "Naya password banayein"
   },
   "Create account": {
     "hi": "खाता बनाएँ",
@@ -2171,8 +2183,132 @@
     "hi": "खोज का अनुवाद उपलब्ध नहीं था; आपके मूल प्रश्न से खोज की गई।",
     "hinglish": "Search translation unavailable thi; original question se search hua."
   },
+  "The configured dynamic router is unsuitable for verified analysis. Ask the administrator to configure an explicit model; provider permissions have not changed.": {
+    "hi": "गतिशील राउटर सत्यापित विश्लेषण के लिए उपयुक्त नहीं है। व्यवस्थापक से स्पष्ट मॉडल चुनने को कहें; प्रदाता अनुमतियाँ नहीं बदली हैं।",
+    "hinglish": "Dynamic router verified analysis ke liye suitable nahi hai. Administrator se explicit model configure karayein; provider permissions nahi badli hain."
+  },
+  "The model spent its output allowance on reasoning. Repeated document splitting will not fix this. Choose a compatible authorized model; results remain unverified.": {
+    "hi": "मॉडल ने आउटपुट सीमा तर्क में खर्च कर दी। दस्तावेज़ को बार-बार बाँटने से यह ठीक नहीं होगा। अनुकूल अधिकृत मॉडल चुनें; परिणाम असत्यापित हैं।",
+    "hinglish": "Model ne output budget reasoning mein kharch kar diya. Document ko baar-baar split karna solution nahi hai. Compatible authorized model chunein; results unverified hain."
+  },
+  "The configured model cannot safely produce bounded structured results. Ask the administrator to select a compatible explicit model.": {
+    "hi": "चुना मॉडल सीमित संरचित परिणाम सुरक्षित रूप से नहीं बना सकता। व्यवस्थापक से अनुकूल स्पष्ट मॉडल चुनने को कहें।",
+    "hinglish": "Configured model bounded structured results safely nahi de sakta. Administrator se compatible explicit model select karayein."
+  },
+  "Model capabilities could not be checked. No document was sent to that model; retry when its catalog is available.": {
+    "hi": "मॉडल की क्षमताएँ जाँची नहीं जा सकीं। उस मॉडल को कोई दस्तावेज़ नहीं भेजा गया; सूची उपलब्ध होने पर पुनः प्रयास करें।",
+    "hinglish": "Model capabilities check nahi ho paayi. Us model ko document nahi bheja gaya; catalog available hone par retry karein."
+  },
+  "The provider is temporarily paused after an outage. Retry later or use an already authorized alternative.": {
+    "hi": "सेवा बाधित होने के बाद प्रदाता अस्थायी रूप से रोका गया है। बाद में प्रयास करें या पहले से अधिकृत विकल्प चुनें।",
+    "hinglish": "Outage ke baad provider temporarily paused hai. Baad mein retry karein ya pehle se authorized alternative use karein."
+  },
   "Provider retry delay (seconds)": {
     "hi": "प्रदाता के पुनः प्रयास की प्रतीक्षा (सेकंड)",
     "hinglish": "Provider retry wait (seconds)"
+  },
+  "Offline demo ? authored reference, not live AI": {
+    "hi": "??????? ???? ? ????? ??????, ???? AI ????",
+    "hinglish": "Offline demo ? authored reference, live AI nahi"
+  },
+  "Synthetic agreement only. Saved annotations and translations; exact quotations checked locally. No live semantic verification, provider request or private upload processing.": {
+    "hi": "???? ??????? ??????? ????? ?? ??? ?? ??????; ?????? ??????? ??? ?? ????? ?? ???? ??? ???? AI ???????, ??????? ?????? ?? ???? ????? ?????????? ?????",
+    "hinglish": "Sirf synthetic agreement. Saved annotations aur translations; exact quotes locally checked hain. Live AI verification, provider request ya private upload processing nahi."
+  },
+  "Synthetic two-page agreement": {
+    "hi": "??????? ??-????? ??????",
+    "hinglish": "Synthetic two-page agreement"
+  },
+  "Offline evidence workspace": {
+    "hi": "??????? ??????? ????????????",
+    "hinglish": "Offline evidence workspace"
+  },
+  "Download synthetic PDF": {
+    "hi": "??????? PDF ??????? ????",
+    "hinglish": "Synthetic PDF download karein"
+  },
+  "Export offline reference": {
+    "hi": "??????? ?????? ??????? ????",
+    "hinglish": "Offline reference export karein"
+  },
+  "Return to live analysis": {
+    "hi": "???? ???????? ?? ?????",
+    "hinglish": "Live analysis par lautein"
+  },
+  "Saved demo question": {
+    "hi": "????? ??? ???? ??????",
+    "hinglish": "Saved demo question"
+  },
+  "Reference findings": {
+    "hi": "?????? ????????",
+    "hinglish": "Reference findings"
+  },
+  "Reference validation method": {
+    "hi": "?????? ???? ????",
+    "hinglish": "Reference validation method"
+  },
+  "Authored interpretation; exact source quotation validated. No independent AI review.": {
+    "hi": "????? ????????; ??? ?????? ????? ??? ??? ???????? AI ??????? ???? ????",
+    "hinglish": "Authored explanation; exact source quote checked hai. Independent AI review nahi hui."
+  },
+  "Synthetic source viewer": {
+    "hi": "??????? ????? ?????",
+    "hinglish": "Synthetic source viewer"
+  },
+  "Synthetic reference only": {
+    "hi": "???? ??????? ??????",
+    "hinglish": "Sirf synthetic reference"
+  },
+  "Offline reference: 2 pages, 7 exact quotations; no live model processing.": {
+    "hi": "??????? ??????: 2 ?????, 7 ???? ??????; ???? ???? ?????????? ?????",
+    "hinglish": "Offline reference: 2 pages, 7 exact quotes; live model processing nahi."
+  },
+  "This is a saved reference answer, not generative chat. Other questions are unavailable offline.": {
+    "hi": "?? ????? ??? ?????? ????? ??, ??????? ??? ????? ???? ?????? ??????? ?????? ???? ????",
+    "hinglish": "Yeh saved reference answer hai, generative chat nahi. Dusre questions offline unavailable hain."
+  },
+  "Offline question": {
+    "hi": "??????? ??????",
+    "hinglish": "Offline question"
+  },
+  "Show saved answer": {
+    "hi": "????? ??? ????? ??????",
+    "hinglish": "Saved answer dikhayein"
+  },
+  "No saved answer for this question. Live AI is not running in offline demo mode.": {
+    "hi": "?? ?????? ?? ????? ??? ????? ???? ??? ??????? ???? ??? ???? AI ???? ?? ??? ???",
+    "hinglish": "Is question ka saved answer nahi hai. Offline demo mein live AI nahi chal raha."
+  },
+  "Open offline synthetic demo": {
+    "hi": "??????? ??????? ???? ?????",
+    "hinglish": "Offline synthetic demo kholein"
+  },
+  "No healthy compatible endpoint is available for this model. Retry later or open the labeled offline synthetic demo; no model was substituted.": {
+    "hi": "?? ???? ?? ??? ?????? ?????? ???????? ?????? ???? ??? ??? ??? ?????? ???? ?? ?????? ???? ???? ??????? ??????? ???? ?????; ???? ???? ???? ????",
+    "hinglish": "Is model ka healthy compatible endpoint unavailable hai. Baad mein retry karein ya labeled offline demo kholein; model substitute nahi hua."
+  },
+  "The reviewer cited source references that are not written in the supplied text. The interpretation remains unverified; use another authorized reviewer.": {
+    "hi": "??????? ?? ??? ?????? ???? ?? ??? ??? ??? ???? ???? ???????? ????????? ??; ???? ???? ?????? ??????? ?? ????? ?????",
+    "hinglish": "Reviewer ne aise references cite kiye jo source text mein nahi hain. Interpretation unverified hai; doosra authorized reviewer use karein."
+  },
+  "The reviewer rejected the proposed finding category. The finding remains unverified rather than receiving a misleading risk label.": {
+    "hi": "??????? ?? ???????? ?? ?????????? ?????? ????? ???? ?????? ????? ???? ???? ?? ???? ???????? ????????? ??? ??? ???",
+    "hinglish": "Reviewer ne proposed category ko inconsistent paya. Misleading risk label dene ke bajay finding unverified rahegi."
+  },
+  "Paused for provider rate limit": {
+    "hi": "प्रदाता की अनुरोध सीमा के कारण रुका है",
+    "hinglish": "Provider rate limit ke liye paused"
+  },
+  "Validated findings are retained. Automatic recovery is bounded; coverage and risk assessment remain incomplete.": {
+    "hi": "सत्यापित निष्कर्ष सुरक्षित हैं। स्वचालित पुनर्प्रयास सीमित हैं; कवरेज और जोखिम आकलन अभी अधूरे हैं।",
+    "hinglish": "Validated findings saved hain. Auto recovery limited hai; coverage aur risk assessment abhi incomplete hain."
+  },
+  "Next eligible resume": {
+    "hi": "अगला संभावित पुनः आरंभ",
+    "hinglish": "Agla eligible resume"
+  },
+  "Ask Veriora uses available evidence only and cannot establish missing provisions.": {
+    "hi": "Ask Veriora केवल उपलब्ध साक्ष्य का उपयोग करता है; इससे अनुपस्थित प्रावधान सिद्ध नहीं होते।",
+    "hinglish": "Ask Veriora sirf available evidence use karta hai; missing provisions confirm nahi kar sakta."
   }
 }

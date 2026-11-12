@@ -1,0 +1,14 @@
+{
+  "scope": "read-only PostgreSQL/schema checks",
+  "writes_executed": false,
+  "connection": "PASS",
+  "database_heads": [
+    "c819ba204ae1"
+  ],
+  "evidence_foreign_keys": 3,
+  "missing_tables": [],
+  "local_heads": [
+    "c819ba204ae1"
+  ],
+  "head_match": true
+}

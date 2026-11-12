@@ -161,3 +161,35 @@ Risk Summary now displays verified High/Moderate/Low counts, an explicitly ordin
 
 
 AI quota handling now shares cooldowns across API/worker through the existing PostgreSQL rate buckets. A 429 uses authorized fallback immediately; manual retries during cooldown do not create another provider request. Summary translations reuse fidelity-checked cached batches and keep originals visible on failure. Ask Veriora uses bounded retrieved context plus strict selected-source qualification review. Readiness reports infrastructure only (`ai_providers=not_probed`). See [operation benchmarks and limitations](docs/benchmarks/AI_OPERATIONS.md). No new environment variable or migration is required; API/worker must share the same database.
+
+## Explicit-model reliability policy
+
+Dynamic OpenRouter routers are now rejected for structured evidence tasks. If configured, an operator must replace `OPENROUTER_MODEL` with an explicit capability-compatible model; no model or permissions are changed automatically. Shared transient-outage suppression complements existing quota cooldowns. See [policy, configuration and bounded live checks](docs/AI_RELIABILITY.md). No new schema migration or Vercel variable is required. Live inference remains unverified.
+
+## College demonstration
+
+Open `/demo/offline` for the explicitly labeled authored synthetic reference. It needs only the frontend server and supports Summary, risk visualization, source pages/quotes, downloads and a saved multilingual question. It never analyzes private uploads or pretends to be fresh AI. Current controlled Dots inference did not pass live semantic/QA acceptance. See [college readiness report](docs/COLLEGE_DEMO_READINESS.md) for actual usage, failures, tests and startup/configuration steps.
+
+## Recorded live accuracy follow-up
+
+The [accuracy review](docs/AI_ACCURACY_REVIEW.md) traces every recorded rejection and documents category verification, reviewer-reference integrity and optional authorized-only task routing via `AI_TASK_PROVIDER_ORDER`. Historical live findings remain unverified; no new inference was performed. Local controlled cases are not live model-quality proof.
+
+## Latest acceptance verdict
+
+The final controlled synthetic run stopped at provider HTTP 429; production/live-AI readiness is **NOT READY**. See [the final readiness report](docs/FINAL_PRODUCTION_READINESS.md) for measured results, configuration requirements and the clearly labelled offline backup.
+
+## Rate-limit recovery
+
+Analysis now waits durably after a recoverable 429, preserves validated findings and resumes within the existing persisted request/token budget. Automatic resumes are capped at two; uncertain remote calls require manual review. See [deployment and demo checklist](docs/RATE_LIMIT_RECOVERY.md). Live-AI acceptance remains NOT READY; no new inference was run in this pass.
+
+## Safe local run without production writes or AI
+
+From the repository root, with existing dependencies installed:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/run_local_isolated.py --frontend-port 5175
+```
+
+This explicitly uses isolated **test-mode SQLite**, private synthetic-only storage, captured test email and blank AI/Google credentials. It does not substitute SQLite for the normal PostgreSQL configuration. It leaves loopback API (8000), worker and frontend (5175) processes running; refuses occupied ports; prints their launcher PIDs and the private runtime directory. Existing `.env` is preserved. Normal PostgreSQL startup remains documented above and must use an isolated writable database if production data must not change.
+
+Open http://127.0.0.1:5175 and http://127.0.0.1:5175/demo/offline . API documentation is http://127.0.0.1:8000/docs . No live AI, real SMTP delivery or Google login is enabled in this isolated mode. The authored offline reference is clearly labelled and does not analyze arbitrary uploads. Captured mail tokens stay in the ignored private runtime directory; never share them. Stop only the processes belonging to your printed local instance when finished.

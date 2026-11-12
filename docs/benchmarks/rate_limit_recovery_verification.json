@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-12",
+  "timezone": "Asia/Calcutta",
+  "live_inference_requests": 0,
+  "backend": {
+    "passed": 342,
+    "skipped": 1,
+    "seconds": 116.7
+  },
+  "frontend": {
+    "passed": 58,
+    "lint": "PASS",
+    "typescript": "PASS",
+    "build": "PASS"
+  },
+  "browser": {
+    "passed": 33,
+    "skipped": 1
+  },
+  "ruff": "PASS",
+  "postgres": "PASS_READ_ONLY",
+  "schema_changes": false,
+  "production_writes": false,
+  "verdict": "NOT READY",
+  "blockers": [
+    "Exact upstream quota and historical Retry-After unavailable",
+    "Real-provider full-workflow and recovery acceptance not rerun",
+    "Production deployment and Google/SMTP/R2 integrations unverified"
+  ]
+}

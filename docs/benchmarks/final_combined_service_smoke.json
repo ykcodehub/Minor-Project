@@ -1,0 +1,8 @@
+{
+  "scope": "isolated app.serve API+worker smoke; no AI or production DB",
+  "stages": {
+    "api_database_worker_readiness": "PASS",
+    "queued_ingestion_consumed_by_same_service_worker": "PASS"
+  },
+  "ingestion_state": "COMPLETED"
+}

@@ -1,4 +1,5 @@
 import hashlib
+import math
 import secrets
 from datetime import timedelta
 from typing import Annotated
@@ -91,4 +92,9 @@ def throttle(db, key, limit=20, seconds=60):
     count = db.scalar(select(RateBucket.count).where(RateBucket.id == ident))
     db.commit()
     if count > limit:
-        raise HTTPException(429, "Request limit reached. Please try again later.")
+        retry_after = max(1, math.ceil((bucket + 1) * seconds - now().timestamp()))
+        raise HTTPException(
+            429,
+            "Request limit reached. Please try again later.",
+            headers={"Retry-After": str(retry_after)},
+        )

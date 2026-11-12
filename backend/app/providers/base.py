@@ -26,6 +26,7 @@ from app.providers.diagnostics import (
 
 LOW_REASONING_ROLES = frozenset(
     {
+        "candidate_generation",
         "semantic_verification",
         "context_indexing",
         "explanation_translation",
@@ -84,7 +85,11 @@ class ModelProvider:
     checkpoint: Any = field(default=None, repr=False)
     quota_check: Callable | None = field(default=None, repr=False)
     quota_block: Callable | None = field(default=None, repr=False)
+    outage_check: Callable | None = field(default=None, repr=False)
+    outage_block: Callable | None = field(default=None, repr=False)
     operation: str = "analysis"
+    job_id: str | None = None
+    analysis_id: str | None = None
     context_tokens: int | None = None
     request_tokens: int = 24000
     max_output_tokens: int = 8192
@@ -140,8 +145,12 @@ class ModelProvider:
                 payload["generationConfig"]["maxOutputTokens"] = self.output_limit(role)
             else:
                 payload["max_tokens"] = self.output_limit(role)
-        if self.name == "openrouter" and role in LOW_REASONING_ROLES:
-            payload["reasoning"] = {"effort": "low", "exclude": True}
+        from app.providers.model_policy import apply_policy
+
+        try:
+            apply_policy(self, payload)
+        except ProviderError:
+            return False
         usage = self.request_usage(payload)
         return (
             usage["estimated_request_tokens"] <= self.request_tokens
@@ -161,6 +170,7 @@ class ModelProvider:
         endpoints = {
             "gemini": "https://generativelanguage.googleapis.com/v1beta/models",
             "groq": "https://api.groq.com/openai/v1/models",
+            "openai": "https://api.openai.com/v1/models",
             "openrouter": "https://openrouter.ai/api/v1/models",
         }
         headers = (
@@ -190,6 +200,11 @@ class ModelProvider:
                     "complete_catalog": not bool(raw.get("nextPageToken")),
                 }
             parameters = entry.get("supported_parameters")
+            if self.name == "openrouter":
+                from app.providers.model_policy import apply_policy
+
+                _, _, payload = self.request("", "", {"type": "object"})
+                apply_policy(self, payload)
             return {
                 "available": True,
                 "model": self.model,
@@ -199,6 +214,8 @@ class ModelProvider:
                 if parameters is not None
                 else None,
             }
+        except ProviderError as exc:
+            return {"available": False, "code": exc.code}
         except (httpx.HTTPError, ValueError, TypeError, KeyError):
             return {"available": False, "code": "PROVIDER_UNAVAILABLE"}
 
@@ -228,9 +245,14 @@ class ModelProvider:
                 "token_out": None,
                 "estimated_cost": None,
             }
+            for key in ("job_id", "analysis_id"):
+                value = getattr(self, key)
+                if isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F-]{36}", value):
+                    call[key] = value
             ticket = None
             retryable = False
             retry_after = 0.0
+            quota_wait = 0.0
             try:
                 if self.budget is not None and time.monotonic() >= self.budget.get("deadline", float("inf")):
                     raise ProviderError("ANALYSIS_DEADLINE_EXCEEDED")
@@ -246,12 +268,6 @@ class ModelProvider:
                     payload["response_format"]["json_schema"]["schema"] = strict_wire_schema(
                         schema_type.model_json_schema()
                     )
-                if (
-                    (compact or role in LOW_REASONING_ROLES)
-                    and self.name == "openrouter"
-                    and not disable_reasoning
-                ):
-                    payload["reasoning"] = {"effort": "low", "exclude": True}
                 if disable_reasoning:
                     payload.pop("reasoning", None)
                     payload.pop("reasoning_effort", None)
@@ -269,12 +285,24 @@ class ModelProvider:
                     payload["generationConfig"]["maxOutputTokens"] = output_budget
                 else:
                     payload["max_tokens"] = output_budget
+                from app.providers.model_policy import apply_policy
+
+                call["budget_phase"] = "model_capability_check"
+                apply_policy(self, payload)
+                output_budget = payload.get("max_tokens", output_budget)
+                if disable_reasoning and self.name == "openrouter":
+                    # Never recover a rejected disable control by enabling reasoning.
+                    raise ProviderError("PROVIDER_REASONING_INCOMPATIBLE")
                 call.update(self.request_usage(payload), budget_phase="local_preflight")
                 estimated = call["estimated_request_tokens"]
                 if estimated > self.request_tokens or call["payload_bytes"] > self.max_payload_bytes:
                     raise ProviderError("PROVIDER_CONTEXT_LIMIT")
 
                 def check_quota(call=call):
+                    outage_wait = self.outage_check() if self.outage_check else 0
+                    if outage_wait:
+                        call.update(shared_outage=True, retry_after_seconds=outage_wait)
+                        raise ProviderError("PROVIDER_TEMPORARILY_SUPPRESSED")
                     wait = self.quota_check() if self.quota_check else 0
                     if wait:
                         call.update(shared_cooldown=True, retry_after_seconds=wait)
@@ -290,7 +318,7 @@ class ModelProvider:
                         dict(call),
                         estimated,
                         self.budget,
-                        **({"before_reserve": check_quota} if self.quota_check else {}),
+                        **({"before_reserve": check_quota} if self.quota_check or self.outage_check else {}),
                     )
                     if cached:
                         return schema_type.model_validate(cached["value"]), [
@@ -364,6 +392,7 @@ class ModelProvider:
                     if response.status_code == 429:
                         retryable = False
                         call["retry_after_seconds"] = quota_wait or 60
+                        call["retry_after_source"] = "provider" if quota_wait > 0 else "conservative_default"
                         if self.quota_block:
                             self.quota_block(call["retry_after_seconds"])
                     call.update(error_details(response))
@@ -450,6 +479,9 @@ class ModelProvider:
                     }:
                         raise ProviderError("PROVIDER_CONTENT_BLOCKED")
                     if reason == "MAX_TOKENS":
+                        if call.get("reasoning_tokens", 0) >= max(1, int(output_budget * 0.9)):
+                            call["generation_strategy"] = "reasoning_exhaustion_circuit"
+                            raise ProviderError("PROVIDER_REASONING_EXHAUSTED")
                         retryable = output_budget < self.max_output_tokens or (
                             role == "candidate_generation" and not compact
                         )
@@ -468,6 +500,9 @@ class ModelProvider:
                     and raw["choices"][0].get("finish_reason") == "length"
                 ):
                     call["finish_reason"] = "length"
+                    if call.get("reasoning_tokens", 0) >= max(1, int(output_budget * 0.9)):
+                        call["generation_strategy"] = "reasoning_exhaustion_circuit"
+                        raise ProviderError("PROVIDER_REASONING_EXHAUSTED")
                     retryable = output_budget < self.max_output_tokens or (
                         role == "candidate_generation" and not compact
                     )
@@ -497,6 +532,30 @@ class ModelProvider:
                 if ticket is not None:
                     self.checkpoint.finish(ticket, value.model_dump(), dict(call))
                 calls.append(call)
+                logging.getLogger("veriora.provider").info(
+                    "provider_success %s",
+                    json.dumps(
+                        {
+                            k: call[k]
+                            for k in (
+                                "provider",
+                                "model",
+                                "response_model",
+                                "role",
+                                "operation",
+                                "job_id",
+                                "analysis_id",
+                                "attempt",
+                                "latency_ms",
+                                "token_in",
+                                "token_out",
+                                "reasoning_tokens",
+                                "outcome",
+                            )
+                            if k in call
+                        }
+                    ),
+                )
                 return value, calls
             except httpx.TimeoutException:
                 code, retryable = "PROVIDER_TIMEOUT", True
@@ -521,6 +580,8 @@ class ModelProvider:
                     "response_model",
                     "role",
                     "operation",
+                    "job_id",
+                    "analysis_id",
                     "attempt",
                     "http_status",
                     "finish_reason",
@@ -542,12 +603,24 @@ class ModelProvider:
                     "generation_strategy",
                     "schema_strategy",
                     "shared_cooldown",
+                    "shared_outage",
                     "retry_after_seconds",
+                    "retry_after_source",
+                    "quota_scope",
+                    "quota_limit",
+                    "quota_remaining",
+                    "quota_reset",
                 )
                 if k in call
             }
             diagnostic["model"] = re.sub(r"[^A-Za-z0-9/._:-]", "", self.model)[:120]
             logging.getLogger("veriora.provider").warning("provider_failure %s", json.dumps(diagnostic))
+            if (
+                self.outage_block
+                and code in {"PROVIDER_UNAVAILABLE", "PROVIDER_TIMEOUT"}
+                and (not retryable or attempt >= min(max(self.retries, 0), 2) or retry_after > 30)
+            ):
+                self.outage_block(max(quota_wait, 30))
             if retry_after > 30:
                 raise ProviderError(code, calls=calls) from None
             if not retryable or attempt >= min(max(self.retries, 0), 2):
@@ -575,6 +648,7 @@ class CompatibleProvider(ModelProvider):
     def request(self, system: str, prompt: str, schema: dict) -> tuple[str, dict, dict]:
         endpoints = {
             "groq": "https://api.groq.com/openai/v1/chat/completions",
+            "openai": "https://api.openai.com/v1/chat/completions",
             "openrouter": "https://openrouter.ai/api/v1/chat/completions",
         }
         payload: dict[str, Any] = {
@@ -590,7 +664,7 @@ class CompatibleProvider(ModelProvider):
         if self.name == "groq" and self.model in {"openai/gpt-oss-20b", "openai/gpt-oss-120b"}:
             payload["reasoning_effort"] = "low"
         if self.name == "openrouter":
-            # Prevent OpenRouter's internal model fallback and require schema capability.
+            # Pin the configured model; hosting-provider fallback is independently disabled.
             payload["provider"] = {"require_parameters": True, "allow_fallbacks": False}
         return endpoints[self.name], {"Authorization": f"Bearer {self.key}"}, payload
 
@@ -627,7 +701,7 @@ class GeminiProvider(ModelProvider):
 
 def configured_provider(config: dict) -> ModelProvider:
     name = config.get("name", "")
-    if name not in {"gemini", "groq", "openrouter"}:
+    if name not in {"gemini", "groq", "openai", "openrouter"}:
         raise ProviderError("PROVIDER_NOT_SUPPORTED")
     cls = GeminiProvider if name == "gemini" else CompatibleProvider
     return cls(
@@ -639,18 +713,28 @@ def configured_provider(config: dict) -> ModelProvider:
         budget=config.get("budget"),
         checkpoint=config.get("checkpoint"),
         operation=config.get("operation", "analysis"),
+        job_id=config.get("job_id"),
+        analysis_id=config.get("analysis_id"),
         quota_check=config.get("quota_check"),
         quota_block=config.get("quota_block"),
+        outage_check=config.get("outage_check"),
+        outage_block=config.get("outage_block"),
         context_tokens=int(config["context_tokens"]) if config.get("context_tokens") is not None else None,
         request_tokens=max(
             1,
             min(
-                int(config.get("request_tokens", {"groq": 6000, "gemini": 24000, "openrouter": 12000}[name])),
+                int(
+                    config.get(
+                        "request_tokens",
+                        {"groq": 6000, "gemini": 24000, "openai": 24000, "openrouter": 12000}[name],
+                    )
+                ),
                 int(
                     config.get(
                         "context_tokens",
                         config.get(
-                            "request_tokens", {"groq": 6000, "gemini": 24000, "openrouter": 12000}[name]
+                            "request_tokens",
+                            {"groq": 6000, "gemini": 24000, "openai": 24000, "openrouter": 12000}[name],
                         ),
                     )
                 ),
@@ -660,7 +744,10 @@ def configured_provider(config: dict) -> ModelProvider:
             1,
             min(
                 int(
-                    config.get("max_output_tokens", {"groq": 2048, "gemini": 8192, "openrouter": 4096}[name])
+                    config.get(
+                        "max_output_tokens",
+                        {"groq": 2048, "gemini": 8192, "openai": 4096, "openrouter": 4096}[name],
+                    )
                 ),
                 8192,
             ),
@@ -677,7 +764,7 @@ def budget_available_configs(configs):
     """Use only currently eligible models when sizing a payload, without sending data."""
     eligible, blocked = [], []
     for config in configs:
-        if config.get("name") not in {"gemini", "groq", "openrouter"}:
+        if config.get("name") not in {"gemini", "groq", "openai", "openrouter"}:
             eligible.append(config)
             continue
         budget = config.get("budget") or {}
@@ -689,6 +776,9 @@ def budget_available_configs(configs):
         wait = config["quota_check"]() if not code and config.get("quota_check") else 0
         if wait:
             code = "PROVIDER_RATE_LIMITED"
+        outage_wait = config["outage_check"]() if not code and config.get("outage_check") else 0
+        if outage_wait:
+            wait, code = outage_wait, "PROVIDER_TEMPORARILY_SUPPRESSED"
         if code:
             blocked.append(
                 {
@@ -718,6 +808,11 @@ def budget_available_configs(configs):
     return eligible
 
 
+def ordered_configs(configs, role):
+    """Task preferences reorder only the caller's already authorized provider list."""
+    return sorted(configs, key=lambda c: c.get("task_priority", {}).get(role, 3))
+
+
 def generate_with_fallback(
     configs: list[dict], system: str, prompt: str, schema_type: type[BaseModel], role: str
 ) -> tuple[BaseModel, list[dict]]:
@@ -726,12 +821,13 @@ def generate_with_fallback(
         raise ProviderError("PROVIDER_NOT_CONFIGURED")
     calls: list[dict] = []
     last_code = "PROVIDER_NOT_CONFIGURED"
+    configs = ordered_configs(configs, role)
     for index, config in enumerate(list({c.get("name"): c for c in reversed(configs[:3])}.values())[::-1]):
         budget = config.get("budget")
         if budget is not None and (config.get("name"), role) in budget.get(
             "exhausted_reasoning_tasks", set()
         ):
-            last_code = "PROVIDER_OUTPUT_LIMIT"
+            last_code = "PROVIDER_REASONING_EXHAUSTED"
             calls.append(
                 {
                     "provider": config["name"],
@@ -785,13 +881,7 @@ def generate_with_fallback(
             if (
                 budget is not None
                 and role in LOW_REASONING_ROLES
-                and last_code == "PROVIDER_OUTPUT_LIMIT"
-                and sum(
-                    c.get("reasoning_tokens", 0) >= c.get("reserved_output_tokens", 1) > 0
-                    and c.get("finish_reason") in {"length", "MAX_TOKENS"}
-                    for c in exc.model_calls
-                )
-                >= 2
+                and last_code == "PROVIDER_REASONING_EXHAUSTED"
             ):
                 budget.setdefault("exhausted_reasoning_tasks", set()).add((config.get("name"), role))
             if budget is not None and last_code == "PROVIDER_REQUEST_REJECTED":
@@ -802,6 +892,12 @@ def generate_with_fallback(
                 "PROVIDER_TIMEOUT",
                 "PROVIDER_AUTH_FAILED",
                 "PROVIDER_MODEL_UNAVAILABLE",
+                "PROVIDER_EXPLICIT_MODEL_REQUIRED",
+                "PROVIDER_CAPABILITIES_UNAVAILABLE",
+                "PROVIDER_MODEL_INCOMPATIBLE",
+                "PROVIDER_REASONING_INCOMPATIBLE",
+                "PROVIDER_TEMPORARILY_SUPPRESSED",
+                "PROVIDER_NO_HEALTHY_ENDPOINT",
             }:
                 budget.setdefault("unavailable", set()).add(config.get("name"))
                 budget.setdefault("unavailable_codes", {})[config.get("name")] = last_code
@@ -809,7 +905,7 @@ def generate_with_fallback(
                 call["fallback"] = index > 0
             calls.extend(exc.model_calls)
             logging.getLogger("veriora.provider").info(
-                "provider_transition role=%s failed_provider=%s code=%s remaining_authorized=%s",
+                "provider_transition role=%s failed_provider=%s code=%s remaining_candidates=%s scope=caller_list",
                 role,
                 config.get("name"),
                 last_code,

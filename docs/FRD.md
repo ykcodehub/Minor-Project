@@ -431,3 +431,15 @@ The implemented Summary groups only source-validated SUPPORTED findings into tra
 ### Quota-aware operation update, 11 November 2026
 
 Implementation now shares provider cooldowns in existing RateBucket storage, fits chat/translation requests to available authorized models, caches verified translation batches, separates index-window coverage from finding verification, and labels model-call operations to keep chat/translation failures out of analysis status. Code: services/provider_quota.py, provider_policy.py, localization.py, analysis.py, context_index.py, providers/base.py and api/analyses.py. Evidence: tests/test_ai_operations.py, QuestionPanel/SmartSummary unit tests, e2e/ai-operations.spec.ts and docs/benchmarks/AI_OPERATIONS.md. Real-provider production availability/accuracy remains UNVERIFIED; readiness is not a provider-health certification. No new schema migration or production setting is required.
+
+### FR-DEMO-OFFLINE-01 ? explicitly authored synthetic demonstration
+
+The public offline route MUST use a fixed non-confidential reference, preserve source quotes/pages, label every view as authored and not live AI, and abstain on unsupported saved-demo questions. It MUST NOT intercept live uploads, establish a fake session, fabricate provider activity or present reference annotations as fresh independent verification. Language selection on this route is local only; normal authenticated language persistence is unchanged. Implemented and tested; live semantic-quality acceptance is separately FAIL.
+
+## Interrupted processing behavior
+
+Validated findings remain retrievable after interrupted analysis. The application reports PARTIAL_COMPLETION with incomplete coverage rather than a completed assessment; no finding is promoted merely because it survived interruption.
+
+## Provider rate-limit recovery
+
+An analysis may pause for quota cooldown without losing validated findings. Users see a next eligible resume time and can cancel. Recovery is bounded and cannot establish complete coverage until processing finishes. Ask Veriora remains unavailable during processing/waiting, and partial terminal answers retain strict evidence validation.

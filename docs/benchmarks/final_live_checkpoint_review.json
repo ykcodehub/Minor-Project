@@ -1,0 +1,56 @@
+{
+  "scope": "Recorded real checkpoint responses; no new inference and no changes to the failed run",
+  "semantic_responses": [
+    {
+      "checkpoint_state": "COMPLETED",
+      "verdict": {
+        "support_status": "SUPPORTED",
+        "rationale": "The statement is a direct quote from the document and fits the PAYMENT category as it concerns invoice payment obligations. No material exceptions, conditions, or unresolved cross-references are present in the text. The category is appropriate and consistent with the content.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "category_consistent": true
+      },
+      "failure_code": null
+    },
+    {
+      "checkpoint_state": "COMPLETED",
+      "verdict": {
+        "support_status": "SUPPORTED",
+        "rationale": "The statement is a direct quote from the document and matches the category RISK_NOTE, which denotes a risk allocation. No material exceptions or unresolved cross-references are present in the text. The assertion is fully supported by the quoted clause without need for external inference.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "category_consistent": true
+      },
+      "failure_code": null
+    },
+    {
+      "checkpoint_state": "COMPLETED",
+      "verdict": {
+        "support_status": "UNSUPPORTED",
+        "rationale": "The statement accurately quotes the source, but the category 'RIGHT' is mismatched because a customer granting a license is not a customer entitlement or benefit. The source contains no exceptions or cross-references, but the category mischaracterizes the obligation.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "category_consistent": false
+      },
+      "failure_code": null
+    },
+    {
+      "checkpoint_state": "COMPLETED",
+      "verdict": {
+        "support_status": "SUPPORTED",
+        "rationale": "The statement matches the quote exactly and the category CONSENT aligns with the requirement of written consent for data sharing. No material qualifiers or cross-references are missing; the context confirms the condition without contradiction.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "category_consistent": true
+      },
+      "failure_code": null
+    },
+    {
+      "checkpoint_state": "RUNNING",
+      "verdict": null,
+      "failure_code": null
+    }
+  ],
+  "persisted_finding_count_at_live_run": 0,
+  "completed_supported_verdicts": 3
+}

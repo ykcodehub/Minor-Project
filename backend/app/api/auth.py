@@ -484,15 +484,13 @@ def google_callback(request: Request, db: Db, state: str = "", code: str = "", e
     elif ident:
         user = db.get(User, ident.user_id)
     else:
-        if db.scalar(select(User).where(User.email == claims["email"])):
-            response = RedirectResponse(
-                settings().public_url + "/sign-in?oauth=link_required", status_code=303
-            )
-            clear_google_cookie(response)
-            return response
-        user = User(email=claims["email"], verified_at=now())
-        db.add(user)
-        db.flush()
+        user = db.scalar(select(User).where(User.email == claims["email"]))
+        if not user:
+            user = User(email=claims["email"], verified_at=now())
+            db.add(user)
+            db.flush()
+        elif not user.verified_at:
+            user.verified_at = now()
     if not ident:
         db.add(OAuthIdentity(id=claims["sub"], user_id=user.id))
     prior = request.cookies.get("veriora_session", "")
@@ -515,9 +513,7 @@ def set_language(data: LanguageInput, request: Request, db: Db, user: CurrentUse
 
 @router.post("/auth/registration/start", status_code=202)
 def registration_start(data: EmailRequest, request: Request, db: Db):
-    throttle(db, "signup-ip:" + (request.client.host if request.client else "unknown"), 5, 3600)
     email = str(data.email).lower()
-    throttle(db, "signup-email:" + email, 3, 3600)
     if not settings().smtp_host or not settings().mail_from:
         raise HTTPException(503, "Email delivery is not configured. Registration is unavailable.")
     message = {"message": "If this address can be registered, a verification link will be sent."}
@@ -528,6 +524,8 @@ def registration_start(data: EmailRequest, request: Request, db: Db):
     )
     if pending and pending.expires_at.replace(tzinfo=now().tzinfo) > now():
         return message
+    throttle(db, "signup-ip:" + (request.client.host if request.client else "unknown"), 5, 3600)
+    throttle(db, "signup-email:" + email, 3, 3600)
     if pending:
         db.delete(pending)
         db.flush()

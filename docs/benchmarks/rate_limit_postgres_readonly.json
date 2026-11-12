@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-11-12T01:49:04.308050+00:00",
+  "scope": "read-only PostgreSQL schema check",
+  "writes_executed": false,
+  "connection": "PASS",
+  "database_heads": [
+    "c819ba204ae1"
+  ],
+  "local_heads": [
+    "c819ba204ae1"
+  ],
+  "head_match": true,
+  "missing_tables": [],
+  "evidence_foreign_keys": 3
+}

@@ -43,7 +43,10 @@ def loopback_host(host):
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=BACKEND_ROOT / ".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=(BACKEND_ROOT.parent / ".env", BACKEND_ROOT / ".env"),
+        extra="ignore",
+    )
     database_url: str = Field(repr=False)
     storage_path: Path = Path("private-data")
     storage_key: str = Field(default="", repr=False)
@@ -61,19 +64,27 @@ class Settings(BaseSettings):
     max_pages: int = 150
     max_document_tokens: int = 100000
     gemini_api_key: str = Field(default="", repr=False)
-    gemini_model: str = ""
+    gemini_model: str = "gemini-2.5-flash"
     groq_api_key: str = Field(default="", repr=False)
     groq_model: str = ""
+    openai_api_key: str = Field(default="", repr=False)
+    openai_model: str = "gpt-4o-mini"
     openrouter_api_key: str = Field(default="", repr=False)
     openrouter_model: str = ""
     provider_limits: dict[str, dict[str, int]] = Field(default_factory=dict)
+    ai_task_provider_order: dict[str, list[Literal["gemini", "groq", "openai", "openrouter"]]] = Field(
+        default_factory=dict
+    )
     analysis_timeout_seconds: int = Field(default=900, ge=30, le=3600)
     max_ai_calls_per_operation: int = Field(default=100, ge=1, le=300)
     max_ai_tokens_per_operation: int = Field(default=500000, ge=1000, le=2000000)
+    ai_rate_limit_max_resumes: int = Field(default=2, ge=0, le=2)
+    ai_rate_limit_max_wait_seconds: int = Field(default=3600, ge=60, le=86400)
     provider_pricing: dict[str, dict[str, float]] = Field(default_factory=dict)
     test_mail_outbox: Path | None = Field(default=None, repr=False)
     smtp_host: str = ""
     smtp_port: int = 587
+    smtp_use_ssl: bool = False
     smtp_user: str = ""
     smtp_password: str = Field(default="", repr=False)
     mail_from: str = ""
@@ -91,6 +102,23 @@ class Settings(BaseSettings):
             key not in allowed or number <= 0 for limits in value.values() for key, number in limits.items()
         ):
             raise ValueError("Provider limits must contain only positive supported budget fields.")
+        return value
+
+    @field_validator("ai_task_provider_order")
+    @classmethod
+    def valid_task_order(cls, value):
+        roles = {
+            "candidate_generation",
+            "context_indexing",
+            "semantic_verification",
+            "explanation_translation",
+            "translation_verification",
+            "question_answering",
+            "multilingual_retrieval",
+            "context_verification",
+        }
+        if any(role not in roles or len(names) != len(set(names)) for role, names in value.items()):
+            raise ValueError("Task routing requires supported roles and unique provider names.")
         return value
 
     @field_validator("database_url", mode="before")
@@ -176,23 +204,38 @@ class Settings(BaseSettings):
     def providers(self):
         if self.environment == "test":
             # Do not inherit live provider credentials from .env in isolated test servers.
-            return [{"name": n, "key": "", "model": ""} for n in ("gemini", "groq", "openrouter")]
-        return [
-            {
-                "name": n,
-                "key": getattr(self, n + "_api_key"),
-                "model": getattr(self, n + "_model"),
-                **self.provider_limits.get(n, {}),
-                **self.provider_limits.get(getattr(self, n + "_model"), {}),
-                **self.provider_limits.get(n + "/" + getattr(self, n + "_model"), {}),
-                **{
-                    k: v
-                    for k, v in self.provider_pricing.get(n, {}).items()
-                    if k in ("input_price_per_million", "output_price_per_million") and v >= 0
-                },
-            }
-            for n in ("gemini", "groq", "openrouter")
-        ]
+            return [
+                {"name": n, "key": "", "model": ""}
+                for n in ("gemini", "groq", "openai", "openrouter")
+            ]
+        result = []
+        for name in ("gemini", "groq", "openai", "openrouter"):
+            model = getattr(self, name + "_model")
+            # Keep the known obsolete Gemini value from routing requests to a
+            # model that is no longer the supported local default.
+            if name == "gemini" and model in {"", "gemini-3.6-flash"}:
+                model = "gemini-2.5-flash"
+            result.append(
+                {
+                    "name": name,
+                    "key": getattr(self, name + "_api_key"),
+                    "model": model,
+                    "task_priority": {
+                        role: names.index(name)
+                        for role, names in self.ai_task_provider_order.items()
+                        if name in names
+                    },
+                    **self.provider_limits.get(name, {}),
+                    **self.provider_limits.get(model, {}),
+                    **self.provider_limits.get(name + "/" + model, {}),
+                    **{
+                        k: v
+                        for k, v in self.provider_pricing.get(name, {}).items()
+                        if k in ("input_price_per_million", "output_price_per_million") and v >= 0
+                    },
+                }
+            )
+        return result
 
 
 @lru_cache

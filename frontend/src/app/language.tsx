@@ -25,7 +25,13 @@ const LanguageContext = createContext({
     void value;
   },
 });
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
+export function LanguageProvider({
+  children,
+  offlineDemo = false,
+}: {
+  children: React.ReactNode;
+  offlineDemo?: boolean;
+}) {
   const { user } = useSession();
   const [choice, setChoice] = useState<Language>(() =>
     valid(localStorage.getItem("veriora-language")),
@@ -34,11 +40,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const owner = useRef<string | undefined>(undefined);
   const writes = useRef<Promise<unknown>>(Promise.resolve());
   const latest = useRef<Language | undefined>(undefined);
-  const language = pending || (user ? valid(user.language) : choice);
+  const language =
+    pending || (user && !offlineDemo ? valid(user.language) : choice);
   useEffect(() => {
     if (owner.current !== user?.id) {
       owner.current = user?.id;
-      if (user?.is_guest && choice !== user.language) {
+      if (!offlineDemo && user?.is_guest && choice !== user.language) {
         setPending(choice);
         writes.current = writes.current
           .catch(() => {})
@@ -51,7 +58,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           .catch(() => {});
       } else setPending(undefined);
     }
-  }, [user?.id, user?.is_guest, user?.language, choice]);
+  }, [user?.id, user?.is_guest, user?.language, choice, offlineDemo]);
   useEffect(() => {
     document.documentElement.lang =
       language === "hi" ? "hi" : language === "hinglish" ? "hi-Latn" : "en";
@@ -74,7 +81,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     latest.current = next;
     setChoice(next);
     setPending(next);
-    if (userId) {
+    if (userId && !offlineDemo) {
       const operation = writes.current
         .catch(() => {})
         .then(async () => {

@@ -4,12 +4,12 @@ Executed locally on 11 November 2026. All AI HTTP responses are mocked; no live 
 
 | Adapter | State | Verified | Risk counts H/M/L | Candidate/index/semantic requests | Local wall seconds | Max estimated semantic input tokens | Retries |
 |---|---|---|---|---|---|---|---|
-| gemini | COMPLETED | 7/7 | 2/4/1 | 2/3/7 | 2.123 | 1102 | 0 |
-| groq | COMPLETED | 7/7 | 2/4/1 | 5/3/7 | 1.974 | 1164 | 0 |
-| openrouter | COMPLETED | 7/7 | 2/4/1 | 2/3/7 | 2.52 | 1201 | 0 |
+| gemini (`gemini-3.6-flash`, mocked) | COMPLETED | 7/7 | 2/4/1 | 2/3/7 | 3.132 | 1126 | 0 |
+| groq (`openai/gpt-oss-20b`, mocked) | COMPLETED | 7/7 | 2/4/1 | 5/3/7 | 2.263 | 1171 | 0 |
+| openrouter (`test/structured:free`, synthetic model) | COMPLETED | 7/7 | 2/4/1 | 2/3/7 | 1.439 | 1193 | 0 |
 
 Input figures use the application's full serialized-wire tokenizer estimate plus its existing safety margin; they are not authoritative provider token counts. Mock responses intentionally do not pretend to measure billed tokens or reasoning. Request-level estimated input, output reserves, payload bytes and local mock-handler time are retained in [two_page_risk_benchmark.json](two_page_risk_benchmark.json). Worker/API wall time includes local extraction, database and model-handler overhead; mock handler timings are not inference timings. These seven supported outcomes reflect the programmed fixture, not proof that a real model will recover every clause.
 
-Reproduce from root: `backend/.venv/Scripts/python.exe scripts/benchmark_risk_agreement.py`. The runner overrides database/provider settings in its child process and replaces only its synthetic JSON report. It never modifies `.env` or production records. All requests must fit existing provider/operation caps. PDF blocks remain separate and offsets unchanged; the viewer groups blocks by actual page and displays the original page total.
+Reproduce from root: `.venv/Scripts/python.exe scripts/benchmark_risk_agreement.py`. The runner overrides database/provider settings in its child process and replaces only its synthetic JSON report. It never modifies `.env` or production records. All requests must fit existing provider/operation caps. PDF blocks remain separate and offsets unchanged; the viewer groups blocks by actual page and displays the original page total.
 
-Regression tests separately simulate output consumed entirely by reasoning, prevent oversized output-growth retries and stop repeated reasoning-only semantic failures after two confirmed exhausting responses. They also preserve ambiguous findings as Needs Review and withhold the priority index when coverage/verification/classification is incomplete. HTTP 400, outages, malformed output, consent, exhausted budgets and fallback are covered by the provider suites, not claimed as real successful inference.
+Regression tests separately simulate output consumed almost entirely by reasoning, prevent oversized output-growth retries and stop reasoning-only failures after the first confirmed exhausting response, independently per role including candidate generation. They also preserve ambiguous findings as Needs Review and withhold the priority index when coverage/verification/classification is incomplete. HTTP 400, outages, malformed output, consent, exhausted budgets and fallback are covered by the provider suites, not claimed as real successful inference. The current live preflight is BLOCKED, with zero inference requests; see [live_reliability_check.json](live_reliability_check.json).

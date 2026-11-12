@@ -1,5 +1,24 @@
 /** Static guidance only; never interprets provider output as document evidence. */
 export function providerFailure(error: string): string | undefined {
+  if (error.includes("PROVIDER_VERDICT_UNGROUNDED"))
+    return "The reviewer cited source references that are not written in the supplied text. The interpretation remains unverified; use another authorized reviewer.";
+  if (error.includes("PROVIDER_CATEGORY_MISMATCH"))
+    return "The reviewer rejected the proposed finding category. The finding remains unverified rather than receiving a misleading risk label.";
+  if (error.includes("PROVIDER_NO_HEALTHY_ENDPOINT"))
+    return "No healthy compatible endpoint is available for this model. Retry later or open the labeled offline synthetic demo; no model was substituted.";
+  if (error.includes("PROVIDER_EXPLICIT_MODEL_REQUIRED"))
+    return "The configured dynamic router is unsuitable for verified analysis. Ask the administrator to configure an explicit model; provider permissions have not changed.";
+  if (error.includes("PROVIDER_REASONING_EXHAUSTED"))
+    return "The model spent its output allowance on reasoning. Repeated document splitting will not fix this. Choose a compatible authorized model; results remain unverified.";
+  if (
+    error.includes("PROVIDER_REASONING_INCOMPATIBLE") ||
+    error.includes("PROVIDER_MODEL_INCOMPATIBLE")
+  )
+    return "The configured model cannot safely produce bounded structured results. Ask the administrator to select a compatible explicit model.";
+  if (error.includes("PROVIDER_CAPABILITIES_UNAVAILABLE"))
+    return "Model capabilities could not be checked. No document was sent to that model; retry when its catalog is available.";
+  if (error.includes("PROVIDER_TEMPORARILY_SUPPRESSED"))
+    return "The provider is temporarily paused after an outage. Retry later or use an already authorized alternative.";
   if (error.includes("ANALYSIS_DEADLINE_EXCEEDED"))
     return "Processing reached its time limit. Inspect preserved results and checkpointed usage before retrying.";
   if (error.includes("PROVIDER_CHECKPOINT_UNCERTAIN"))

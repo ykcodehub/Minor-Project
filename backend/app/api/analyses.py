@@ -525,11 +525,12 @@ def get_job(job_id: str, db: Db, user: CurrentUser):
 @router.post("/jobs/{job_id}/cancel")
 def cancel_job(job_id: str, db: Db, user: CurrentUser):
     job = owned(db, Job, job_id, user, lock=True)
-    if job.state not in ("QUEUED", "PROCESSING"):
+    if job.state not in ("QUEUED", "PROCESSING", "WAITING_RATE_LIMIT"):
         raise HTTPException(409, "This job has already finished.")
     job.state = "CANCELLED"
     job.stage = "CANCELLED"
     job.lease_token = None
+    job.lease_until = None
     if job.source_id and job.kind in ("ingest", "capture"):
         source = db.get(Source, job.source_id)
         if source and source.status not in ("READY", "PARTIAL"):

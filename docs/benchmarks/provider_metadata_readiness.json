@@ -1,0 +1,33 @@
+[
+  {
+    "provider": "gemini",
+    "configured_model": "gemini-3.6-flash",
+    "inference_executed": false,
+    "zero_billing": "NOT_ESTABLISHED",
+    "metadata_http_status": 200,
+    "model_listed": true,
+    "model_metadata": {
+      "inputTokenLimit": 1048576,
+      "outputTokenLimit": 65536,
+      "supportedGenerationMethods": [
+        "generateContent",
+        "countTokens",
+        "createCachedContent",
+        "batchGenerateContent"
+      ]
+    }
+  },
+  {
+    "provider": "groq",
+    "configured_model": "openai/gpt-oss-20b",
+    "inference_executed": false,
+    "zero_billing": "NOT_ESTABLISHED",
+    "metadata_http_status": 200,
+    "model_listed": true,
+    "model_metadata": {
+      "context_window": 131072,
+      "max_completion_tokens": 65536,
+      "active": true
+    }
+  }
+]

@@ -70,7 +70,7 @@ def test_pdf_has_two_pages_and_thirty_six_blocks_without_offset_changes():
 
 @pytest.mark.parametrize(
     "provider,model",
-    [("gemini", "gemini-3.6-flash"), ("groq", "openai/gpt-oss-20b"), ("openrouter", "openrouter/free")],
+    [("gemini", "gemini-3.6-flash"), ("groq", "openai/gpt-oss-20b"), ("openrouter", "test/structured:free")],
 )
 def test_two_page_agreement_to_verified_risk_summary(client, monkeypatch, provider, model):
     login_guest(client)
@@ -142,7 +142,7 @@ def test_two_page_agreement_to_verified_risk_summary(client, monkeypatch, provid
             data = json.loads(prompt[prompt.index("{") :])
             assert any(data["candidate"]["quote"] in p["text"] for p in data["context"])
             if provider == "openrouter":
-                assert payload["reasoning"]["effort"] == "low"
+                assert payload["reasoning"] == {"enabled": False}
             output = {
                 "support_status": "SUPPORTED",
                 "rationale": "The exact quoted condition supports this claim.",
@@ -294,12 +294,12 @@ def test_semantic_length_does_not_retry_a_larger_reservation_that_cannot_fit(mon
         )
 
     monkeypatch.setattr(httpx, "Client", lambda **kw: original(transport=httpx.MockTransport(handler), **kw))
-    p = configured_provider({"name": "openrouter", "model": "openrouter/free", "key": "synthetic"})
+    p = configured_provider({"name": "openrouter", "model": "test/structured:free", "key": "synthetic"})
     _, _, payload = p.request("s", "p", Verdict.model_json_schema())
     payload["max_tokens"] = 2048
-    payload["reasoning"] = {"effort": "low", "exclude": True}
+    payload["reasoning"] = {"enabled": False}
     p.request_tokens = p.request_usage(payload)["estimated_input_tokens"] + 2048 + 100
-    with pytest.raises(ProviderError, match="PROVIDER_OUTPUT_LIMIT") as exc:
+    with pytest.raises(ProviderError, match="PROVIDER_REASONING_EXHAUSTED") as exc:
         p.generate("s", "p", Verdict, "semantic_verification")
     assert len(seen) == 1 and exc.value.model_calls[0]["reasoning_tokens"] == 2048
 
@@ -343,11 +343,11 @@ def test_large_section_review_uses_exact_neighborhood_after_complete_audit(monke
             rationale="Explicit term.",
             missing_qualifiers=[],
             unresolved_references=[],
-        ), [{"provider": "openrouter", "model": "openrouter/free"}]
+        ), [{"provider": "openrouter", "model": "test/structured:free"}]
 
     monkeypatch.setattr(a, "generate_with_fallback", generate)
     result, _ = SourceWideIndex([section]).review(
-        candidate, [{"name": "openrouter", "model": "openrouter/free", "key": "synthetic"}]
+        candidate, [{"name": "openrouter", "model": "test/structured:free", "key": "synthetic"}]
     )
     assert result["support_status"] == "SUPPORTED" and result["source_index"]["complete"]
     passage = seen[0]
@@ -380,13 +380,13 @@ def test_confirmed_repeated_reasoning_exhaustion_skips_only_verification_role(mo
     monkeypatch.setattr("app.providers.base.time.sleep", lambda _: None)
     config = {
         "name": "openrouter",
-        "model": "openrouter/free",
+        "model": "test/structured:free",
         "key": "synthetic",
         "budget": {"calls": 0, "tokens": 0, "max_calls": 100, "max_tokens": 500000},
     }
     for _ in range(2):
-        with pytest.raises(ProviderError, match="PROVIDER_OUTPUT_LIMIT"):
+        with pytest.raises(ProviderError, match="PROVIDER_REASONING_EXHAUSTED"):
             generate_with_fallback([config], "s", "p", Verdict, "semantic_verification")
-    assert len(seen) == 2
+    assert len(seen) == 1
     assert ("openrouter", "semantic_verification") in config["budget"]["exhausted_reasoning_tasks"]
     assert ("openrouter", "candidate_generation") not in config["budget"]["exhausted_reasoning_tasks"]

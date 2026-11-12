@@ -1,0 +1,13 @@
+{
+  "model": "dots-studio/dots-3-note-preview:free",
+  "provider": "AtlasCloud",
+  "inference_requests": 15,
+  "reserved_estimated_tokens": 77020,
+  "reported_prompt_tokens": 26393,
+  "reported_completion_tokens": 2738,
+  "reported_reasoning_tokens": 0,
+  "usage_missing_for_requests": 1,
+  "live_acceptance": "FAIL",
+  "further_inference": "STOPPED",
+  "production_data_modified": false
+}

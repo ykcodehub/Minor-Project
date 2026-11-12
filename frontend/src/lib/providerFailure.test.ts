@@ -16,6 +16,15 @@ describe("provider failure guidance", () => {
     "RATE_LIMITED",
     "INVALID_OUTPUT",
     "INCOMPLETE_OUTPUT",
+    "NO_HEALTHY_ENDPOINT",
+    "VERDICT_UNGROUNDED",
+    "CATEGORY_MISMATCH",
+    "EXPLICIT_MODEL_REQUIRED",
+    "REASONING_EXHAUSTED",
+    "REASONING_INCOMPATIBLE",
+    "MODEL_INCOMPATIBLE",
+    "CAPABILITIES_UNAVAILABLE",
+    "TEMPORARILY_SUPPRESSED",
   ])("explains %s", (code) => {
     expect(
       providerFailure(

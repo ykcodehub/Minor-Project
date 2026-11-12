@@ -54,15 +54,25 @@ def deliver(email, purpose, token):
     message.set_content(
         f"Open {cfg.public_url}/sign-in?purpose={purpose}#token={token}\n"
         + (
-            "This single-use link expires in one hour.\n"
+            "This single-use link expires in one hour. After verification, you will create a new password.\n"
             if purpose == "signup"
-            else "This single-use link expires in one hour. Verification also requires the password you chose.\n"
+            else "This single-use link expires in one hour. Use it to create a new password.\n"
         )
         + "If you did not request this, ignore this message."
     )
     try:
-        with smtplib.SMTP(cfg.smtp_host, cfg.smtp_port, timeout=15) as smtp:
-            smtp.starttls(context=ssl.create_default_context())
+        if cfg.smtp_use_ssl or cfg.smtp_port == 465:
+            smtp = smtplib.SMTP_SSL(
+                cfg.smtp_host,
+                cfg.smtp_port,
+                timeout=15,
+                context=ssl.create_default_context(),
+            )
+        else:
+            smtp = smtplib.SMTP(cfg.smtp_host, cfg.smtp_port, timeout=15)
+        with smtp:
+            if cfg.smtp_port != 465 and not cfg.smtp_use_ssl:
+                smtp.starttls(context=ssl.create_default_context())
             if cfg.smtp_user:
                 smtp.login(cfg.smtp_user, cfg.smtp_password)
             smtp.send_message(message)

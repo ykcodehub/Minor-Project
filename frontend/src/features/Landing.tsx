@@ -34,6 +34,9 @@ export default function Landing() {
             )}
           </p>
           <div className="actions">
+            <Link to="/demo/offline" className="button secondary">
+              {t("Open offline synthetic demo")}
+            </Link>
             <Link to="/analyze" className="button">
               {t("Analyze a document")}
               <ArrowUpRight size={18} />

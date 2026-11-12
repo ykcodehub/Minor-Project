@@ -32,6 +32,16 @@ PARAMS = {
 
 def error_details(response):
     result = {"validation_issue": "DETAILS_REDACTED"}
+    if response.status_code == 429:
+        # Retain numeric quota headers only, never arbitrary header/body values.
+        for header, field in (
+            ("x-ratelimit-limit", "quota_limit"),
+            ("x-ratelimit-remaining", "quota_remaining"),
+            ("x-ratelimit-reset", "quota_reset"),
+        ):
+            value = response.headers.get(header, "")
+            if re.fullmatch(r"[0-9]{1,12}", value):
+                result[field] = int(value)
     try:
         error = response.json().get("error", {})
         if not isinstance(error, dict):
@@ -44,6 +54,19 @@ def error_details(response):
         message = error.get("message", "")
         if not isinstance(message, str):
             return result
+        if response.status_code == 429:
+            result["quota_scope"] = next(
+                (
+                    scope
+                    for scope, pattern in (
+                        ("daily", r"per.day|daily|requests.per.day"),
+                        ("minute", r"per.minute|requests.per.minute"),
+                        ("upstream_capacity", r"upstream.*rate.limit|provider.*rate.limit"),
+                    )
+                    if re.search(pattern, message, re.IGNORECASE)
+                ),
+                "unspecified",
+            )
         patterns = [
             ("CONTEXT_LENGTH", r"maximum context length|context window exceeded|context_length_exceeded"),
             ("SCHEMA_UNSUPPORTED", r"unsupported.*schema|schema.*not supported|invalid.*json.schema"),

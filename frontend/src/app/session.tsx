@@ -30,12 +30,19 @@ async function readProfile() {
     throw error;
   }
 }
-export function SessionProvider({ children }: { children: React.ReactNode }) {
+export function SessionProvider({
+  children,
+  offlineDemo = false,
+}: {
+  children: React.ReactNode;
+  offlineDemo?: boolean;
+}) {
   const qc = useQueryClient();
   const query = useQuery({
     queryKey: ["me"],
     queryFn: readProfile,
     retry: false,
+    enabled: !offlineDemo,
   });
   async function refresh() {
     const previous = qc.getQueryData<User | null>(["me"]);

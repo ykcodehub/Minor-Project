@@ -27,8 +27,18 @@ def main():
     }
     if result["smtp_configured"]:
         try:
-            with smtplib.SMTP(cfg.smtp_host, cfg.smtp_port, timeout=15) as smtp:
-                smtp.starttls(context=ssl.create_default_context())
+            if cfg.smtp_use_ssl or cfg.smtp_port == 465:
+                smtp = smtplib.SMTP_SSL(
+                    cfg.smtp_host,
+                    cfg.smtp_port,
+                    timeout=15,
+                    context=ssl.create_default_context(),
+                )
+            else:
+                smtp = smtplib.SMTP(cfg.smtp_host, cfg.smtp_port, timeout=15)
+            with smtp:
+                if cfg.smtp_port != 465 and not cfg.smtp_use_ssl:
+                    smtp.starttls(context=ssl.create_default_context())
                 if cfg.smtp_user:
                     smtp.login(cfg.smtp_user, cfg.smtp_password)
                 result["smtp_authenticated"] = smtp.noop()[0] == 250

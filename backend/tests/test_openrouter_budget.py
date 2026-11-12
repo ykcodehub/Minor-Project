@@ -8,8 +8,8 @@ import pytest
 
 from app.providers.base import ProviderError, configured_provider
 from app.services import analysis
-from app.services.context_index import compact_passages
 from app.services.chunking import chunk_sections
+from app.services.context_index import compact_passages
 
 
 def sources():
@@ -27,7 +27,7 @@ def sources():
 
 def test_many_short_sections_are_split_by_full_wire_cost(monkeypatch):
     sections = sources()
-    configs = [{"name": "openrouter", "model": "openrouter/free", "key": "synthetic"}]
+    configs = [{"name": "openrouter", "model": "test/structured:free", "key": "synthetic"}]
     provider = configured_provider(configs[0])
     raw = chunk_sections(sections)
     assert any(
@@ -57,13 +57,13 @@ def test_many_short_sections_are_split_by_full_wire_cost(monkeypatch):
 
     def handler(request):
         payload = json.loads(request.content)
-        assert payload["model"] == "openrouter/free"
+        assert payload["model"] == "test/structured:free"
         assert provider.request_usage(payload)["estimated_request_tokens"] <= 12000
         sent.append(payload)
         return httpx.Response(
             200,
             json={
-                "model": "synthetic/selected-model",
+                "model": "test/structured:free",
                 "choices": [{"finish_reason": "stop", "message": {"content": '{"findings":[]}'}}],
             },
         )
@@ -74,7 +74,7 @@ def test_many_short_sections_are_split_by_full_wire_cost(monkeypatch):
     result = analysis.analyze(raw, sections, configs)
     assert result["coverage"]["sections_processed"] == len(sections)
     assert len(sent) == result["coverage"]["chunks_processed"]
-    assert all(c["response_model"] == "synthetic/selected-model" for c in result["model_calls"])
+    assert all(c["response_model"] == "test/structured:free" for c in result["model_calls"])
 
 
 def test_free_router_has_policy_cap_not_invented_selected_context():
@@ -93,11 +93,11 @@ def test_model_id_override_and_namespace_precedence():
         _env_file=None,
         environment="development",
         database_url="postgresql+psycopg://synthetic:placeholder@invalid.example/veriora",
-        openrouter_model="openrouter/free",
+        openrouter_model="test/structured:free",
         provider_limits={
             "openrouter": {"request_tokens": 12000},
-            "openrouter/free": {"context_tokens": 9000},
-            "openrouter/openrouter/free": {"max_output_tokens": 2048},
+            "test/structured:free": {"context_tokens": 9000},
+            "openrouter/test/structured:free": {"max_output_tokens": 2048},
         },
     )
     configured = next(c for c in cfg.providers() if c["name"] == "openrouter")
@@ -141,7 +141,7 @@ def test_upstream_context_rejection_is_not_blindly_retried(monkeypatch, caplog):
 
     monkeypatch.setattr(httpx, "Client", lambda **kw: original(transport=httpx.MockTransport(handler), **kw))
     with pytest.raises(ProviderError, match="PROVIDER_CONTEXT_LIMIT") as error:
-        configured_provider({"name": "openrouter", "model": "openrouter/free", "key": "synthetic"}).generate(
+        configured_provider({"name": "openrouter", "model": "test/structured:free", "key": "synthetic"}).generate(
             "s", "p", analysis.CandidateBatch, "candidate_generation"
         )
     assert len(sent) == 1 and error.value.model_calls[0]["budget_phase"] == "provider_response"
@@ -164,14 +164,14 @@ def test_context_windows_also_fit_full_schema_and_metadata(monkeypatch):
         "qualifications": [],
         "cross_references": [],
     }
-    config = {"name": "openrouter", "model": "openrouter/free", "key": "synthetic"}
+    config = {"name": "openrouter", "model": "test/structured:free", "key": "synthetic"}
     provider = configured_provider(config)
     roles = []
 
     def generate(configs, system, prompt, schema, role):
         assert provider.fits(system, prompt, schema.model_json_schema())
         roles.append(role)
-        calls = [{"provider": "openrouter", "model": "openrouter/free", "outcome": "SUCCESS"}]
+        calls = [{"provider": "openrouter", "model": "test/structured:free", "outcome": "SUCCESS"}]
         if schema is analysis.ContextAudit:
             return analysis.ContextAudit(relevant_passages=[], unresolved_context=False), calls
         return analysis.Verdict(
@@ -197,7 +197,7 @@ def test_persisted_permissions_allow_context_fallback_not_unchecked_provider(cli
     for name in ("gemini", "groq", "openrouter"):
         monkeypatch.setattr(settings(), name + "_api_key", "synthetic")
         monkeypatch.setattr(
-            settings(), name + "_model", "openrouter/free" if name == "openrouter" else "synthetic-model"
+            settings(), name + "_model", "test/structured:free" if name == "openrouter" else "synthetic-model"
         )
     response = client.patch(
         "/api/v1/me",

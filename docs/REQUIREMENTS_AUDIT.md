@@ -233,3 +233,23 @@ The implemented Summary groups only source-validated SUPPORTED findings into tra
 ### Quota-aware operation update, 11 November 2026
 
 Implementation now shares provider cooldowns in existing RateBucket storage, fits chat/translation requests to available authorized models, caches verified translation batches, separates index-window coverage from finding verification, and labels model-call operations to keep chat/translation failures out of analysis status. Code: services/provider_quota.py, provider_policy.py, localization.py, analysis.py, context_index.py, providers/base.py and api/analyses.py. Evidence: tests/test_ai_operations.py, QuestionPanel/SmartSummary unit tests, e2e/ai-operations.spec.ts and docs/benchmarks/AI_OPERATIONS.md. Real-provider production availability/accuracy remains UNVERIFIED; readiness is not a provider-health certification. No new schema migration or production setting is required.
+
+### Explicit-model reliability regression scope ? 11 November 2026
+
+Provider orchestration/budgeting, semantic evidence verification, source-wide audit, translation and QA guards: local capability/reasoning/outage regressions added in `backend/tests/test_model_policy.py`; existing consent, checkpoint, pagination and Risk Dashboard tests retained. Frontend failure guidance has unit and browser coverage. Real-provider completion remains BLOCKED/UNVERIFIED, not COMPLETE: configured OpenRouter uses a dynamic router and zero-price Gemini/Groq billing was not established. See [policy](AI_RELIABILITY.md), [live preflight](benchmarks/live_reliability_check.json) and the latest [verification](VERIFICATION.md).
+
+### FR-DEMO-OFFLINE-01 ? college reference workspace
+
+Implemented at `/demo/offline`: public authored synthetic source/results, persistent non-live label, exact quote/page/hash validation, existing risk dashboard, local multilingual explanations, saved-question-only QA and downloads. Tests: `test_offline_demo.py`, `e2e/offline-demo.spec.ts` with all APIs blocked; no private-upload fallback. Current live pipeline acceptance remains FAIL despite successful HTTP/schema responses. `live-recording.spec.ts` verifies the recorded partial result is not shown as safe. See [actual measurements and gates](COLLEGE_DEMO_READINESS.md).
+
+### Recorded-response accuracy review
+
+`test_accuracy_review.py` covers category visibility/mismatch, invented unresolved references, legitimate negative/ambiguous results, optional authorized task order, independent indexing/review providers, QA category isolation and two-page positive/unsupported fixtures. Actual live acceptance remains unverified for these changes; the original recordings were not relabeled. See [per-candidate diagnosis and limitations](AI_ACCURACY_REVIEW.md).
+
+## Final incremental-persistence regression
+
+Interruption recovery: locally verified retained findings, idempotent evidence persistence and checkpoint reuse without repeat inference. Full real-provider analysis/QA/translation/report acceptance: BLOCKED by HTTP 429. No production schema/data changes. See [final evidence](FINAL_PRODUCTION_READINESS.md).
+
+## Rate-limit recovery acceptance
+
+PASS (isolated synthetic/replayed tests): retain validated findings, wait until cooldown, resume only unfinished requests, preserve operation budgets, stop after two automatic resumes, reject uncertain replay, honor long Retry-After, stop unconfirmed daily quota reset, recheck revoked permission and support cancellation. PASS: browser waiting/partial-state notice and cancellation; existing Risk Dashboard/offline regressions. BLOCKED: real-provider recovery/full workflow, exact upstream quota and production configuration. See [report](RATE_LIMIT_RECOVERY.md).

@@ -65,7 +65,9 @@ export default function Workspace() {
     queryFn: () => api<Analysis>(`/analyses/${id}`),
     refetchInterval: (q) =>
       !polling.paused && !q.state.error && active(q.state.data?.status)
-        ? 1800
+        ? q.state.data?.status === "WAITING_RATE_LIMIT"
+          ? 15000
+          : 1800
         : false,
   });
   const jobId = analysis.data?.job_id;
@@ -75,7 +77,9 @@ export default function Workspace() {
     enabled: !!jobId,
     refetchInterval: (q) =>
       !polling.paused && !q.state.error && active(q.state.data?.state)
-        ? 1600
+        ? q.state.data?.state === "WAITING_RATE_LIMIT"
+          ? 15000
+          : 1600
         : false,
   });
   const [answerCitation, setAnswerCitation] = useState<Citation>();
@@ -124,6 +128,8 @@ export default function Workspace() {
     queryFn: () =>
       api<SummaryData>(`/analyses/${id}/summary?language=${language}`),
     enabled: !!analysis.data,
+    refetchInterval:
+      active(analysis.data?.status) && !polling.paused ? 15000 : false,
   });
   async function prepareLanguage() {
     setBusy(true);
@@ -371,6 +377,29 @@ export default function Workspace() {
               "You can safely leave this page. Processing continues on the server.",
             )}
           </p>
+          {state === "WAITING_RATE_LIMIT" && (
+            <div className="notice" role="status">
+              <strong>{t("Paused for provider rate limit")}</strong>
+              <p>
+                {t(
+                  "Validated findings are retained. Automatic recovery is bounded; coverage and risk assessment remain incomplete.",
+                )}
+              </p>
+              {typeof job.data?.progress?.resume_at === "string" && (
+                <p>
+                  {t("Next eligible resume")}:{" "}
+                  {new Date(job.data.progress.resume_at).toLocaleString(
+                    language === "hi" ? "hi-IN" : "en-IN",
+                  )}
+                </p>
+              )}
+              <p>
+                {t(
+                  "Ask Veriora uses available evidence only and cannot establish missing provisions.",
+                )}
+              </p>
+            </div>
+          )}
           {typeof job.data?.progress?.provider === "string" && (
             <p className="small-copy">
               {t("Current AI provider")}: {display(job.data.progress.provider)}{" "}
@@ -431,6 +460,9 @@ export default function Workspace() {
             {providerFailure(job.data?.error || "") && (
               <p>{t(providerFailure(job.data?.error || "")!)}</p>
             )}
+            <Link className="button secondary small" to="/demo/offline">
+              {t("Open offline synthetic demo")}
+            </Link>
             <button
               className="button secondary small"
               disabled={busy}

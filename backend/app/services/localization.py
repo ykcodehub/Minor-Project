@@ -108,7 +108,7 @@ def localize(findings, language, providers):
     adapters = [
         configured_provider(p)
         for p in budget_available_configs(providers)
-        if p.get("name") in {"gemini", "groq", "openrouter"}
+        if p.get("name") in {"gemini", "groq", "openai", "openrouter"}
     ]
     if len(findings) > 200:
         raise ProviderError("TRANSLATION_BUDGET_EXCEEDED")

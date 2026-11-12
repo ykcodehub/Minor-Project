@@ -350,3 +350,23 @@ The implemented Summary groups only source-validated SUPPORTED findings into tra
 ### Quota-aware operation update, 11 November 2026
 
 Implementation now shares provider cooldowns in existing RateBucket storage, fits chat/translation requests to available authorized models, caches verified translation batches, separates index-window coverage from finding verification, and labels model-call operations to keep chat/translation failures out of analysis status. Code: services/provider_quota.py, provider_policy.py, localization.py, analysis.py, context_index.py, providers/base.py and api/analyses.py. Evidence: tests/test_ai_operations.py, QuestionPanel/SmartSummary unit tests, e2e/ai-operations.spec.ts and docs/benchmarks/AI_OPERATIONS.md. Real-provider production availability/accuracy remains UNVERIFIED; readiness is not a provider-health certification. No new schema migration or production setting is required.
+
+### Explicit-model reliability update ? 11 November 2026
+
+`providers/model_policy.py` validates explicit OpenRouter catalog capabilities, disables optional reasoning and rejects mandatory-reasoning/router models for compact structured evidence tasks. Provider adapters enforce complete-envelope/model caps and distinguish reasoning exhaustion from source-size exhaustion. Task-scoped suppression prevents repeated candidate subdivision; separate shared transient-outage buckets preserve quota and checkpoint semantics. Worker stages distinguish indexing and partial completion. See [policy](AI_RELIABILITY.md) and [executed verification](VERIFICATION.md). No schema changes; no live-provider reliability claim.
+
+### College demo architecture update
+
+`model_policy.eligible_endpoint` gates explicit OpenRouter routes on healthy structured-output endpoints; free routes pin the endpoint and send a zero-price ceiling. Index prompts use null offsets with strict unique-quote validation; per-operation index state is shared across analysis/QA instances. Candidate/verifier prompts distinguish source facts, legal completeness and actual references. No source-validation relaxation or status promotion was introduced. `OfflineDemo.tsx` renders a generated public authored fixture without backend/AI calls, with normal session/language services explicitly disabled only for that public route. Live run results and unverified final prompt refinements are documented in COLLEGE_DEMO_READINESS.md.
+
+### Category-aware semantic review and task preferences
+
+Verdict metadata now distinguishes category consistency and source-match/semantic decision basis. Fabricated unresolved parser references or explicit category mismatch trigger another authorized reviewer if available; real negative verdicts are retained, never voted away. Optional `AI_TASK_PROVIDER_ORDER` supplies per-role priorities without granting provider permissions. Explicit indexing preferences may select a different authorized indexer from the semantic reviewer; provenance records both. Legacy verdicts remain readable, and no historical analysis or source is rewritten. See AI_ACCURACY_REVIEW.md for recorded evidence and the outstanding real-provider gate.
+
+## Incremental analysis persistence
+
+The worker persists each source-validated finding using a stable analysis/category/statement/evidence identity. Final aggregation replaces the snapshot with checked final results. Unexpected interruption retains PARTIAL_COMPLETION when findings exist; incomplete coverage remains explicit. Request checkpoints prevent replay of completed model calls on an explicit retry.
+
+## Durable provider cooldown scheduling
+
+Analysis uses WAITING_RATE_LIMIT with RATE_LIMIT_COOLDOWN stage and existing lease_until as a not-before timestamp while no lease token is held. Worker claims due jobs atomically, rechecks consent and uses job-scoped completed checkpoints. At most two automatic resumes within three total attempts; budget totals persist across resumes. Unknown delays back off 60/120 seconds, longer provider Retry-After wins. Daily quota with unconfirmed retry delay, uncertain requests, long waits and exhausted budgets require manual resolution. No schema migration required.

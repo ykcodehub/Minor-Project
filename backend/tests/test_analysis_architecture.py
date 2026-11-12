@@ -253,7 +253,8 @@ def test_worker_resumes_completed_requests_after_failure_without_rebilling(clien
         },
     ).json()
     assert worker.run_once()
-    assert client.get(f"/api/v1/jobs/{submitted['job_id']}").json()["state"] == "FAILED"
+    # Completed, validated findings now survive an interruption before aggregation.
+    assert client.get(f"/api/v1/jobs/{submitted['job_id']}").json()["state"] == "PARTIAL_COMPLETION"
     assert len(requests) == 2
     assert client.post(f"/api/v1/jobs/{submitted['job_id']}/retry").status_code == 200
     assert worker.run_once()

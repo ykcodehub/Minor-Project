@@ -282,3 +282,11 @@ Use a shared source-wide qualification index with exact validated quotations and
 ### 11 November 2026: verified risk dashboard and bounded semantic review
 
 The implemented Summary groups only source-validated SUPPORTED findings into transparent High/Moderate/Low review-priority rules. Unassessed and unverified counts remain outside the classified distribution. The maximum ordinal 1-3 review index is withheld unless processed coverage, verification and classification are complete; it is not a legal-risk probability. High findings use red borders/text and a reduced-motion-aware one-time highlight; source quotations and exact original page/section offsets remain authoritative. Detailed findings support priority filters, category/priority grouping and preserved evidence statuses. PDF navigation groups blocks by original page, never by extracted block count. Source-wide qualification audit plus bounded exact-neighborhood and reference review reduces repeated semantic payloads without treating retrieval as proof. Implementation: services/summary.py, services/context_index.py, providers/base.py, SourceViewer.tsx, RiskDashboard.tsx and Workspace.tsx. Evidence: tests/test_risk_dashboard.py, frontend risk/source unit tests, e2e/risk-dashboard.spec.ts and docs/benchmarks/TWO_PAGE_RISK.md. Live provider completion/accuracy and production timing remain UNVERIFIED.
+
+## Final readiness gate
+
+A completed live-AI workflow must be demonstrated with a fresh synthetic PDF, verified citations, dashboard, grounded QA, translations and reports before production readiness is claimed. Offline authored reference output is separately labelled. The final bounded run was blocked by provider rate limiting; see FINAL_PRODUCTION_READINESS.md.
+
+## Live demonstration recovery
+
+Rate-limited analysis supports bounded durable resume, not a provider availability guarantee. A completed real-provider synthetic workflow remains the production release gate; use the visibly labelled offline authored backup while that gate is blocked.

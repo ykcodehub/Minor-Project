@@ -1,0 +1,24 @@
+{
+  "scope": "local flags only; no provider calls; Render environment unverified",
+  "models": [
+    {
+      "provider": "gemini",
+      "model": "gemini-3.6-flash",
+      "credential_present": true
+    },
+    {
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "credential_present": true
+    },
+    {
+      "provider": "openrouter",
+      "model": "openrouter/free",
+      "credential_present": true
+    }
+  ],
+  "ai_rate_limit_max_resumes": 2,
+  "ai_rate_limit_max_wait_seconds": 3600,
+  "ai_task_provider_order": {},
+  "paid_tier_or_free_quota_verified": false
+}

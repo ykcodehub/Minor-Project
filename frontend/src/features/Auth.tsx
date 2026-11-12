@@ -23,13 +23,11 @@ export default function Auth() {
         ? "signup-verify"
         : params.get("purpose") === "recover"
           ? "reset"
-          : "verify"
+          : "login"
       : (
           {
             "/register": "register",
-            "/verify-email": "verify",
             "/forgot-password": "recover",
-            "/reset-password": "reset",
           } as Record<string, string>
         )[pathname] || "login",
   );
@@ -50,7 +48,7 @@ export default function Auth() {
         "",
         window.location.pathname +
           "?purpose=" +
-          (params.get("purpose") || "verify"),
+          (params.get("purpose") || "recover"),
       );
   }, [token, params]);
   const options = useQuery({
@@ -78,14 +76,15 @@ export default function Auth() {
             "If this account can be recovered, recovery instructions will be sent to its email address.",
           ),
         );
-      } else if (mode === "verify") {
-        await post("/auth/verify", { token, password });
-        setMessage(t("Email verified. You can now sign in."));
-        setMode("login");
       } else if (mode === "reset") {
+        if (password !== confirmPassword)
+          throw Error(t("Passwords do not match."));
         await post("/auth/reset", { token, password });
         setMessage(t("Password updated. Sign in with your new password."));
         setMode("login");
+        setPassword("");
+        setConfirmPassword("");
+        setToken("");
       } else if (mode === "signup-verify") {
         const result = await post<{ setup_token: string }>(
           "/auth/registration/verify",
@@ -163,9 +162,8 @@ export default function Auth() {
                 login: t("Welcome back"),
                 register: t("Create an account"),
                 recover: t("Recover your account"),
-                verify: t("Verify your email"),
-                reset: t("Set a new password"),
-                "signup-verify": t("Verify your email"),
+                reset: t("Create a new password"),
+                "signup-verify": t("Confirm your email"),
                 "create-password": t("Create your password"),
               } as Record<string, string>
             )[mode]
@@ -183,24 +181,19 @@ export default function Auth() {
             )}
           </Notice>
         )}
-        {params.get("oauth") === "link_required" && (
-          <Notice warning>
-            {t(
-              "Sign in with your existing email/password first, then link Google in Account settings.",
-            )}
-          </Notice>
-        )}
         {["login", "register"].includes(mode) && (
           <button
+            type="button"
             className="button secondary"
-            disabled={!options.data?.google || busy}
+            disabled={busy}
             onClick={async () => {
               setBusy(true);
               setError(undefined);
               try {
                 // Establish the cookie through a top-level request on the configured callback origin.
-                const target = options.data?.google_login_url;
-                if (!target) throw Error("Google sign-in is not configured.");
+                const target =
+                  options.data?.google_login_url ||
+                  `${window.location.origin}/api/v1/auth/google/login`;
                 window.location.assign(target);
               } catch (e) {
                 setError(e);
@@ -235,7 +228,7 @@ export default function Auth() {
           </ol>
         )}
         <form onSubmit={submit} className="fields">
-          {!["verify", "reset", "signup-verify", "create-password"].includes(
+          {!["reset", "signup-verify", "create-password"].includes(
             mode,
           ) && (
             <label>
@@ -249,15 +242,15 @@ export default function Auth() {
               />
             </label>
           )}
-          {["login", "reset", "verify", "create-password"].includes(mode) && (
+          {["login", "reset", "create-password"].includes(mode) && (
             <label>
-              {mode === "create-password"
+              {mode === "create-password" || mode === "reset"
                 ? t("Create Password")
                 : t("Password")}
               <input
                 type="password"
                 aria-label={
-                  mode === "create-password"
+                  mode === "create-password" || mode === "reset"
                     ? t("Create Password")
                     : t("Password")
                 }
@@ -276,7 +269,7 @@ export default function Auth() {
               </small>
             </label>
           )}
-          {mode === "create-password" && (
+          {["reset", "create-password"].includes(mode) && (
             <label>
               {t("Confirm Password")}
               <input
@@ -297,17 +290,6 @@ export default function Auth() {
               )}
             </p>
           )}
-          {["verify", "reset"].includes(mode) && (
-            <label>
-              {mode === "reset" ? t("Recovery") : t("Verification")}{" "}
-              {t("token")}
-              <input
-                required
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-              />
-            </label>
-          )}
           <ErrorNotice error={error || options.error} />
           {message && <Notice>{message}</Notice>}
           <button className="button" disabled={busy}>
@@ -317,10 +299,9 @@ export default function Auth() {
                   {
                     login: t("Sign in"),
                     register: t("Send verification link"),
-                    "signup-verify": t("Verify email"),
+                    "signup-verify": t("Continue"),
                     "create-password": t("Create account"),
                     recover: t("Send recovery instructions"),
-                    verify: t("Verify email"),
                     reset: t("Update password"),
                   } as Record<string, string>
                 )[mode]}
@@ -357,14 +338,6 @@ export default function Auth() {
               {t("Back to sign in")}
             </button>
           )}
-          <div className="row wrap">
-            <button className="text-link" onClick={() => setMode("verify")}>
-              {t("Verify email")}
-            </button>
-            <button className="text-link" onClick={() => setMode("reset")}>
-              {t("Use recovery token")}
-            </button>
-          </div>
         </div>
         <p className="small-copy muted">
           {t("Just exploring?")}{" "}

@@ -1970,11 +1970,12 @@
                   "enum": [
                     "gemini",
                     "groq",
+                    "openai",
                     "openrouter"
                   ]
                 },
                 "type": "array",
-                "maxItems": 3
+                "maxItems": 4
               },
               {
                 "type": "null"
@@ -2009,6 +2010,7 @@
             "enum": [
               "gemini",
               "groq",
+              "openai",
               "openrouter"
             ],
             "title": "Preferred Provider"
@@ -2058,6 +2060,7 @@
                 "enum": [
                   "gemini",
                   "groq",
+                  "openai",
                   "openrouter"
                 ]
               },
@@ -2087,11 +2090,12 @@
               "enum": [
                 "gemini",
                 "groq",
+                "openai",
                 "openrouter"
               ]
             },
             "type": "array",
-            "maxItems": 2,
+            "maxItems": 3,
             "title": "Fallback Providers"
           }
         },

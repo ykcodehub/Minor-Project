@@ -1,0 +1,354 @@
+{
+  "scope": "Recorded responses only; no fresh inference or altered historical results",
+  "expected_source_clauses": 7,
+  "original_recorded_supported": 0,
+  "compact_recorded_supported": 0,
+  "confidence_calculation": "None. No numeric threshold is used; source match, categorical semantic verdict, qualifiers, references and context completeness gate support.",
+  "candidates": [
+    {
+      "recording": "college_live.json",
+      "quote": "Personal data may be shared with service providers only with consent.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "PRIVACY",
+      "actual_category": "CONSENT",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live.json",
+      "quote": "The customer grants an irrevocable license to submitted materials.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "RESTRICTION",
+      "actual_category": "CONSENT",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live.json",
+      "quote": "The customer accepts unlimited liability for all service losses.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "RISK_NOTE",
+      "actual_category": "CONSENT",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live.json",
+      "quote": "Invoices must be paid within thirty days.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "PAYMENT",
+      "actual_category": "CONSENT",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live.json",
+      "quote": "The supplier may terminate service on seven days notice.",
+      "page": 2,
+      "source_match": "EXACT",
+      "reference_category": "TERMINATION",
+      "actual_category": "TERMINATION",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [
+        "r0",
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r11",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "r16"
+      ],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live.json",
+      "quote": "Disputes must be resolved by arbitration in the stated venue.",
+      "page": 2,
+      "source_match": "EXACT",
+      "reference_category": "DISPUTE",
+      "actual_category": "DISPUTE",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [
+        "r0",
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r11",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "r16"
+      ],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live.json",
+      "quote": "The customer may request a copy of their stored records.",
+      "page": 2,
+      "source_match": "EXACT",
+      "reference_category": "RIGHT",
+      "actual_category": "RESTRICTION",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "PROVIDER_INVALID_OUTPUT"
+      },
+      "candidate_cross_references": [
+        "r0",
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "r11",
+        "r12",
+        "r13",
+        "r14",
+        "r15",
+        "r16"
+      ],
+      "diagnosis": "Index citation offsets invalid; semantic verifier never ran for this finding."
+    },
+    {
+      "recording": "college_live_compact.json",
+      "quote": "The customer accepts unlimited liability for all service losses.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "RISK_NOTE",
+      "actual_category": "RISK_NOTE",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "The statement is stated absolutely but lacks context defining scope, exceptions, or mutual duties; no cross-references supplied to clarify limits.",
+        "missing_qualifiers": [
+          "No definition of 'service losses'",
+          "No cap or limitation on liability stated",
+          "No reference to exclusions (e.g., indirect damages)",
+          "No mention of mutual obligations or supplier liability"
+        ],
+        "unresolved_references": [
+          "undefined term 'service losses'"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Reviewer demanded definitions, safeguards or grounds not stated in the supplied text; this does not establish that a literal document-statement claim is false. No automatic status upgrade is justified."
+    },
+    {
+      "recording": "college_live_compact.json",
+      "quote": "The customer grants an irrevocable license to submitted materials.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "RESTRICTION",
+      "actual_category": "RIGHT",
+      "actual_status": "PARTIALLY_SUPPORTED",
+      "actual_verdict": {
+        "support_status": "PARTIALLY_SUPPORTED",
+        "rationale": "The statement lacks qualifiers defining the scope of submitted materials and conditions for irrevocability. Cross-references to consent (sec_4) and venue (sec_7) are unresolved. No contradictions found, but context is incomplete.",
+        "missing_qualifiers": [
+          "scope of materials",
+          "termination conditions",
+          "consent requirements",
+          "venue specification"
+        ],
+        "unresolved_references": [
+          "sec_122d4d2a8938_4",
+          "sec_122d4d2a8938_7"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Reviewer invented unresolved section-map references and requested unstated terms; candidate category RIGHT did not mean a customer entitlement."
+    },
+    {
+      "recording": "college_live_compact.json",
+      "quote": "Invoices must be paid within thirty days.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "PAYMENT",
+      "actual_category": "PAYMENT",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Semantic verification could not complete.",
+        "missing_qualifiers": [],
+        "unresolved_references": [],
+        "method": "deterministic source validation",
+        "prompt_version": "evidence-v2.3.0",
+        "error_code": "ZERO_COST_RESPONSE_UNCONFIRMED"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "HTTP 400; the earlier harness misclassified missing error-response usage as ZERO_COST_RESPONSE_UNCONFIRMED. Exact upstream 400 message not retained."
+    },
+    {
+      "recording": "college_live_compact.json",
+      "quote": "Personal data may be shared with service providers only with consent.",
+      "page": 1,
+      "source_match": "EXACT",
+      "reference_category": "PRIVACY",
+      "actual_category": "PRIVACY",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "Statement is verbatim but lacks definition of consent, scope of service providers, or exceptions; no cross-references provided.",
+        "missing_qualifiers": [
+          "consent definition",
+          "scope of service providers",
+          "exceptions for legal obligations"
+        ],
+        "unresolved_references": [
+          "consent definition",
+          "service provider scope",
+          "legal obligation exceptions"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Reviewer demanded definitions, safeguards or grounds not stated in the supplied text; this does not establish that a literal document-statement claim is false. No automatic status upgrade is justified."
+    },
+    {
+      "recording": "college_live_compact.json",
+      "quote": "The supplier may terminate service on seven days notice.",
+      "page": 2,
+      "source_match": "EXACT",
+      "reference_category": "TERMINATION",
+      "actual_category": "TERMINATION",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "The statement is a direct quote, but the source provides no conditions or exceptions governing the termination right. Without further context on grounds for termination, the claim lacks material qualification.",
+        "missing_qualifiers": [
+          "No conditions for supplier termination right (e.g., breach, convenience) are specified in the source"
+        ],
+        "unresolved_references": [],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Reviewer demanded definitions, safeguards or grounds not stated in the supplied text; this does not establish that a literal document-statement claim is false. No automatic status upgrade is justified."
+    },
+    {
+      "recording": "college_live_compact.json",
+      "quote": "Disputes must be resolved by arbitration in the stated venue.",
+      "page": 2,
+      "source_match": "EXACT",
+      "reference_category": "DISPUTE",
+      "actual_category": "DISPUTE",
+      "actual_status": "AMBIGUOUS",
+      "actual_verdict": {
+        "support_status": "AMBIGUOUS",
+        "rationale": "The statement is supported by the exact quote, but the qualifier 'stated venue' is undefined in the context, making the assertion ambiguous.",
+        "missing_qualifiers": [
+          "The term 'stated venue' is not defined in the provided text."
+        ],
+        "unresolved_references": [
+          "stated venue"
+        ],
+        "method": "separate semantic/context model review",
+        "context_complete": true,
+        "prompt_version": "evidence-v2.3.0",
+        "provider": "openrouter",
+        "model": "dots-studio/dots-3-note-preview:free"
+      },
+      "candidate_cross_references": [],
+      "diagnosis": "Actual source ambiguity: no specific venue was supplied. Do not force support for an asserted venue."
+    }
+  ],
+  "missing_compact_candidate": "The customer may request a copy of their stored records."
+}

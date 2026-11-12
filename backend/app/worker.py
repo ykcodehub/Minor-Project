@@ -1,9 +1,12 @@
 """Durable DB worker. Run separately with `python -m app.worker`."""
 
+import copy
+import json
 import logging
 import signal
 import threading
 import time
+import uuid
 from datetime import timedelta
 
 from sqlalchemy import delete, or_, select, update
@@ -32,6 +35,83 @@ from app.services import storage
 from app.services.resources import LIMITATIONS, delete_source, flush_storage_deletions
 
 
+def save_finding(db, analysis_id, finding, sections, source_ids, unreadable=False):
+    """One provenance check for incremental and final persistence. Caller owns transaction."""
+    from app.services.verification import verify_quote
+
+    value = copy.deepcopy(finding)
+    if unreadable and value.get("support_status") == "SUPPORTED":
+        value["support_status"] = "AMBIGUOUS"
+        value.setdefault("verification", {}).update(
+            support_status="AMBIGUOUS",
+            rationale="Unextracted pages may contain material exceptions; review the complete source.",
+        )
+    checked = []
+    for citation in value.get("citations", []):
+        original = next((s for s in sections if s["id"] == citation.get("section_id")), None)
+        section = db.get(Section, citation.get("section_id"))
+        valid = verify_quote(citation, sections)
+        if (
+            not original
+            or original.get("source_id") != citation.get("source_id")
+            or not section
+            or section.source_id not in source_ids
+        ):
+            valid["match_status"] = "INVALID"
+        checked.append({**citation, **valid, "support_status": value.get("support_status", "AMBIGUOUS")})
+    value["citations"] = checked
+    if not checked or any(c["match_status"] not in ("EXACT", "NORMALIZED") for c in checked):
+        value["support_status"] = "UNSUPPORTED"
+        value["verification"] = {
+            **value.get("verification", {}),
+            "support_status": "UNSUPPORTED",
+            "rationale": "Final deterministic source validation failed; no verified interpretation is claimed.",
+        }
+        for citation in checked:
+            citation["support_status"] = "UNSUPPORTED"
+    identity = [
+        analysis_id,
+        value.get("category"),
+        " ".join(value.get("statement", "").casefold().split()),
+        [
+            (c.get("source_id"), c.get("section_id"), c.get("start"), c.get("end"), c.get("quote"))
+            for c in checked
+        ],
+    ]
+    ident = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(identity, ensure_ascii=False)))
+    value["id"] = value["finding_id"] = ident
+    record = db.get(Finding, ident)
+    if record and record.analysis_id != analysis_id:
+        raise LeaseLost()
+    if record:
+        record.data = value
+        db.execute(delete(EvidenceSpan).where(EvidenceSpan.finding_id == ident))
+    else:
+        record = Finding(id=ident, analysis_id=analysis_id, data=value)
+        db.add(record)
+    db.flush()
+    for citation in checked:
+        section = db.get(Section, citation.get("section_id"))
+        if (
+            citation["match_status"] in ("EXACT", "NORMALIZED")
+            and section
+            and section.source_id in source_ids
+        ):
+            db.add(
+                EvidenceSpan(
+                    finding_id=record.id,
+                    source_id=section.source_id,
+                    section_id=section.id,
+                    quote=citation["quote"],
+                    start=citation["start"],
+                    end=citation["end"],
+                    match_status=citation["match_status"],
+                    locator=section.data.get("locator", {}),
+                )
+            )
+    return value
+
+
 class LeaseLost(Exception):
     pass
 
@@ -47,20 +127,26 @@ def claim():
         if db.bind.dialect.name == "postgresql":
             stale_query = stale_query.with_for_update(skip_locked=True)
         for stale in db.scalars(stale_query).all():
-            stale.state, stale.stage, stale.lease_token, stale.lease_until = "FAILED", "FAILED", None, None
-            stale.error = (
+            reason = (
                 "Worker interrupted. Review provider usage before retrying; some calls may have completed."
             )
+            from app.services.job_state import fail_processing
+
+            fail_processing(db, stale.id, stale.lease_token, reason)
             if stale.kind in {"ingest", "capture"} and stale.source_id:
                 source = db.get(Source, stale.source_id)
                 if source:
                     source.status = "FAILED"
             logging.getLogger("veriora.worker").warning(
-                "recovered stale job=%s kind=%s as FAILED", stale.id, stale.kind
+                "recovered stale job=%s kind=%s as %s", stale.id, stale.kind, stale.state
             )
         db.flush()
         db.commit()
-        query = select(Job).where(Job.state == "QUEUED").order_by(Job.created_at).limit(1)
+        eligible = or_(
+            Job.state == "QUEUED",
+            (Job.state == "WAITING_RATE_LIMIT") & (Job.lease_until <= now()),
+        )
+        query = select(Job).where(eligible).order_by(Job.created_at).limit(1)
         if db.bind.dialect.name == "postgresql":
             query = query.with_for_update(skip_locked=True)
         job = db.scalar(query)
@@ -69,9 +155,11 @@ def claim():
         token = uid()
         changed = db.execute(
             update(Job)
-            .where(Job.id == job.id, Job.state == "QUEUED")
+            .where(Job.id == job.id, eligible)
+            .execution_options(synchronize_session=False)
             .values(
                 state="PROCESSING",
+                error=None,
                 lease_token=token,
                 lease_until=now() + timedelta(minutes=2),
                 attempts=Job.attempts + 1,
@@ -284,12 +372,37 @@ def process(job_id, token):
         from app.services.checkpoints import RequestCheckpoints
 
         checkpoints = RequestCheckpoints(SessionLocal, job_id, token)
+        snapshot_unreadable = any(
+            s.details.get("coverage", {}).get("pages_extracted", 0)
+            < s.details.get("coverage", {}).get("pages_total", 0)
+            for s in sources
+        )
+
+        def retain_finding(finding):
+            with SessionLocal() as snapshot_db:
+                active = ensure_active(snapshot_db, job_id, token)
+                parent = snapshot_db.scalar(select(Analysis).where(Analysis.job_id == job_id))
+                if not parent or parent.owner_id != active.owner_id:
+                    raise LeaseLost()
+                save_finding(snapshot_db, parent.id, finding, sections, source_ids, snapshot_unreadable)
+                parent.coverage = {
+                    "sections_total": len(sections),
+                    "sections_processed": 0,
+                    "chunks_total": len(chunks),
+                    "chunks_processed": 0,
+                    "warnings": ["Incremental findings retained; source processing is not complete."],
+                }
+                snapshot_db.commit()
+
         for provider in providers:
+            provider["job_id"] = job_id
+            provider["analysis_id"] = analysis.id
             provider["checkpoint"] = checkpoints
+            provider["on_finding"] = retain_finding
             provider["on_index_progress"] = lambda event: progress(
                 job_id,
                 token,
-                "VERIFYING",
+                "AI_CONTEXT_INDEXING",
                 event["windows_reviewed"],
                 event["windows_total"],
                 source_audit=event,
@@ -324,58 +437,10 @@ def process(job_id, token):
                 < s.details.get("coverage", {}).get("pages_total", 0)
                 for s in db.scalars(select(Source).where(Source.id.in_(source_ids)))
             )
-            if unreadable:
-                for finding in result["findings"]:
-                    if finding.get("support_status") == "SUPPORTED":
-                        finding["support_status"] = "AMBIGUOUS"
-                        finding.setdefault("verification", {})["support_status"] = "AMBIGUOUS"
-                        finding["verification"]["rationale"] = (
-                            "Unextracted pages may contain material exceptions; review the complete source."
-                        )
-                        for citation in finding.get("citations", []):
-                            citation["support_status"] = "AMBIGUOUS"
-            for finding in result["findings"]:
-                from app.services.verification import verify_quote
-
-                checked = []
-                for citation in finding.get("citations", []):
-                    original = next((s for s in sections if s["id"] == citation.get("section_id")), None)
-                    valid = verify_quote(citation, sections)
-                    if not original or original.get("source_id") != citation.get("source_id"):
-                        valid["match_status"] = "INVALID"
-                    checked.append(
-                        {**citation, **valid, "support_status": finding.get("support_status", "AMBIGUOUS")}
-                    )
-                finding["citations"] = checked
-                if not checked or any(c["match_status"] not in ("EXACT", "NORMALIZED") for c in checked):
-                    finding["support_status"] = "UNSUPPORTED"
-                    finding["verification"] = {
-                        **finding.get("verification", {}),
-                        "support_status": "UNSUPPORTED",
-                        "rationale": "Final deterministic source validation failed; no verified interpretation is claimed.",
-                    }
-                record = Finding(analysis_id=analysis.id, data=finding)
-                db.add(record)
-                db.flush()
-                for citation in finding.get("citations", []):
-                    section = db.get(Section, citation.get("section_id"))
-                    if (
-                        citation.get("match_status") in ("EXACT", "NORMALIZED")
-                        and section
-                        and section.source_id in source_ids
-                    ):
-                        db.add(
-                            EvidenceSpan(
-                                finding_id=record.id,
-                                source_id=section.source_id,
-                                section_id=section.id,
-                                quote=citation["quote"],
-                                start=citation["start"],
-                                end=citation["end"],
-                                match_status=citation["match_status"],
-                                locator=section.data.get("locator", {}),
-                            )
-                        )
+            for index, finding in enumerate(result["findings"]):
+                result["findings"][index] = save_finding(
+                    db, analysis.id, finding, sections, source_ids, unreadable
+                )
             incomplete_verification = any(
                 f.get("verification", {}).get("error_code")
                 or any(c.get("match_status") == "INVALID" for c in f.get("citations", []))
@@ -386,7 +451,7 @@ def process(job_id, token):
                 if failed or unreadable or incomplete_verification or result.get("warnings")
                 else "COMPLETED"
             )
-            job.stage, job.lease_token = "COMPLETED", None
+            job.stage, job.lease_token = job.state, None
             job.result = {"analysis_id": analysis.id, "findings_count": len(result["findings"])}
             db.commit()
     else:
@@ -456,21 +521,27 @@ def run_once():
                 + exc.code
                 + ". "
                 + ", ".join(codes)
-                + ". No successful verification is claimed."
+                + ". Processing is incomplete; retained findings preserve their recorded verification status."
             )
         with SessionLocal() as db:
             job = db.get(Job, job_id)
             if job and job.lease_token == token:
-                job.state, job.stage, job.error, job.lease_token = "FAILED", "FAILED", safe, None
                 if job.source_id and job.kind in ("ingest", "capture"):
                     source = db.get(Source, job.source_id)
                     if source:
                         source.status = "FAILED"
                 for call in getattr(exc, "model_calls", []):
                     db.add(ModelCall(job_id=job_id, data=call))
-                db.commit()
+                from app.services.job_state import fail_processing
+                from app.services.rate_limit_recovery import pause
+
+                if not (isinstance(exc, ProviderError) and pause(db, job_id, token, exc)):
+                    recovery_reason = (job.result or {}).get("rate_limit_recovery", {}).get("stop_reason")
+                    if recovery_reason:
+                        safe += " Automatic recovery stopped: " + recovery_reason + "."
+                    fail_processing(db, job_id, token, safe)
                 logging.getLogger("veriora.worker").warning(
-                    "job=%s FAILED error_type=%s", job_id, type(exc).__name__
+                    "job=%s state=%s error_type=%s", job_id, job.state, type(exc).__name__
                 )
     finally:
         if watchdog is not None:

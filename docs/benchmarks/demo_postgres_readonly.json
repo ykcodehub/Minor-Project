@@ -1,0 +1,12 @@
+{
+  "scope": "read-only existing PostgreSQL connection; no application records written",
+  "connection": "PASS",
+  "migration_versions": [
+    "c819ba204ae1"
+  ],
+  "evidence_foreign_keys": 3,
+  "local_migration_heads": [
+    "c819ba204ae1"
+  ],
+  "migration_head_match": true
+}

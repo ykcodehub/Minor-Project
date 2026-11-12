@@ -6,6 +6,7 @@ from app.config import settings
 from app.db import SessionLocal
 from app.models import User
 from app.providers.base import ProviderError
+from app.providers.model_policy import requires_explicit_model
 
 
 def names_for(user, payload):
@@ -41,9 +42,13 @@ def providers_for(user, payload, factory=None, *, operation="analysis"):
         "max_tokens": settings().max_ai_tokens_per_operation,
     }
     result = []
+    dynamic_model_selected = False
     owner_id = user.id
     for name in names:
         if name not in configs or not configs[name]["key"] or not configs[name]["model"]:
+            continue
+        if operation == "analysis" and requires_explicit_model(name, configs[name]["model"]):
+            dynamic_model_selected = True
             continue
 
         def authorized(name=name):
@@ -54,6 +59,7 @@ def providers_for(user, payload, factory=None, *, operation="analysis"):
         from app.services.provider_quota import hooks
 
         check, block = hooks(configs[name], factory)
+        outage_check, outage_block = hooks(configs[name], factory, category="outage")
         result.append(
             {
                 **configs[name],
@@ -62,8 +68,12 @@ def providers_for(user, payload, factory=None, *, operation="analysis"):
                 "operation": operation,
                 "quota_check": check,
                 "quota_block": block,
+                "outage_check": outage_check,
+                "outage_block": outage_block,
             }
         )
     if not result:
+        if dynamic_model_selected:
+            raise ProviderError("PROVIDER_EXPLICIT_MODEL_REQUIRED")
         raise ProviderError("PROVIDER_NOT_CONFIGURED")
     return result
